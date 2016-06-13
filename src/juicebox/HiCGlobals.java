@@ -75,7 +75,7 @@ public class HiCGlobals {
     public static boolean useCache = true;
     //public static final int bufferSize = 102400;
     public static boolean guiIsCurrentlyActive = false;
-    public static boolean printVerboseComments = false;
+    public static boolean printVerboseComments = true;
     public static boolean slideshowEnabled = false;
 
     public static MatrixType[] enabledMatrixTypesNoControl = new MatrixType[]{MatrixType.OBSERVED, MatrixType.EXPECTED,

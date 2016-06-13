@@ -74,6 +74,14 @@ public class Dataset {
     }
 
 
+    public void printCacheStatus() {
+        System.out.println("EigCache " + eigenvectorCache.values().size());
+        System.out.println("NormCache " + normalizationVectorCache.values().size());
+        if (reader != null) {
+            reader.printCacheStatus();
+        }
+    }
+
     public Matrix getMatrix(Chromosome chr1, Chromosome chr2) {
 
         // order is arbitrary, convention is lower # chr first

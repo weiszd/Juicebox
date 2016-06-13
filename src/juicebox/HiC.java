@@ -1076,6 +1076,26 @@ public class HiC {
         }
     }
 
+    public void printCacheStatus() {
+        dataset.printCacheStatus();
+        try {
+            getZd().printCacheStatus();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (eigenvectorTrack != null)
+            eigenvectorTrack.printCacheStatus();
+
+        if (controlDataset != null) {
+            controlDataset.printCacheStatus();
+            getControlZd().printCacheStatus();
+            if (controlEigenvectorTrack != null)
+                controlEigenvectorTrack.printCacheStatus();
+        }
+
+
+    }
+
     public enum ZoomCallType {STANDARD, DRAG, DIRECT, INITIAL}
 
     public enum Unit {BP, FRAG}

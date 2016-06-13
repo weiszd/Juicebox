@@ -67,7 +67,7 @@ public class DatasetReaderV2 extends AbstractDatasetReader {
     private Dataset dataset = null;
     private int version = -1;
     private Map<String, FragIndexEntry> fragmentSitesIndex;
-    private Map<String, Map<Integer, Preprocessor.IndexEntry>> blockIndexMap;
+    private Map<String, Map<Integer, Preprocessor.IndexEntry>> blockIndexMap; // is this cause of memory leak??
     private long masterIndexPos;
     private long normVectorFilePosition;
 
@@ -100,6 +100,18 @@ public class DatasetReaderV2 extends AbstractDatasetReader {
         }
         return dis.readString();
 
+    }
+
+    public void printCacheStatus() {
+        System.out.println("FragCache " + fragmentSitesCache.size());
+        if (fragmentSitesIndex != null)
+            System.out.println("fragmentSitesIndex " + fragmentSitesIndex.size());
+        if (blockIndexMap != null)
+            System.out.println("blockIndexMap " + blockIndexMap.size());
+        if (masterIndex != null)
+            System.out.println("masterIndex " + masterIndex.size());
+        if (normVectorIndex != null)
+            System.out.println("normVectorIndex " + normVectorIndex.size());
     }
 
     private MatrixZoomData readMatrixZoomData(Chromosome chr1, Chromosome chr2, int[] chr1Sites, int[] chr2Sites,

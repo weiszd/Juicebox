@@ -49,10 +49,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.text.NumberFormat;
@@ -119,9 +116,38 @@ public class HeatmapPanel extends JComponent implements Serializable {
         final HeatmapMouseHandler mouseHandler = new HeatmapMouseHandler();
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
+        setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent event) {
+                System.out.println("Key " + event.getKeyChar());
+                switch (event.getKeyCode()) {
+                    case KeyEvent.VK_UP:
+                        // up arrow
+                        hic.moveBy(0, -10);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        // down arrow
+                        hic.moveBy(0, 10);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        // right arrow
+                        hic.moveBy(10, 0);
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        // left arrow
+                        hic.moveBy(-10, 0);
+                        break;
+                }
+            }
+        });
         this.firstAnnotation = true;
     }
 
+    public void printCacheStatus() {
+        System.out.println("TileCache " + tileCache.size());
+
+    }
 
     public void setChromosomeBoundaries(int[] chromosomeBoundaries) {
         this.chromosomeBoundaries = chromosomeBoundaries;

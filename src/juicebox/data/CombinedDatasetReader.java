@@ -170,6 +170,13 @@ public class CombinedDatasetReader implements DatasetReader {
     }
 
     @Override
+    public void printCacheStatus() {
+        for (DatasetReaderV2 reader : readers) {
+            reader.printCacheStatus();
+        }
+    }
+
+    @Override
     public NormalizationVector readNormalizationVector(NormalizationType type, int chrIdx, HiC.Unit unit, int binSize) throws IOException {
         return null; // Undefined for combined datasets
     }

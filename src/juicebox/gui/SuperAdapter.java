@@ -226,6 +226,7 @@ public class SuperAdapter {
 
     public void repaint() {
         mainWindow.repaint();
+        printCacheStatus();
     }
 
     public void loadFromURLActionPerformed() {
@@ -350,6 +351,18 @@ public class SuperAdapter {
         mainWindow.repaint();
         mainViewPanel.updateThumbnail(hic);
         //System.err.println(heatmapPanel.getSize());
+
+        printCacheStatus();
+    }
+
+    private void printCacheStatus() {
+        if (HiCGlobals.printVerboseComments) {
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            hic.printCacheStatus();
+            getMainViewPanel().getHeatmapPanel().printCacheStatus();
+        }
     }
 
     private void refreshMainOnly() {

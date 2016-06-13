@@ -81,6 +81,10 @@ public class DiskResidentBlockMatrix implements BasicMatrix {
         init();
     }
 
+    public void printCacheStatus() {
+        System.out.println("ObjCache (/200) " + blockDataCache.size());
+    }
+
     public String getChr1() {
         return chr1;
     }

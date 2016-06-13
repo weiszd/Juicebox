@@ -57,7 +57,6 @@ public class EigenvectorTrack extends HiCTrack {
     private boolean isControl = false;
     private int isCtrlInt = 0;
 
-
     public EigenvectorTrack(String id, String name, HiC hic, boolean isControl) {
         super(new ResourceLocator(id));
         this.hic = hic;
@@ -70,6 +69,12 @@ public class EigenvectorTrack extends HiCTrack {
             // but genomewide doesn't have an eigenvector todo consider if *(-1) is a better option
         }
 
+    }
+
+    public void printCacheStatus() {
+        System.out.println("EigDataCache " + dataCache.size());
+        System.out.println("EigDataMaxCache " + dataMaxCache.size());
+        System.out.println("EigDataMedianCache " + medianCache.size());
     }
 
     private void setData(int chrIdx, double[] data) {

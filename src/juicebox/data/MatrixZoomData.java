@@ -68,7 +68,7 @@ public class MatrixZoomData {
     private final HashMap<NormalizationType, BasicMatrix> pearsonsMap;
     private final HashSet<NormalizationType> missingPearsonFiles;
     // Cache the last 20 blocks loaded
-    private final LRUCache<String, Block> blockCache = new LRUCache<String, Block>(20);
+    private final LRUCache<String, Block> blockCache = new LRUCache<String, Block>(1);
     DatasetReader reader;
     private double averageCount = -1;
 //    private static final SuperAdapter superAdapter = new SuperAdapter();
@@ -80,7 +80,6 @@ public class MatrixZoomData {
 //    float stdDev;
 //    float percent95 = -1;
 //    float percent80 = -1;
-
 
     /**
      * Constructor, sets the grid axes.  Called when read from file.
@@ -125,6 +124,10 @@ public class MatrixZoomData {
 
         pearsonsMap = new HashMap<NormalizationType, BasicMatrix>();
         missingPearsonFiles = new HashSet<NormalizationType>();
+    }
+
+    public void printCacheStatus() {
+        System.out.println("MatrixBlockCache " + blockCache.values().size());
     }
 
     public Chromosome getChr1() {

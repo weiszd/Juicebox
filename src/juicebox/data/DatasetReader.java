@@ -62,6 +62,8 @@ public interface DatasetReader {
 
     void close();
 
+    void printCacheStatus();
+
     NormalizationVector readNormalizationVector(NormalizationType type, int chrIdx, HiC.Unit unit, int binSize) throws IOException;
 
     BasicMatrix readPearsons(String chr1Name, String chr2Name, HiCZoom zoom, NormalizationType type) throws IOException;
