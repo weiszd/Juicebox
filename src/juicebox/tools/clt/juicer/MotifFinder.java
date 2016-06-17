@@ -111,7 +111,7 @@ public class MotifFinder extends JuicerCLT {
 
         findUniqueMotifs(chromosomes, features);
 
-        findInferredMotifs(chromosomes, features);
+        //findInferredMotifs(chromosomes, features);
 
         features.exportFeatureList(new File(outputPath), false, Feature2DList.ListFormat.NA);
         System.out.println("Motif Finder complete");
@@ -168,7 +168,8 @@ public class MotifFinder extends JuicerCLT {
     private void setUpThreeTieredFiltration() {
         for (String filename : proteinsForUniqueMotifPaths) {
             String nameLC = filename.toLowerCase();
-            if (nameLC.contains("ctcf") || nameLC.startsWith("1")) {
+            System.out.println("file " + nameLC);
+            if (nameLC.contains("ctcf") || nameLC.contains("yy1")) {
                 tierOneFiles.add(filename);
             } else if (nameLC.contains("rad21") || nameLC.startsWith("2")) {
                 tierTwoFiles.add(filename);

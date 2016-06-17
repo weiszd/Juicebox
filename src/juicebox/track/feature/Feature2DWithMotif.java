@@ -59,6 +59,13 @@ public class Feature2DWithMotif extends Feature2D {
     private String MFSEQ2 = "sequence_2";
     private String MFO2 = "orientation_2";
     private String MFU2 = "uniqueness_2";
+
+    //motif_x1 	 motif_x2 	 sequence_1 	 motif_y1 	 motif_y2 	 sequence2 	 orientation_2 	 uniqueness_2
+
+    private String oldMFS1 = "motif_x1";
+    private String oldMFE1 = "motif_x2";
+    private String oldMFS2 = "motif_y1";
+    private String oldMFE2 = "motif_y2";
     private int chr1Index, chr2Index;
 
     public Feature2DWithMotif(FeatureType featureName, String chr1, int chr1Index, int start1, int end1,
@@ -131,14 +138,29 @@ public class Feature2DWithMotif extends Feature2D {
             boolean strand1 = getAttribute(MFO1).contains("p") || getAttribute(MFO1).contains("+");
             boolean unique1 = getAttribute(MFU1).contains("u");
             String sequence1 = getAttribute(MFSEQ1);
-            int motifStart1 = Integer.parseInt(getAttribute(MFS1));
-            int motifEnd1 = Integer.parseInt(getAttribute(MFE1));
+            int motifStart1;
+            int motifEnd1;
+
+            try {
+                motifStart1 = Integer.parseInt(getAttribute(MFS1));
+                motifEnd1 = Integer.parseInt(getAttribute(MFE1));
+            } catch (Exception e) {
+                // check for older nomenclature
+                motifStart1 = Integer.parseInt(getAttribute(oldMFS1));
+                motifEnd1 = Integer.parseInt(getAttribute(oldMFE1));
+            }
 
             attributes.remove(MFO1);
             attributes.remove(MFU1);
-            attributes.remove(MFS1);
-            attributes.remove(MFE1);
             attributes.remove(MFSEQ1);
+            try {
+                attributes.remove(MFS1);
+                attributes.remove(MFE1);
+            } catch (Exception e) {
+                // check for older nomenclature
+                attributes.remove(oldMFS1);
+                attributes.remove(oldMFE1);
+            }
 
             // done last so that all info must be complete first
             // incomplete motifs will exit via catch before this point
@@ -150,18 +172,35 @@ public class Feature2DWithMotif extends Feature2D {
         } catch (Exception e) {
             // attributes not present
         }
+
+
         try {
             boolean strand2 = getAttribute(MFO2).contains("p") || getAttribute(MFO2).contains("+");
             boolean unique2 = getAttribute(MFU2).contains("u");
             String sequence2 = getAttribute(MFSEQ2);
-            int motifStart2 = Integer.parseInt(getAttribute(MFS2));
-            int motifEnd2 = Integer.parseInt(getAttribute(MFE2));
+            int motifStart2;
+            int motifEnd2;
+
+            try {
+                motifStart2 = Integer.parseInt(getAttribute(MFS2));
+                motifEnd2 = Integer.parseInt(getAttribute(MFE2));
+            } catch (Exception e) {
+                // check for older nomenclature
+                motifStart2 = Integer.parseInt(getAttribute(oldMFS2));
+                motifEnd2 = Integer.parseInt(getAttribute(oldMFE2));
+            }
 
             attributes.remove(MFO2);
             attributes.remove(MFU2);
             attributes.remove(MFSEQ2);
-            attributes.remove(MFS2);
-            attributes.remove(MFE2);
+            try {
+                attributes.remove(MFS2);
+                attributes.remove(MFE2);
+            } catch (Exception e) {
+                // check for older nomenclature
+                attributes.remove(oldMFS2);
+                attributes.remove(oldMFE2);
+            }
 
             // done last so that all info must be complete first
             // incomplete motifs will exit via catch before this point
@@ -336,7 +375,7 @@ public class Feature2DWithMotif extends Feature2D {
 
     public int getConvergenceStatus() {
 
-        // ++, +- (convergent), -+ (divergent), --, other (incomplete)
+        // ++, +- (convergent), -+ (divergent), --, other (incomplete) see below
 
         if (sequence1 != null && sequence2 != null) {
             if (unique1 && unique2) {
@@ -356,6 +395,28 @@ public class Feature2DWithMotif extends Feature2D {
             }
         }
 
-        return 4;
+        // remainders
+        // +?, -?, ?+, ?-, ??
+        if (sequence1 != null) {
+            if (unique1) {
+                if (strand1) {
+                    return 4;
+                } else {
+                    return 5;
+                }
+            }
+        }
+
+        if (sequence2 != null) {
+            if (unique2) {
+                if (strand2) {
+                    return 6;
+                } else {
+                    return 7;
+                }
+            }
+        }
+
+        return 8;
     }
 }

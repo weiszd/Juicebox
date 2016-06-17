@@ -114,7 +114,8 @@ public class CompareLists extends JuicerCLT {
 
     private void generateHistogramMetrics(Feature2DList list) {
         final int[] metrics = MotifAnchorTools.calculateConvergenceHistogram(list);
-        System.out.println("++ : " + metrics[0] + " +- : " + metrics[1] + " -+ : " + metrics[2] + " -- : " + metrics[3]);
+        System.out.println("++ : " + metrics[0] + " +- : " + metrics[1] + " -+ : " + metrics[2] + " -- : " + metrics[3]
+                + " +? : " + metrics[4] + " -? : " + metrics[5] + " ?+ : " + metrics[6] + " ?- : " + metrics[7]);
     }
 
     private void compareTwoLists(Feature2DList listA, Feature2DList listB, int compareTypeID) {

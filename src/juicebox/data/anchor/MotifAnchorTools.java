@@ -499,8 +499,8 @@ public class MotifAnchorTools {
 
     public static int[] calculateConvergenceHistogram(Feature2DList features) {
 
-        // ++, +- (convergent), -+ (divergent), --, other (incomplete)
-        final int[] results = new int[5];
+        // ++, +- (convergent), -+ (divergent), --, +?, -?, ?+, ?-, ??
+        final int[] results = new int[9];
 
         features.processLists(new FeatureFunction() {
             @Override
