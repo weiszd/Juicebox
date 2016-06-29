@@ -50,8 +50,7 @@ public class CLTFactory {
             "pre", "pre <options> <infile> <outfile> <genomeID>",
             "apa", "apa <HiC file(s)> <PeaksFile> <SaveFolder>",
             "arrowhead", "arrowhead <HiC file(s)> <outfile>",
-            "hiccups", "hiccups <HiC file(s)> <finalLoopsList>",
-            "hiccupsdiff", "hiccupsdiff <HiC file1> <HiC file2> <peak list1> <peak list2> <output directory>"
+            "hiccups", "hiccups <HiC file(s)> <finalLoopsDirectory>"
     };
 
     public static void generalUsage() {
@@ -94,8 +93,6 @@ public class CLTFactory {
             return new FragmentToBed();
         } else if (cmd.equals("hiccups")) {
             return new HiCCUPS();
-        } else if (cmd.equals("loop_domains")) {
-            return new LoopDomains();
         } else if (cmd.equals("motifs")) {
             return new MotifFinder();
         } else if (cmd.equals("pairsToBin".toLowerCase())) {
