@@ -31,7 +31,7 @@ class HiCFileTools2 {
     public static Dataset22 extractDatasetForCLT(List<String> files) {
         Dataset22 dataset = null;
         try {
-            AbstractDatasetReader2 reader = null;
+            DatasetReader2V3 reader = null;
             if (files.size() == 1) {
                 String magicString = DatasetReader2V3.getMagicString(files.get(0));
                 if (magicString.equals("HIC")) {
@@ -61,7 +61,7 @@ class HiCFileTools2 {
         return dataset;
     }
 
-    public static AbstractDatasetReader2 getReader(List<String> fileList) throws IOException {
+    public static DatasetReader2V3 getReader(List<String> fileList) throws IOException {
 
         if (fileList.size() == 1) {
             String file = fileList.get(0);

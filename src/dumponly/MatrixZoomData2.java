@@ -43,7 +43,7 @@ public class MatrixZoomData2 {
     private final int Block2ColumnCount;     // number of Block2 columns
     // Cache the last 20 Block2s loaded
     private final LRUCache<String, Block2> Block2Cache = new LRUCache<String, Block2>(20);
-    private final AbstractDatasetReader2 reader;
+    private final DatasetReader2V3 reader;
 
     /**
      * Constructor, sets the grid axes.  Called when read from file.
@@ -56,7 +56,7 @@ public class MatrixZoomData2 {
      * @param reader           Pointer to file reader
      */
     public MatrixZoomData2(Chromosome chr1, Chromosome chr2, HiCZoom2 zoom, int Block2BinCount, int Block2ColumnCount,
-                           AbstractDatasetReader2 reader) {
+                           DatasetReader2V3 reader) {
 
         this.reader = reader;
 

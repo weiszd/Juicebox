@@ -37,7 +37,7 @@ public class Dataset22 {
 
     // private boolean caching = true;
     private final Map<String, Matrix2> matrices = new HashMap<String, Matrix2>(25 * 25);
-    private final AbstractDatasetReader2 reader;
+    private final DatasetReader2V3 reader;
     private final LRUCache<String, NormalizationVector2> normalizationVectorCache;
     //Chromosome lookup table
     private List<Chromosome> chromosomes;
@@ -46,7 +46,7 @@ public class Dataset22 {
     private List<Integer> bpZoomResolutions;
     private List<NormalizationType2> normalizationTypes;
 
-    public Dataset22(AbstractDatasetReader2 reader) {
+    public Dataset22(DatasetReader2V3 reader) {
         this.reader = reader;
         normalizationVectorCache = new LRUCache<String, NormalizationVector2>(20);
         normalizationTypes = new ArrayList<NormalizationType2>();

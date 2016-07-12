@@ -37,13 +37,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class DatasetReader2V3 extends AbstractDatasetReader2 {
+public class DatasetReader2V3 {
 
     /**
      * Cache of chromosome name -> array of restriction sites
      */
     private final Map<String, int[]> fragmentSitesCache = new HashMap<String, int[]>();
     private final CompressionUtils compressionUtils;
+    private final String path;
     private SeekableStream stream;
     private Map<String, IndexEntry> masterIndex;
     private Map<String, IndexEntry> normVectorIndex;
@@ -55,7 +56,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
     public DatasetReader2V3(String path) throws IOException {
 
-        super(path);
+        this.path = path;
         this.stream = IGVSeekableStreamFactory.getInstance().getStreamFor(path);
 
         if (this.stream != null) {
@@ -127,7 +128,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         return zd;
     }
 
-    @Override
     public Dataset22 read() throws IOException {
 
         try {
@@ -263,8 +263,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
     }
 
-
-    @Override
     public int getVersion() {
         return version;
     }
@@ -326,7 +324,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
         if (version >= 6) {
 
-            //dis = new LittleEndianInputStream(new BufferedInputStream(stream, 512000));
             dis = new LittleEndianInputStream(new BufferedInputStream(stream, MyGlobals.bufferSize));
 
             try {
@@ -387,7 +384,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         }
     }
 
-    @Override
     public Matrix2 readMatrix(String key) throws IOException {
         IndexEntry idx = masterIndex.get(key);
         if (idx == null) {
@@ -434,17 +430,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         return new Matrix2(zdList);
     }
 
-    public int getFragCount(Chromosome chromosome) {
-        FragIndexEntry entry = null;
-        if (fragmentSitesIndex != null)
-            entry = fragmentSitesIndex.get(chromosome.getName());
-
-        if (entry != null) {
-            return entry.nSites;
-        } else return -1;
-    }
-
-    @Override
     synchronized public Block2 readBlock(int blockNumber, MatrixZoomData2 zd) throws IOException {
 
         Block2 b = null;
@@ -459,13 +444,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 byte[] compressedBytes = new byte[idx.size];
                 stream.seek(idx.position);
                 stream.readFully(compressedBytes);
-//                System.out.println();
-//                System.out.print("ID: ");
-//                System.out.print(idx.id);
-//                System.out.print(" Pos: ");
-//                System.out.print(idx.position);
-//                System.out.print(" Size: ");
-//                System.out.println(idx.size);
                 byte[] buffer;
 
                 try {
@@ -553,7 +531,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         return b;
     }
 
-    @Override
     public Block2 readNormalizedBlock(int blockNumber, MatrixZoomData2 zd, NormalizationType2 no) throws IOException {
 
 
@@ -593,13 +570,11 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         }
     }
 
-    @Override
     public List<Integer> getBlockNumbers(MatrixZoomData2 zd) {
         Map<Integer, IndexEntry> blockIndex = blockIndexMap.get(zd.getKey());
         return blockIndex == null ? null : new ArrayList<Integer>(blockIndex.keySet());
     }
 
-    @Override
     public synchronized NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException {
 
         String key = NormalizationVector2.getKey(type, chrIdx, unit.toString(), binSize);
@@ -626,7 +601,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
 
     }
-
 
     static class FragIndexEntry {
         final long position;
