@@ -37,17 +37,15 @@ public class Block2 {
 
     private final List<ContactRecord2> records;
 
-    public Block2(int number) {
+    public Block2() {
         records = new ArrayList<ContactRecord2>();
     }
 
-    public Block2(int number, List<ContactRecord2> records) {
+    public Block2(List<ContactRecord2> records) {
         this.records = records;
     }
 
     public Collection<ContactRecord2> getContactRecords() {
         return records;
     }
-
-
 }

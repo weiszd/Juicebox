@@ -26,7 +26,6 @@
 package dumponly;
 
 import htsjdk.tribble.util.LittleEndianOutputStream;
-import org.apache.log4j.Logger;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.util.collections.LRUCache;
 
@@ -41,7 +40,6 @@ import java.util.*;
  */
 public class MatrixZoomData2 {
 
-    private static final Logger log = Logger.getLogger(MatrixZoomData2.class);
     private final Chromosome chr1;  // Chromosome on the X axis
     private final Chromosome chr2;  // Chromosome on the Y axis
     private final HiCZoom2 zoom;    // Unit and bin size
@@ -51,16 +49,6 @@ public class MatrixZoomData2 {
     // Cache the last 20 Block2s loaded
     private final LRUCache<String, Block2> Block2Cache = new LRUCache<String, Block2>(20);
     private final AbstractDatasetReader2 reader;
-//    private static final SuperAdapter superAdapter = new SuperAdapter();
-//    private static final Slideshow slideshow = superAdapter.getSlideshow();
-
-
-//    float sumCounts;
-//    float avgCounts;
-//    float stdDev;
-//    float percent95 = -1;
-//    float percent80 = -1;
-
 
     /**
      * Constructor, sets the grid axes.  Called when read from file.
@@ -275,7 +263,7 @@ public class MatrixZoomData2 {
                         currentBlock2Iterator = nextBlock2.getContactRecords().iterator();
                         return true;
                     } catch (IOException e) {
-                        log.error("Error fetching Block2 ", e);
+                        System.err.println("Error fetching Block2");
                         return false;
                     }
                 }

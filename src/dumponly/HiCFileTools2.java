@@ -24,6 +24,7 @@
 
 package dumponly;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ class HiCFileTools2 {
             } else {
                 if (false)
                     System.out.println("Reading summed files: " + files);
-                reader = DatasetReaderFactory2.getReader(files);
+                reader = getReader(files);
                 if (reader == null) {
                     System.err.println("Error while reading files");
                     System.exit(33);
@@ -61,5 +62,31 @@ class HiCFileTools2 {
             System.exit(34);
         }
         return dataset;
+    }
+
+    public static AbstractDatasetReader2 getReader(List<String> fileList) throws IOException {
+
+        if (fileList.size() == 1) {
+            String file = fileList.get(0);
+            return getReaderForFile(file);
+        } else {
+            System.err.println("This simplified reader does not support combined datasets." +
+                    " Please merge the maps into a megamap first.");
+            System.exit(100);
+            return null;
+        }
+    }
+
+    private static DatasetReader2V3 getReaderForFile(String file) throws IOException {
+        String magicString = DatasetReader2V3.getMagicString(file);
+
+        if (magicString != null) {
+            if (magicString.equals("HIC")) {
+                return new DatasetReader2V3(file);
+            } else {
+                System.err.println("This version is deprecated and is no longer supported.");
+            }
+        }
+        return null;
     }
 }

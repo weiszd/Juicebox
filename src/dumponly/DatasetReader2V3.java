@@ -547,13 +547,13 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                         throw new RuntimeException("Unknown Block2 type: " + type);
                     }
                 }
-                b = new Block2(blockNumber, records);
+                b = new Block2(records);
             }
         }
 
         // If no Block2 exists, mark with an "empty block" to prevent further attempts
         if (b == null) {
-            b = new Block2(blockNumber);
+            b = new Block2();
         }
         return b;
     }
@@ -594,7 +594,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             //double sparsity = (normRecords.size() * 100) / (Preprocessor.BLOCK_SIZE * Preprocessor.BLOCK_SIZE);
             //System.out.println(sparsity);
 
-            return new Block2(blockNumber, normRecords);
+            return new Block2(normRecords);
         }
     }
 
