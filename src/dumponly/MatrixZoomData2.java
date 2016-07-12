@@ -394,7 +394,7 @@ public class MatrixZoomData2 {
         boolean usePrintWriter = printWriter != null && les == null;
         boolean isIntraChromosomal = chr1.getIndex() == chr2.getIndex();
 
-        if (matrixType2 == MatrixType2.PEARSON) {
+        if (matrixType2 == null) {
             return;
         }
 
@@ -417,17 +417,6 @@ public class MatrixZoomData2 {
                     int xActual = x * zoom.getBinSize();
                     int yActual = y * zoom.getBinSize();
                     float oeVal = 0f;
-                    if (matrixType2 == MatrixType2.OE) {
-                        int dist = Math.abs(x - y);
-                        double expected = 0;
-                        try {
-                            expected = df.getExpectedValue(chr1.getIndex(), dist);
-                        } catch (Exception e) {
-                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                        }
-                        double observed = rec.getCounts(); // Observed is already normalized
-                        oeVal = (float) (observed / expected);
-                    }
                     if (!useRegionIndices || // i.e. use full matrix
                             // or check regions that overlap with upper left
                             (xActual >= regionIndices[0] && xActual <= regionIndices[1] &&
@@ -439,18 +428,12 @@ public class MatrixZoomData2 {
                         if (usePrintWriter) {
                             if (matrixType2 == MatrixType2.OBSERVED) {
                                 printWriter.println(xActual + "\t" + yActual + "\t" + counts);
-                            } else if (matrixType2 == MatrixType2.OE) {
-                                printWriter.println(xActual + "\t" + yActual + "\t" + oeVal);
                             }
                         } else {
                             if (matrixType2 == MatrixType2.OBSERVED) {
                                 les.writeInt(x);
                                 les.writeInt(y);
                                 les.writeFloat(counts);
-                            } else if (matrixType2 == MatrixType2.OE) {
-                                les.writeInt(x);
-                                les.writeInt(y);
-                                les.writeFloat(oeVal);
                             }
                         }
                     }
@@ -463,70 +446,6 @@ public class MatrixZoomData2 {
         }
     }
 
-    public void dump1DTrackFromCrossHairAsWig(PrintWriter printWriter, Chromosome chromosomeForPosition,
-                                              int binStartPosition, boolean isIntraChromosomal, int[] regionBinIndices,
-                                              NormalizationType2 norm, MatrixType2 matrixType2,
-                                              ExpectedValueFunction2 expectedValues) throws IOException {
-
-        if (!MatrixType2.isObservedOrControl(matrixType2)) {
-            System.out.println("This feature is only available for Observed or Control views");
-            return;
-        }
-
-        int binCounter = 0;
-
-        // Get the Block2 index keys, and sort
-        List<Integer> Block2sToIterateOver = getBlock2NumbersForRegionFromBinPosition(regionBinIndices);
-        Collections.sort(Block2sToIterateOver);
-
-        for (Integer Block2Number : Block2sToIterateOver) {
-            Block2 b = reader.readNormalizedBlock(Block2Number, MatrixZoomData2.this, norm);
-            if (b != null) {
-                for (ContactRecord2 rec : b.getContactRecords()) {
-                    float counts = rec.getCounts();
-                    int x = rec.getBinX();
-                    int y = rec.getBinY();
-
-                    if (    //check regions that overlap with upper left
-                            (x >= regionBinIndices[0] && x <= regionBinIndices[1] &&
-                                    y >= regionBinIndices[2] && y <= regionBinIndices[3]) ||
-                                    // or check regions that overlap with lower left
-                                    (isIntraChromosomal && x >= regionBinIndices[2] && x <= regionBinIndices[3] &&
-                                            y >= regionBinIndices[0] && y <= regionBinIndices[1])) {
-                        // but leave in upper right triangle coordinates
-
-                        if (x == binStartPosition) {
-                            while (binCounter < y) {
-                                printWriter.println("0");
-                                binCounter++;
-                            }
-                        } else if (y == binStartPosition) {
-                            while (binCounter < x) {
-                                printWriter.println("0");
-                                binCounter++;
-                            }
-                        } else {
-                            System.err.println("Something went wrong while generating 1D track");
-                            System.err.println("Improper input was likely provided");
-                        }
-
-                        printWriter.println(counts);
-                        binCounter++;
-
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns the average count
-     *
-     * @return Average count
-     */
-    public double getAverageCount() {
-        return averageCount;
-    }
 
     /**
      * Sets the average count

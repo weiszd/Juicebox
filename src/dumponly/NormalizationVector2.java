@@ -32,17 +32,9 @@ package dumponly;
  */
 public class NormalizationVector2 {
 
-    private final NormalizationType2 type;
-    private final int chrIdx;
-    private final HiCZoom2.Unit unit;
-    private final int resolution;
     private final double[] data;
 
     public NormalizationVector2(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int resolution, double[] data) {
-        this.type = type;
-        this.chrIdx = chrIdx;
-        this.unit = unit;
-        this.resolution = resolution;
         this.data = data;
     }
 
@@ -50,9 +42,6 @@ public class NormalizationVector2 {
         return type + "_" + chrIdx + "_" + unit + "_" + resolution;
     }
 
-    public String getKey() {
-        return NormalizationVector2.getKey(type, chrIdx, unit.toString(), resolution);
-    }
 
     public double[] getData() {
         return data;

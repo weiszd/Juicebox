@@ -25,16 +25,7 @@
 package dumponly;
 
 public enum MatrixType2 {
-    OBSERVED("Observed"),
-    OE("O/E"),
-    PEARSON("Pearson"),
-    EXPECTED("Expected"),
-    RATIO("Observed/Control"),
-    DIFF("Diff"),
-    VS("VS"),
-    CONTROL("Control"),
-    NORM("Norm"),
-    EIGENVECTOR("Eigenvector");
+    OBSERVED("Observed");
     private final String value;
 
     MatrixType2(String value) {
@@ -42,113 +33,12 @@ public enum MatrixType2 {
     }
 
     public static MatrixType2 enumValueFromString(String text) {
-        if (text != null) {
-            for (MatrixType2 matrix : MatrixType2.values()) {
-                if (text.equalsIgnoreCase(matrix.value)) {
-                    return matrix;
-                }
-            }
-            if (text.equalsIgnoreCase("oe")) {
-                return OE;
-            }
+        if (text != null && text.equalsIgnoreCase(OBSERVED.value)) {
+            return OBSERVED;
         }
+        System.err.println("Invalid matrixType: " + text);
+        System.exit(101);
         return null;
-    }
-
-    /**
-     * @param option
-     * @return true is the option is generally available all maps or resolutions
-     */
-    public static boolean isObservedOrControl(MatrixType2 option) {
-        return option == OBSERVED || option == CONTROL;
-    }
-
-    /**
-     * @param option
-     * @return true is the option is generally available all maps or resolutions
-     */
-    public static boolean isSimpleType(MatrixType2 option) {
-        return isSimpleObservedOrControlType(option) || option == EXPECTED;
-    }
-
-    /**
-     * @param option
-     * @return true is the option can be manipulated by the color range slider
-     */
-    public static boolean isColorScaleType(MatrixType2 option) {
-        return isComparisonType(option) || isSimpleObservedOrControlType(option);
-    }
-
-    /**
-     * @param option
-     * @return true is the option is generally available for maps, but does not use expected vector
-     */
-    private static boolean isSimpleObservedOrControlType(MatrixType2 option) {
-        return option == OBSERVED || isControlVSDiffType(option);
-    }
-
-    /**
-     * @param option
-     * @return true if the option should allowed in genome-wide view
-     */
-    public static boolean isValidGenomeWideOption(MatrixType2 option) {
-        return option == OBSERVED || isControlType(option);
-    }
-
-    /**
-     * @param option
-     * @return true if the option involves comparison/divis
-     */
-    private static boolean isComparisonType(MatrixType2 option) {
-        return option == OE || option == RATIO;
-    }
-
-    /**
-     * @param option
-     * @return true if the option only works for intrachromosomal maps
-     */
-    public static boolean isOnlyIntrachromosomalType(MatrixType2 option) {
-        return option == PEARSON || option == VS; //|| option == OE
-    }
-
-    /**
-     * @param option
-     * @return true if the option requires control map
-     */
-    private static boolean isControlType(MatrixType2 option) {
-        return isControlVSDiffType(option) || option == RATIO;
-    }
-
-    /**
-     * @param option
-     * @return true if the option is Control, VS, or DIFF
-     */
-    private static boolean isControlVSDiffType(MatrixType2 option) {
-        return option == MatrixType2.CONTROL || option == VS || option == DIFF;
-    }
-
-    /**
-     * @param option
-     * @return true if the option requires the expected vector
-     */
-    public static boolean isExpectedValueType(MatrixType2 option) {
-        return option == OE || option == PEARSON;
-    }
-
-    /**
-     * @param option
-     * @return true if the option is dumped (clt) as a vector
-     */
-    public static boolean isDumpVectorType(MatrixType2 option) {
-        return option == NORM || option == EXPECTED || option == EIGENVECTOR;
-    }
-
-    /**
-     * @param option
-     * @return true if the option is dumped (clt) as a matrix
-     */
-    public static boolean isDumpMatrixType(MatrixType2 option) {
-        return option == OE || option == PEARSON || option == OBSERVED;
     }
 
     public String toString() {

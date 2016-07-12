@@ -28,34 +28,11 @@ package dumponly;
  * @author jrobinso Date: 8/31/13  9:47 PM
  */
 public enum NormalizationType2 {
-    NONE("None"),
-    VC("Coverage"),
-    VC_SQRT("Coverage (Sqrt)"),
-    KR("Balanced"),
-    GW_KR("Genome-wide balanced"),
-    INTER_KR("Inter balanced"),
-    GW_VC("Genome-wide coverage"),
-    INTER_VC("Inter coverage"),
-    LOADED("Loaded");
-    private final String label;
-
-    NormalizationType2(String label) {
-        this.label = label;
-    }
-
-    public static NormalizationType2 enumValueFromString(String text) {
-        if (text != null) {
-            for (NormalizationType2 norm : NormalizationType2.values()) {
-                if (text.equalsIgnoreCase(norm.label)) {
-                    return norm;
-                }
-            }
-        }
-        return null;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
+    NONE,
+    VC,
+    KR,
+    GW_KR,
+    INTER_KR,
+    GW_VC,
+    INTER_VC
 }

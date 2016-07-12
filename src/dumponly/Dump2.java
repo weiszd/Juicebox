@@ -84,44 +84,7 @@ class Dump2 {
         NormalizationCalculations2 calculations = new NormalizationCalculations2(recordArrayList, totalSize);
         double[] vector = calculations.getNorm(norm);
 
-        if (matrixType2 == MatrixType2.NORM) {
-
-            ExpectedValueCalculation2 evKR = new ExpectedValueCalculation2(chromosomeList, zoom.getBinSize(), NormalizationType2.GW_KR);
-            int addY = 0;
-            // Loop through chromosomes
-            for (Chromosome chr : chromosomeList) {
-
-                if (chr.getName().equals(Globals.CHR_ALL)) continue;
-                final int chrIdx = chr.getIndex();
-                Matrix2 matrix = dataset.getMatrix(chr, chr);
-
-                if (matrix == null) continue;
-                MatrixZoomData2 zd = matrix.getZoomData(zoom);
-                Iterator<ContactRecord2> iter = zd.contactRecordIterator();
-                while (iter.hasNext()) {
-                    ContactRecord2 cr = iter.next();
-                    int x = cr.getBinX();
-                    int y = cr.getBinY();
-                    final float counts = cr.getCounts();
-                    if (vector[x + addY] > 0 && vector[y + addY] > 0 && !Double.isNaN(vector[x + addY]) && !Double.isNaN(vector[y + addY])) {
-                        double value = counts / (vector[x + addY] * vector[y + addY]);
-                        evKR.addDistance(chrIdx, x, y, value);
-                    }
-                }
-
-                addY += chr.getLength() / zoom.getBinSize() + 1;
-            }
-            evKR.computeDensity();
-            double[] exp = evKR.getDensityAvg();
-            System.out.println(binSize + "\t" + vector.length + "\t" + exp.length);
-            for (double aVector : vector) {
-                System.out.println(aVector);
-            }
-
-            for (double aVector : exp) {
-                System.out.println(aVector);
-            }
-        } else {   // type == "observed"
+        if (matrixType2 == MatrixType2.OBSERVED) {   // type == "observed"
 
             for (ContactRecord2 cr : recordArrayList) {
                 int x = cr.getBinX();
@@ -195,14 +158,6 @@ class Dump2 {
                 les = new LittleEndianOutputStream(bos);
             } else {
                 txtWriter = new PrintWriter(new FileOutputStream(ofile));
-            }
-        }
-
-        if (MatrixType2.isOnlyIntrachromosomalType(matrixType2) || matrixType2 == MatrixType2.OE) {
-            if (!chr1.equals(chr2)) {
-                System.err.println("Chromosome " + chr1 + " not equal to Chromosome " + chr2);
-                System.err.println("Currently only intrachromosomal O/E, Pearson's, and VS are supported.");
-                System.exit(11);
             }
         }
 
@@ -326,7 +281,7 @@ class Dump2 {
         }
 
 
-        if ((matrixType2 == MatrixType2.OBSERVED || matrixType2 == MatrixType2.NORM) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
+        if (matrixType2 == MatrixType2.OBSERVED && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
 
             if (args.length == idx + 5) {
                 includeIntra = true;
@@ -396,7 +351,7 @@ class Dump2 {
         //*****************************************************
         if ((matrixType2 == MatrixType2.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
             dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType2, binSize);
-        } else if (MatrixType2.isDumpMatrixType(matrixType2)) {
+        } else {
             try {
                 dumpMatrix(dataset, chromosomeMap.get(chr1), chromosomeMap.get(chr2), norm, zoom, matrixType2, ofile);
             } catch (Exception e) {

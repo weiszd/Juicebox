@@ -44,7 +44,6 @@ public class ContactRecord2 implements Comparable<ContactRecord2> {
      * Total number of counts, or cumulative score
      */
     private float counts;
-    private String key;
 
     public ContactRecord2(int binX, int binY, float counts) {
         this.binX = binX;

@@ -424,7 +424,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
             ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(no, unit, binSize, values, normFactors);
             expectedValuesMap.put(key, df);
-            dataset.setExpectedValueFunctionMap(expectedValuesMap);
+            //dataset.setExpectedValueFunctionMap(expectedValuesMap);
 
         }
 
@@ -747,7 +747,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
     public static class IndexEntry {
         public final long position;
         public final int size;
-        
+
         public IndexEntry(long position, int size) {
             this.position = position;
             this.size = size;

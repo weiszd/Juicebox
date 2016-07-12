@@ -25,15 +25,11 @@
 package dumponly;
 
 import org.apache.commons.math.stat.StatUtils;
-import org.broad.igv.Globals;
 import org.broad.igv.util.collections.FloatArrayList;
 import org.broad.igv.util.collections.IntArrayList;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 
 /**
@@ -51,86 +47,12 @@ class NormalizationCalculations2 {
     private int totSize;
     private boolean isEnoughMemory = false;
 
-    public NormalizationCalculations2(MatrixZoomData2 zd) {
-        if (zd.getChr1Idx() != zd.getChr2Idx()) {
-            throw new RuntimeException("Norm cannot be calculated for inter-chr matrices.");
-        }
-        Iterator<ContactRecord2> iter1 = zd.contactRecordIterator();
-        int count = 0;
-        while (iter1.hasNext()) {
-            iter1.next();
-            count++;
-        }
-        if (count * 1000 < Runtime.getRuntime().maxMemory()) {
-            isEnoughMemory = true;
-
-            this.list = new ArrayList<ContactRecord2>();
-            Iterator<ContactRecord2> iter = zd.contactRecordIterator();
-            while (iter.hasNext()) {
-                ContactRecord2 cr = iter.next();
-                list.add(cr);
-            }
-            this.totSize = zd.getXGridAxis().getBinCount();
-        }
-    }
-
     public NormalizationCalculations2(ArrayList<ContactRecord2> list, int totSize) {
         this.list = list;
         this.totSize = totSize;
     }
 
-    public static void calcKR(String path) throws IOException {
 
-        BufferedReader reader = org.broad.igv.util.ParsingUtils.openBufferedReader(path);
-
-        String nextLine;
-        int lineCount = 0;
-        int maxBin = 0;
-        ArrayList<ContactRecord2> readList = new ArrayList<ContactRecord2>();
-        while ((nextLine = reader.readLine()) != null) {
-            lineCount++;
-            String[] tokens = Globals.singleTabMultiSpacePattern.split(nextLine);
-            int nTokens = tokens.length;
-            if (nTokens != 3) {
-                System.err.println("Number of columns incorrect at line" + lineCount + ": " + nextLine);
-                System.exit(62);
-            }
-            int binX = Integer.parseInt(tokens[0]);
-            int binY = Integer.parseInt(tokens[1]);
-            int count = Integer.parseInt(tokens[2]);
-            ContactRecord2 record = new ContactRecord2(binX, binY, count);
-            readList.add(record);
-            if (binX > maxBin) maxBin = binX;
-            if (binY > maxBin) maxBin = binY;
-        }
-        NormalizationCalculations2 nc = new NormalizationCalculations2(readList, maxBin + 1);
-        double[] norm = nc.getNorm(NormalizationType2.KR);
-        for (double d : norm) {
-            System.out.println(d);
-        }
-
-    }
-
-    /*
-    function [x,res] = bnewt(A,tol,x0,delta,fl)
-          % BNEWT A balancing algorithm for symmetric matrices
-    %
-    % X = BNEWT(A) attempts to find a vector X such that
-    % diag(X)*A*diag(X) is close to doubly stochastic. A must
-    % be symmetric and nonnegative.
-    %
-    % X0: initial guess. TOL: error tolerance.
-    % DEL: how close balancing vectors can get to the edge of the
-          % positive cone. We use a relative measure on the size of elements.
-    % FL: intermediate convergence statistics on/off.
-          % RES: residual error, measured by norm(diag(x)*A*x - e).
-          % Initialise
-          [n,n]=size(A); e = ones(n,1); res=[];
-           if nargin < 5, fl = 0; end
-        if nargin < 4, delta = 0.1; end
-        if nargin < 3, x0 = e; end
-        if nargin < 2, tol = 1e-6; end
-    */
     private static double[] computeKRNormVector(SparseSymmetricMatrix A, double[] x0) {
 
 
@@ -262,9 +184,6 @@ class NormalizationCalculations2 {
         return x0;
     }
 
-    public boolean isEnoughMemory() {
-        return isEnoughMemory;
-    }
 
     public double[] getNorm(NormalizationType2 normOption) {
         double[] norm;

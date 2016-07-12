@@ -24,8 +24,6 @@
 
 package dumponly;
 
-import org.broad.igv.Globals;
-
 /**
  * @author jrobinso
  *         Date: 9/14/12
@@ -34,53 +32,12 @@ import org.broad.igv.Globals;
 public class HiCFixedGridAxis2 {
 
     private final int binCount;
-    private final int binSize;
-    private final int igvZoom;
-    private final int[] sites;
 
     public HiCFixedGridAxis2(int binCount, int binSize, int[] sites) {
 
         this.binCount = binCount;
-        this.binSize = binSize;
-        this.sites = sites;
-
-        // Compute an approximate igv zoom level
-        igvZoom = Math.max(0, (int) (Math.log(binCount / 700) / Globals.log2));
-
     }
 
-    public int getBinSize() {
-        return binSize;
-    }
-
-    public int getGenomicStart(double binNumber) {
-        return (int) (binNumber * binSize);
-    }
-
-    public int getGenomicEnd(double binNumber) {
-        return (int) ((binNumber + 1) * binSize);
-    }
-
-    public int getGenomicMid(double binNumber) {
-        return (int) ((binNumber + 0.5) * binSize);
-    }
-
-    public int getIGVZoom() {
-        return igvZoom;
-    }
-
-    private int getBinNumberForGenomicPosition(int genomicPosition) {
-        return (int) (genomicPosition / ((double) binSize));
-    }
-
-    public int getBinNumberForFragment(int fragment) {
-
-        if (fragment < sites.length && fragment >= 0) {
-            int genomicPosition = sites[fragment];
-            return getBinNumberForGenomicPosition(genomicPosition);
-        }
-        throw new RuntimeException("Fragment: " + fragment + " is out of range");
-    }
 
     public int getBinCount() {
         return binCount;

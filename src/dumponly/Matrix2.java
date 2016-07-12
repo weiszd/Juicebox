@@ -37,8 +37,6 @@ import java.util.List;
  */
 public class Matrix2 {
 
-    private final int chr1;
-    private final int chr2;
     private List<MatrixZoomData2> bpZoomData;
     private List<MatrixZoomData2> fragZoomData;
 
@@ -50,17 +48,11 @@ public class Matrix2 {
      * @param zoomDataList
      */
     public Matrix2(int chr1, int chr2, List<MatrixZoomData2> zoomDataList) {
-        this.chr1 = chr1;
-        this.chr2 = chr2;
         initZoomDataMap(zoomDataList);
     }
 
     public static String generateKey(int chr1, int chr2) {
         return "" + chr1 + "_" + chr2;
-    }
-
-    public String getKey() {
-        return generateKey(chr1, chr2);
     }
 
     private void initZoomDataMap(List<MatrixZoomData2> zoomDataList) {
@@ -87,24 +79,6 @@ public class Matrix2 {
 
     }
 
-    public MatrixZoomData2 getFirstZoomData(HiCZoom2.Unit unit) {
-        if (unit == HiCZoom2.Unit.BP) {
-            return bpZoomData != null ? bpZoomData.get(0) : null;
-        } else {
-            return fragZoomData != null ? fragZoomData.get(0) : null;
-        }
-
-    }
-
-    public MatrixZoomData2 getFirstPearsonZoomData(HiCZoom2.Unit unit) {
-        if (unit == HiCZoom2.Unit.BP) {
-            return bpZoomData != null ? bpZoomData.get(2) : null;
-        } else {
-            return fragZoomData != null ? fragZoomData.get(2) : null;
-        }
-
-    }
-
     public MatrixZoomData2 getZoomData(HiCZoom2 zoom) {
         List<MatrixZoomData2> zdList = (zoom.getUnit() == HiCZoom2.Unit.BP) ? bpZoomData : fragZoomData;
         //linear search for bin size, the lists are not large
@@ -115,13 +89,5 @@ public class Matrix2 {
         }
 
         return null;
-    }
-
-    public int getNumberOfZooms(HiCZoom2.Unit unit) {
-        return (unit == HiCZoom2.Unit.BP) ? bpZoomData.size() : fragZoomData.size();
-    }
-
-    public boolean isIntra() {
-        return chr1 == chr2;
     }
 }

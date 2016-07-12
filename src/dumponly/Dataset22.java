@@ -49,7 +49,6 @@ public class Dataset22 {
     private final LRUCache<String, NormalizationVector2> normalizationVectorCache;
     //Chromosome lookup table
     private List<Chromosome> chromosomes;
-    private Map<String, ExpectedValueFunction2> expectedValueFunctionMap;
     private List<HiCZoom2> bpZooms;
     private List<HiCZoom2> fragZooms;
     private List<Integer> bpZoomResolutions;
@@ -97,15 +96,6 @@ public class Dataset22 {
         return unit == HiCZoom2.Unit.BP ? bpZooms.get(index) : fragZooms.get(index);
     }
 
-    private ExpectedValueFunction2 getExpectedValues(HiCZoom2 zoom, NormalizationType2 type) {
-        if (expectedValueFunctionMap == null || zoom == null || type == null) return null;
-        String key = zoom.getKey() + "_" + type.toString(); // getUnit() + "_" + zoom.getBinSize();
-        return expectedValueFunctionMap.get(key);
-    }
-
-    public void setExpectedValueFunctionMap(Map<String, ExpectedValueFunction2> df) {
-        this.expectedValueFunctionMap = df;
-    }
 
     public List<Chromosome> getChromosomes() {
         return chromosomes;

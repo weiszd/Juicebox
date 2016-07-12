@@ -35,17 +35,13 @@ import java.util.List;
  */
 public class Block2 {
 
-    private final int number;
-
     private final List<ContactRecord2> records;
 
     public Block2(int number) {
-        this.number = number;
         records = new ArrayList<ContactRecord2>();
     }
 
     public Block2(int number, List<ContactRecord2> records) {
-        this.number = number;
         this.records = records;
     }
 
