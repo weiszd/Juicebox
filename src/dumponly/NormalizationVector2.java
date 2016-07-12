@@ -25,11 +25,6 @@
 
 package dumponly;
 
-/**
- * @author jrobinso
- *         Date: 2/10/13
- *         Time: 9:19 AM
- */
 public class NormalizationVector2 {
 
     private final double[] data;

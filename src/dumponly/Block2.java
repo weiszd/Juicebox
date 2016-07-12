@@ -28,11 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
-/**
- * @author jrobinso
- * @date Aug 10, 2010
- */
 public class Block2 {
 
     private final List<ContactRecord2> records;

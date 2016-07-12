@@ -27,13 +27,6 @@ package dumponly;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Abstract base class for methods that can be shared by V1 and V2 readers.
- *
- * @author jrobinso
- *         Date: 12/22/12
- *         Time: 10:15 AM
- */
 public abstract class AbstractDatasetReader2 {
 
 

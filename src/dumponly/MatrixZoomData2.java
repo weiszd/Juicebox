@@ -33,11 +33,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-
-/**
- * @author jrobinso
- * @since Aug 10, 2010
- */
 public class MatrixZoomData2 {
 
     private final Chromosome chr1;  // Chromosome on the X axis
@@ -149,7 +144,7 @@ public class MatrixZoomData2 {
 
 
     public void dump(PrintWriter printWriter, LittleEndianOutputStream les, NormalizationType2 norm, MatrixType2 matrixType2,
-                     boolean useRegionIndices, int[] regionIndices, ExpectedValueFunction2 df) throws IOException {
+                     boolean useRegionIndices, int[] regionIndices, ExpectedValueFunctionImpl2 df) throws IOException {
 
         // determine which output will be used
         if (printWriter == null && les == null) {

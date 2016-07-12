@@ -24,9 +24,6 @@
 
 package dumponly;
 
-/**
- * Created by muhammadsaadshamim on 7/12/16.
- */
 class MyGlobals {
 
     public static final int bufferSize = 2097152;

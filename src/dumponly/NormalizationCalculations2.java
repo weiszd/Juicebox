@@ -31,16 +31,6 @@ import org.broad.igv.util.collections.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
-/**
- * Class for computing VC ("Vanilla Coverage") and KR normalization vector.
- * <p/>
- * Note: currently these are valid for square matrices only.
- *
- * @author jrobinso
- *         Date: 1/25/13
- *         Time: 4:03 PM
- */
 class NormalizationCalculations2 {
 
     private ArrayList<ContactRecord2> list;

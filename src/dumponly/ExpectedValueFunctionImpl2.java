@@ -24,14 +24,7 @@
 
 package dumponly;
 
-/**
- * Utility holder for Density calculation, for O/E maps.
- *
- * @author Jim Robinson
- * @author Neva Cherniavsky
- * @since 8/27/12
- */
-public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
+public class ExpectedValueFunctionImpl2 {
 
     private final String unit;
 
@@ -39,7 +32,6 @@ public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
         this.unit = unit;
     }
 
-    @Override
     public String getUnit() {
         return unit;
     }

@@ -24,9 +24,6 @@
 
 package dumponly;
 
-/**
- * @author jrobinso Date: 8/31/13  9:47 PM
- */
 public enum NormalizationType2 {
     NONE,
     VC,

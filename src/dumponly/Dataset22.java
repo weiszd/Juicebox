@@ -33,10 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author jrobinso
- * @since Aug 12, 2010
- */
 public class Dataset22 {
 
     // private boolean caching = true;

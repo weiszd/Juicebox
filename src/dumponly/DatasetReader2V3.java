@@ -37,11 +37,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-
-/**
- * @author jrobinso
- * @date Aug 17, 2010
- */
 public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
     /**
@@ -296,7 +291,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             masterIndex.put(key, new IndexEntry(filePosition, sizeInBytes));
         }
 
-        Map<String, ExpectedValueFunction2> expectedValuesMap = new LinkedHashMap<String, ExpectedValueFunction2>();
+        Map<String, ExpectedValueFunctionImpl2> expectedValuesMap = new LinkedHashMap<String, ExpectedValueFunctionImpl2>();
 
         // Expected values from non-normalized matrix
         int nExpectedValues = dis.readInt();
@@ -321,7 +316,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 normFactors.put(chrIdx, normFactor);
             }
 
-            ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(unit);
+            ExpectedValueFunctionImpl2 df = new ExpectedValueFunctionImpl2(unit);
             expectedValuesMap.put(key, df);
             //dataset.setExpectedValueFunctionMap(expectedValuesMap);
 
@@ -363,7 +358,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 }
 
                 NormalizationType2 type = NormalizationType2.valueOf(typeString);
-                ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(unit);
+                ExpectedValueFunctionImpl2 df = new ExpectedValueFunctionImpl2(unit);
                 expectedValuesMap.put(key, df);
 
             }

@@ -24,12 +24,6 @@
 
 package dumponly;
 
-
-/**
- * @author jrobinso
- *         Date: 12/17/12
- *         Time: 9:16 AM
- */
 public class HiCZoom2 {
 
     private final Unit unit;
@@ -77,5 +71,5 @@ public class HiCZoom2 {
         return result;
     }
 
-    public enum Unit {BP}
+    public enum Unit {BP, FRAG} // leave FRAG here; it IS used
 }

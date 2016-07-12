@@ -31,10 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * @author jrobinso
- * @since Aug 12, 2010
- */
 public class Matrix2 {
 
     private List<MatrixZoomData2> bpZoomData;

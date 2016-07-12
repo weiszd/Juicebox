@@ -27,9 +27,6 @@ package dumponly;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Created by muhammadsaadshamim on 7/12/16.
- */
 class HiCFileTools2 {
     public static Dataset22 extractDatasetForCLT(List<String> files) {
         Dataset22 dataset = null;

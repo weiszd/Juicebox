@@ -24,10 +24,6 @@
 
 package dumponly;
 
-/**
- * Created for testing multiple CLTs at once
- * Basically scratch space
- */
 class AggregateProcessing {
 
 

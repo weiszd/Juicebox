@@ -24,10 +24,6 @@
 
 package dumponly;
 
-/**
- * @author jrobinso
- * @date Aug 3, 2010
- */
 public class ContactRecord2 implements Comparable<ContactRecord2> {
 
     /**
