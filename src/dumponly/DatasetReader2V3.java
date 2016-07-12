@@ -31,13 +31,11 @@ import htsjdk.tribble.util.LittleEndianInputStream;
 import org.apache.log4j.Logger;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.util.CompressionUtils;
-import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.SeekableByteChannel;
 import java.util.*;
 
 
@@ -53,7 +51,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
      */
     private final Map<String, int[]> fragmentSitesCache = new HashMap<String, int[]>();
     private final CompressionUtils compressionUtils;
-    private SeekableByteChannel stream2;
     private SeekableStream stream;
     private Map<String, IndexEntry> masterIndex;
     private Map<String, IndexEntry> normVectorIndex;
@@ -62,7 +59,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
     private Map<String, FragIndexEntry> fragmentSitesIndex;
     private Map<String, Map<Integer, IndexEntry>> blockIndexMap;
     private long masterIndexPos;
-    private long normVectorFilePosition;
 
     public DatasetReader2V3(String path) throws IOException {
 
@@ -83,7 +79,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         LittleEndianInputStream dis = null;
 
         try {
-            stream = new SeekableHTTPStream(new URL(path)); // IGVSeekableStreamFactory.getStreamFor(path);
+            stream = new SeekableHTTPStream(new URL(path));
             dis = new LittleEndianInputStream(new BufferedInputStream(stream));
         } catch (MalformedURLException e) {
             try {
@@ -110,9 +106,9 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
         // Stats.  Not used yet, but we need to read them anyway
         double sumCounts = (double) dis.readFloat();
-        float occupiedCellCount = dis.readFloat();
-        float stdDev = dis.readFloat();
-        float percent95 = dis.readFloat();
+        dis.readFloat();
+        dis.readFloat();
+        dis.readFloat();
 
         int binSize = dis.readInt();
         HiCZoom2 zoom = new HiCZoom2(unit, binSize);
@@ -135,10 +131,10 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         }
         blockIndexMap.put(zd.getKey(), blockIndex);
 
-        int nBins1 = chr1.getLength() / binSize;
-        int nBins2 = chr2.getLength() / binSize;
-        double avgCount = (sumCounts / nBins1) / nBins2;   // <= trying to avoid overflows
-        zd.setAverageCount(avgCount);
+        //int nBins1 = chr1.getLength() / binSize;
+        //int nBins2 = chr2.getLength() / binSize;
+        //double avgCount = (sumCounts / nBins1) / nBins2;   // <= trying to avoid overflows
+        //zd.setAverageCount(avgCount);
 
         return zd;
     }
@@ -227,7 +223,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
             // Now we need to skip  through stream reading # fragments, stream on buffer is not needed so null it to
             // prevent accidental use
-            dis = null;
             if (nFragResolutions > 0) {
                 stream.seek(position);
                 fragmentSitesIndex = new HashMap<String, FragIndexEntry>();
@@ -265,94 +260,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
     }
 
-
-    public String readStats() throws IOException {
-        String statsFileName = path.substring(0, path.lastIndexOf('.')) + "_stats.html";
-        String stats = null;
-        BufferedReader reader = null;
-        try {
-            stats = "";
-            reader = ParsingUtils.openBufferedReader(statsFileName);
-            String nextLine;
-            int count = 0; // if there is an big text file that happens to be named the same, don't read it forever
-            while ((nextLine = reader.readLine()) != null && count < 1000) {
-                stats += nextLine + "\n";
-                count++;
-            }
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-
-        return stats;
-    }
-
-    private String readGraphs(String graphFileName) throws IOException {
-        String graphs = null;
-        BufferedReader reader = null;
-        try {
-            reader = ParsingUtils.openBufferedReader(graphFileName);
-            if (reader == null) return null;
-            graphs = "";
-            String nextLine;
-            while ((nextLine = reader.readLine()) != null) {
-                graphs += nextLine + "\n";
-            }
-        } catch (IOException e) {
-            System.err.println("Error while reading graphs file: " + e);
-            graphs = null;
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-        return graphs;
-    }
-
-    private String checkGraphs(String graphs) {
-        boolean reset = false;
-        if (graphs == null) reset = true;
-        else {
-            Scanner scanner = new Scanner(graphs);
-            try {
-                while (!scanner.next().equals("[")) ;
-
-                for (int idx = 0; idx < 2000; idx++) {
-                    scanner.nextLong();
-                }
-
-                while (!scanner.next().equals("[")) ;
-                for (int idx = 0; idx < 201; idx++) {
-                    scanner.nextInt();
-                    scanner.nextInt();
-                    scanner.nextInt();
-                }
-
-                while (!scanner.next().equals("[")) ;
-                for (int idx = 0; idx < 100; idx++) {
-                    scanner.nextInt();
-                    scanner.nextInt();
-                    scanner.nextInt();
-                    scanner.nextInt();
-                }
-            } catch (NoSuchElementException exception) {
-                reset = true;
-            }
-        }
-
-/*        if (reset) {
-            try {
-                graphs = readGraphs(null);
-            } catch (IOException e) {
-                graphs = null;
-            }
-        }*/
-        return graphs;
-
-    }
-
-
     private int[] readSites(long location, int nSites) throws IOException {
 
         stream.seek(location);
@@ -382,8 +289,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         stream.read(buffer);
         LittleEndianInputStream dis = new LittleEndianInputStream(new ByteArrayInputStream(buffer));
         int nBytes = dis.readInt();
-
-        normVectorFilePosition = masterIndexPos + nBytes + 4;  // 4 bytes for the buffer size
 
         buffer = new byte[nBytes];
         stream.read(buffer);
@@ -422,7 +327,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 normFactors.put(chrIdx, normFactor);
             }
 
-            ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(no, unit, binSize, values, normFactors);
+            ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(unit);
             expectedValuesMap.put(key, df);
             //dataset.setExpectedValueFunctionMap(expectedValuesMap);
 
@@ -464,7 +369,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 }
 
                 NormalizationType2 type = NormalizationType2.valueOf(typeString);
-                ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(type, unit, binSize, values, normFactors);
+                ExpectedValueFunction2 df = new ExpectedValueFunctionImpl2(unit);
                 expectedValuesMap.put(key, df);
 
             }

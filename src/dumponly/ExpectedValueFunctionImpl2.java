@@ -24,8 +24,6 @@
 
 package dumponly;
 
-import java.util.Map;
-
 /**
  * Utility holder for Density calculation, for O/E maps.
  *
@@ -37,43 +35,13 @@ public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
 
     private final String unit;
 
-    private final Map<Integer, Double> normFactors;
-
-    private final double[] expectedValues;
-
-    public ExpectedValueFunctionImpl2(NormalizationType2 type, String unit, int binSize, double[] expectedValues, Map<Integer, Double> normFactors) {
+    public ExpectedValueFunctionImpl2(String unit) {
         this.unit = unit;
-        this.normFactors = normFactors;
-        this.expectedValues = expectedValues;
-    }
-
-    /**
-     * Gets the expected value, distance and coverage normalized, chromosome-length normalized
-     *
-     * @param chrIdx   Chromosome index
-     * @param distance Distance from diagonal in bins
-     * @return Expected value, distance and coverage normalized
-     */
-    @Override
-    public double getExpectedValue(int chrIdx, int distance) {
-
-        double normFactor = 1.0;
-        if (normFactors != null && normFactors.containsKey(chrIdx)) {
-            normFactor = normFactors.get(chrIdx);
-        }
-
-        if (distance >= expectedValues.length) {
-
-            return expectedValues[expectedValues.length - 1] / normFactor;
-        } else {
-            return expectedValues[distance] / normFactor;
-        }
     }
 
     @Override
     public String getUnit() {
         return unit;
     }
-
 
 }

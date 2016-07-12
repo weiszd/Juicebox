@@ -52,9 +52,6 @@ public class MatrixZoomData2 {
     // Cache the last 20 Block2s loaded
     private final LRUCache<String, Block2> Block2Cache = new LRUCache<String, Block2>(20);
     private final DatasetReader22 reader;
-    private HiCFixedGridAxis2 xGridAxis = null;
-    private HiCFixedGridAxis2 yGridAxis = null;
-    private double averageCount = -1;
 //    private static final SuperAdapter superAdapter = new SuperAdapter();
 //    private static final Slideshow slideshow = superAdapter.getSlideshow();
 
@@ -89,35 +86,14 @@ public class MatrixZoomData2 {
         this.Block2BinCount = Block2BinCount;
         this.Block2ColumnCount = Block2ColumnCount;
 
-        int correctedBinCount = Block2BinCount;
+        //int correctedBinCount = Block2BinCount;
         if (reader.getVersion() < 8 && chr1.getLength() < chr2.getLength()) {
             boolean isFrag = zoom.getUnit() == HiCZoom2.Unit.FRAG;
             int len1 = isFrag ? (chr1Sites.length + 1) : chr1.getLength();
             int len2 = isFrag ? (chr2Sites.length + 1) : chr2.getLength();
             int nBinsX = Math.max(len1, len2) / zoom.getBinSize() + 1;
-            correctedBinCount = nBinsX / Block2ColumnCount + 1;
+            //correctedBinCount = nBinsX / Block2ColumnCount + 1;
         }
-
-        if (zoom.getUnit() == HiCZoom2.Unit.BP) {
-            this.xGridAxis = new HiCFixedGridAxis2(correctedBinCount * Block2ColumnCount, zoom.getBinSize(), chr1Sites);
-            this.yGridAxis = new HiCFixedGridAxis2(correctedBinCount * Block2ColumnCount, zoom.getBinSize(), chr2Sites);
-        }
-    }
-
-    public Chromosome getChr1() {
-        return chr1;
-    }
-
-    public Chromosome getChr2() {
-        return chr2;
-    }
-
-    public HiCFixedGridAxis2 getXGridAxis() {
-        return xGridAxis;
-    }
-
-    public HiCFixedGridAxis2 getYGridAxis() {
-        return yGridAxis;
     }
 
     public int getBinSize() {
@@ -228,114 +204,6 @@ public class MatrixZoomData2 {
     }
 
 
-    /**
-     * Return the Block2s of normalized, observed values overlapping the rectangular region specified.
-     * The units are "bins"
-     *
-     * @param binY1 leftmost position in "bins"
-     * @param binX2 rightmost position in "bins"
-     * @param binY2 bottom position in "bins"
-     * @param no    normalization type
-     * @return List of overlapping Block2s, normalized
-     */
-    public int addNormalizedBlock2sToList(final List<Block2> Block2List, int binX1, int binY1, int binX2, int binY2, final NormalizationType2 no) {
-
-        int col1 = binX1 / Block2BinCount;
-        int row1 = binY1 / Block2BinCount;
-
-        int col2 = binX2 / Block2BinCount;
-        int row2 = binY2 / Block2BinCount;
-
-        List<Integer> Block2sToLoad = new ArrayList<Integer>();
-        for (int r = row1; r <= row2; r++) {
-            for (int c = col1; c <= col2; c++) {
-                int Block2Number = r * getBlock2ColumnCount() + c;
-
-                String key = getKey() + "_" + Block2Number + "_" + no;
-                Block2 b;
-                if (MyGlobals.useCache && Block2Cache.containsKey(key)) {
-                    b = Block2Cache.get(key);
-                    Block2List.add(b);
-                } else {
-                    Block2sToLoad.add(Block2Number);
-                }
-            }
-        }
-
-        final AtomicInteger errorCounter = new AtomicInteger();
-
-        List<Thread> threads = new ArrayList<Thread>();
-        for (final int Block2Number : Block2sToLoad) {
-            Runnable loader = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String key = getKey() + "_" + Block2Number + "_" + no;
-                        Block2 b = reader.readNormalizedBlock(Block2Number, MatrixZoomData2.this, no);
-                        if (b == null) {
-                            b = new Block2(Block2Number);   // An empty Block2
-                        }
-                        if (MyGlobals.useCache) {
-                            Block2Cache.put(key, b);
-                        }
-                        Block2List.add(b);
-                    } catch (IOException e) {
-                        errorCounter.incrementAndGet();
-                    }
-                }
-            };
-
-            Thread t = new Thread(loader);
-            threads.add(t);
-            t.start();
-        }
-
-        // Wait for all threads to complete
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (InterruptedException ignore) {
-            }
-        }
-
-        // untested since files got fixed - MSS
-        return errorCounter.get();
-    }
-
-
-    /**
-     * Return the observed value at the specified location. Supports tooltip text
-     * This implementation is naive, but might get away with it for tooltip.
-     *
-     * @param binX              X bin
-     * @param binY              Y bin
-     * @param normalizationType Normalization type
-     */
-    public float getObservedValue(int binX, int binY, NormalizationType2 normalizationType) {
-
-        // Intra stores only lower diagonal
-        if (chr1 == chr2) {
-            if (binX > binY) {
-                int tmp = binX;
-                //noinspection SuspiciousNameCombination
-                binX = binY;
-                binY = tmp;
-
-            }
-        }
-
-        List<Block2> Block2s = getNormalizedBlock2sOverlapping(binX, binY, binX, binY, normalizationType);
-        if (Block2s == null) return 0;
-        for (Block2 b : Block2s) {
-            for (ContactRecord2 rec : b.getContactRecords()) {
-                if (rec.getBinX() == binX && rec.getBinY() == binY) {
-                    return rec.getCounts();
-                }
-            }
-        }
-        // No record found for this bin
-        return 0;
-    }
 
 
     /**
@@ -416,7 +284,6 @@ public class MatrixZoomData2 {
                     int y = rec.getBinY();
                     int xActual = x * zoom.getBinSize();
                     int yActual = y * zoom.getBinSize();
-                    float oeVal = 0f;
                     if (!useRegionIndices || // i.e. use full matrix
                             // or check regions that overlap with upper left
                             (xActual >= regionIndices[0] && xActual <= regionIndices[1] &&
@@ -444,16 +311,6 @@ public class MatrixZoomData2 {
         if (usePrintWriter) {
             printWriter.close();
         }
-    }
-
-
-    /**
-     * Sets the average count
-     *
-     * @param averageCount Average count to set
-     */
-    public void setAverageCount(double averageCount) {
-        this.averageCount = averageCount;
     }
 
     /**

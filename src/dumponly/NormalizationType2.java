@@ -30,6 +30,7 @@ package dumponly;
 public enum NormalizationType2 {
     NONE,
     VC,
+    VC_SQRT, // this is actually used, don't delete
     KR,
     GW_KR,
     INTER_KR,

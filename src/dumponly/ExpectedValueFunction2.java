@@ -32,7 +32,5 @@ package dumponly;
  */
 public interface ExpectedValueFunction2 {
 
-    double getExpectedValue(int chrIdx, int distance);
-
     String getUnit();
 }
