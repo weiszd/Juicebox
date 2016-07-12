@@ -33,7 +33,7 @@ class HiCFileTools2 {
     public static Dataset22 extractDatasetForCLT(List<String> files) {
         Dataset22 dataset = null;
         try {
-            DatasetReader22 reader = null;
+            AbstractDatasetReader2 reader = null;
             if (files.size() == 1) {
                 String magicString = DatasetReader2V3.getMagicString(files.get(0));
                 if (magicString.equals("HIC")) {
@@ -59,7 +59,6 @@ class HiCFileTools2 {
         } catch (Exception e) {
             System.err.println("Could not read hic file: " + e.getMessage());
             System.exit(34);
-            //e.printStackTrace();
         }
         return dataset;
     }

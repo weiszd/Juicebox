@@ -77,5 +77,5 @@ public class HiCZoom2 {
         return result;
     }
 
-    public enum Unit {BP, FRAG}
+    public enum Unit {BP}
 }

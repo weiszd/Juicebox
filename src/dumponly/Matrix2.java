@@ -38,16 +38,13 @@ import java.util.List;
 public class Matrix2 {
 
     private List<MatrixZoomData2> bpZoomData;
-    private List<MatrixZoomData2> fragZoomData;
 
     /**
      * Constructor for creating a matrix from precomputed data.
      *
-     * @param chr1
-     * @param chr2
      * @param zoomDataList
      */
-    public Matrix2(int chr1, int chr2, List<MatrixZoomData2> zoomDataList) {
+    public Matrix2(List<MatrixZoomData2> zoomDataList) {
         initZoomDataMap(zoomDataList);
     }
 
@@ -58,12 +55,9 @@ public class Matrix2 {
     private void initZoomDataMap(List<MatrixZoomData2> zoomDataList) {
 
         bpZoomData = new ArrayList<MatrixZoomData2>();
-        fragZoomData = new ArrayList<MatrixZoomData2>();
         for (MatrixZoomData2 zd : zoomDataList) {
             if (zd.getZoom().getUnit() == HiCZoom2.Unit.BP) {
                 bpZoomData.add(zd);
-            } else {
-                fragZoomData.add(zd);
             }
 
             // Zooms should be sorted, but in case they are not...
@@ -74,13 +68,12 @@ public class Matrix2 {
                 }
             };
             Collections.sort(bpZoomData, comp);
-            Collections.sort(fragZoomData, comp);
         }
 
     }
 
     public MatrixZoomData2 getZoomData(HiCZoom2 zoom) {
-        List<MatrixZoomData2> zdList = (zoom.getUnit() == HiCZoom2.Unit.BP) ? bpZoomData : fragZoomData;
+        List<MatrixZoomData2> zdList = bpZoomData;
         //linear search for bin size, the lists are not large
         for (MatrixZoomData2 zd : zdList) {
             if (zd.getBinSize() == zoom.getBinSize()) {

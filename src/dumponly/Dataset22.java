@@ -24,8 +24,6 @@
 
 package dumponly;
 
-import com.google.common.primitives.Ints;
-import org.apache.log4j.Logger;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.util.collections.LRUCache;
 
@@ -41,11 +39,9 @@ import java.util.Map;
  */
 public class Dataset22 {
 
-    private static final Logger log = Logger.getLogger(Dataset22.class);
-
     // private boolean caching = true;
     private final Map<String, Matrix2> matrices = new HashMap<String, Matrix2>(25 * 25);
-    private final DatasetReader22 reader;
+    private final AbstractDatasetReader2 reader;
     private final LRUCache<String, NormalizationVector2> normalizationVectorCache;
     //Chromosome lookup table
     private List<Chromosome> chromosomes;
@@ -54,7 +50,7 @@ public class Dataset22 {
     private List<Integer> bpZoomResolutions;
     private List<NormalizationType2> normalizationTypes;
 
-    public Dataset22(DatasetReader22 reader) {
+    public Dataset22(AbstractDatasetReader2 reader) {
         this.reader = reader;
         normalizationVectorCache = new LRUCache<String, NormalizationVector2>(20);
         normalizationTypes = new ArrayList<NormalizationType2>();
@@ -75,7 +71,7 @@ public class Dataset22 {
                 m = reader.readMatrix(key);
                 matrices.put(key, m);
             } catch (IOException e) {
-                log.error("Error fetching matrix for: " + chr1.getName() + "-" + chr2.getName(), e);
+                System.err.println("Error fetching matrix for: " + chr1.getName() + "-" + chr2.getName());
             }
         }
 
@@ -108,7 +104,7 @@ public class Dataset22 {
 
     public void setBpZooms(int[] bpBinSizes) {
 
-        bpZoomResolutions = Ints.asList(bpBinSizes);
+        bpZoomResolutions = intArrayToList(bpBinSizes);
 
         bpZooms = new ArrayList<HiCZoom2>(bpBinSizes.length);
         for (int bpBinSize : bpZoomResolutions) {
@@ -116,15 +112,12 @@ public class Dataset22 {
         }
     }
 
-    public void setFragZooms(int[] fragBinSizes) {
-
-        // Don't show fragments in restricted mode
-//        if (MainWindow.isRestricted()) return;
-
-        this.fragZooms = new ArrayList<HiCZoom2>(fragBinSizes.length);
-        for (int fragBinSize : fragBinSizes) {
-            fragZooms.add(new HiCZoom2(HiCZoom2.Unit.FRAG, fragBinSize));
+    private List<Integer> intArrayToList(int[] values) {
+        List<Integer> list = new ArrayList<Integer>(values.length);
+        for (int value : values) {
+            list.add(value);
         }
+        return list;
     }
 
 

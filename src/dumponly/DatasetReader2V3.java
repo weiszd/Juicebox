@@ -28,7 +28,6 @@ package dumponly;
 import htsjdk.samtools.seekablestream.SeekableHTTPStream;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.tribble.util.LittleEndianInputStream;
-import org.apache.log4j.Logger;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.util.CompressionUtils;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
@@ -45,7 +44,6 @@ import java.util.*;
  */
 public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
-    private static final Logger log = Logger.getLogger(DatasetReader2V3.class);
     /**
      * Cache of chromosome name -> array of restriction sites
      */
@@ -118,7 +116,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
         int blockBinCount = dis.readInt();
         int blockColumnCount = dis.readInt();
 
-        MatrixZoomData2 zd = new MatrixZoomData2(chr1, chr2, zoom, blockBinCount, blockColumnCount, chr1Sites, chr2Sites, this);
+        MatrixZoomData2 zd = new MatrixZoomData2(chr1, chr2, zoom, blockBinCount, blockColumnCount, this);
 
         int nBlocks = dis.readInt();
         HashMap<Integer, IndexEntry> blockIndex = new HashMap<Integer, IndexEntry>(nBlocks);
@@ -130,11 +128,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             blockIndex.put(blockNumber, new IndexEntry(filePosition, blockSizeInBytes));
         }
         blockIndexMap.put(zd.getKey(), blockIndex);
-
-        //int nBins1 = chr1.getLength() / binSize;
-        //int nBins2 = chr2.getLength() / binSize;
-        //double avgCount = (sumCounts / nBins1) / nBins2;   // <= trying to avoid overflows
-        //zd.setAverageCount(avgCount);
 
         return zd;
     }
@@ -211,6 +204,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             }
             dataset.setBpZooms(bpBinSizes);
 
+            // note that these still should be read, we'll just ignore the actual usage of frag res maps
             int nFragResolutions = dis.readInt();
             position += 4;
 
@@ -219,7 +213,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 fragBinSizes[i] = dis.readInt();
                 position += 4;
             }
-            dataset.setFragZooms(fragBinSizes);
+            //dataset.setFragZooms(fragBinSizes);
 
             // Now we need to skip  through stream reading # fragments, stream on buffer is not needed so null it to
             // prevent accidental use
@@ -251,7 +245,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
 
         } catch (IOException e) {
-            log.error("Error reading dataset", e);
+            System.err.println("Error reading dataset");
             throw e;
         }
 
@@ -343,7 +337,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             try {
                 nExpectedValues = dis.readInt();
             } catch (EOFException e) {
-                log.info("No normalization vectors");
+                System.out.println("No normalization vectors");
                 return;
             }
 
@@ -442,7 +436,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             zdList.add(zd);
         }
 
-        return new Matrix2(c1, c2, zdList);
+        return new Matrix2(zdList);
     }
 
     public int getFragCount(Chromosome chromosome) {
@@ -633,7 +627,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             }
         }
         if (allNaN) return null;
-        else return new NormalizationVector2(type, chrIdx, unit, binSize, values);
+        else return new NormalizationVector2(values);
 
 
     }

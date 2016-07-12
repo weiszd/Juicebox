@@ -33,7 +33,6 @@ import org.broad.igv.util.collections.LRUCache;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -51,7 +50,7 @@ public class MatrixZoomData2 {
     private final int Block2ColumnCount;     // number of Block2 columns
     // Cache the last 20 Block2s loaded
     private final LRUCache<String, Block2> Block2Cache = new LRUCache<String, Block2>(20);
-    private final DatasetReader22 reader;
+    private final AbstractDatasetReader2 reader;
 //    private static final SuperAdapter superAdapter = new SuperAdapter();
 //    private static final Slideshow slideshow = superAdapter.getSlideshow();
 
@@ -71,12 +70,10 @@ public class MatrixZoomData2 {
      * @param zoom             Zoom (bin size and BP or FRAG)
      * @param Block2BinCount    Number of bins divided by number of columns (around 1000)
      * @param Block2ColumnCount Number of bins divided by 1000 (Block2_SIZE)
-     * @param chr1Sites        Used for looking up fragment
-     * @param chr2Sites        Used for looking up fragment
      * @param reader           Pointer to file reader
      */
     public MatrixZoomData2(Chromosome chr1, Chromosome chr2, HiCZoom2 zoom, int Block2BinCount, int Block2ColumnCount,
-                           int[] chr1Sites, int[] chr2Sites, DatasetReader22 reader) {
+                           AbstractDatasetReader2 reader) {
 
         this.reader = reader;
 
@@ -85,15 +82,6 @@ public class MatrixZoomData2 {
         this.zoom = zoom;
         this.Block2BinCount = Block2BinCount;
         this.Block2ColumnCount = Block2ColumnCount;
-
-        //int correctedBinCount = Block2BinCount;
-        if (reader.getVersion() < 8 && chr1.getLength() < chr2.getLength()) {
-            boolean isFrag = zoom.getUnit() == HiCZoom2.Unit.FRAG;
-            int len1 = isFrag ? (chr1Sites.length + 1) : chr1.getLength();
-            int len2 = isFrag ? (chr2Sites.length + 1) : chr2.getLength();
-            int nBinsX = Math.max(len1, len2) / zoom.getBinSize() + 1;
-            //correctedBinCount = nBinsX / Block2ColumnCount + 1;
-        }
     }
 
     public int getBinSize() {
@@ -122,86 +110,6 @@ public class MatrixZoomData2 {
     }
 
 
-    /**
-     * Return the Block2s of normalized, observed values overlapping the rectangular region specified.
-     * The units are "bins"
-     *
-     * @param binY1 leftmost position in "bins"
-     * @param binX2 rightmost position in "bins"
-     * @param binY2 bottom position in "bins"
-     * @param no    normalization type
-     * @return List of overlapping Block2s, normalized
-     */
-    private List<Block2> getNormalizedBlock2sOverlapping(int binX1, int binY1, int binX2, int binY2, final NormalizationType2 no) {
-
-        int col1 = binX1 / Block2BinCount;
-        int row1 = binY1 / Block2BinCount;
-
-        int col2 = binX2 / Block2BinCount;
-        int row2 = binY2 / Block2BinCount;
-
-        int maxSize = (col2 - col1 + 1) * (row2 - row1 + 1);
-
-        final List<Block2> Block2List = new ArrayList<Block2>(maxSize);
-        final List<Integer> Block2sToLoad = new ArrayList<Integer>();
-        for (int r = row1; r <= row2; r++) {
-            for (int c = col1; c <= col2; c++) {
-                int Block2Number = r * getBlock2ColumnCount() + c;
-
-                String key = getKey() + "_" + Block2Number + "_" + no;
-                Block2 b;
-                if (MyGlobals.useCache && Block2Cache.containsKey(key)) {
-                    b = Block2Cache.get(key);
-                    Block2List.add(b);
-                } else {
-                    Block2sToLoad.add(Block2Number);
-                }
-            }
-        }
-
-        final AtomicInteger errorCounter = new AtomicInteger();
-
-        List<Thread> threads = new ArrayList<Thread>();
-        for (final int Block2Number : Block2sToLoad) {
-            Runnable loader = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String key = getKey() + "_" + Block2Number + "_" + no;
-                        Block2 b = reader.readNormalizedBlock(Block2Number, MatrixZoomData2.this, no);
-                        if (b == null) {
-                            b = new Block2(Block2Number);   // An empty Block2
-                        }
-                        if (MyGlobals.useCache) {
-                            Block2Cache.put(key, b);
-                        }
-                        Block2List.add(b);
-                    } catch (IOException e) {
-                        errorCounter.incrementAndGet();
-                    }
-                }
-            };
-
-            Thread t = new Thread(loader);
-            threads.add(t);
-            t.start();
-        }
-
-        // Wait for all threads to complete
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (InterruptedException ignore) {
-            }
-        }
-
-        // untested since files got fixed - MSS
-        if (errorCounter.get() > 0) {
-            return null;
-        }
-
-        return Block2List;
-    }
 
 
 
@@ -395,7 +303,4 @@ public class MatrixZoomData2 {
             throw new RuntimeException("remove() is not supported");
         }
     }
-//    public void preloadSlides(){
-
-//    }
 }

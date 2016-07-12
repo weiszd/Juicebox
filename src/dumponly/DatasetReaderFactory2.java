@@ -35,7 +35,7 @@ import java.util.List;
  */
 class DatasetReaderFactory2 {
 
-    public static DatasetReader22 getReader(List<String> fileList) throws IOException {
+    public static AbstractDatasetReader2 getReader(List<String> fileList) throws IOException {
 
         if (fileList.size() == 1) {
             String file = fileList.get(0);

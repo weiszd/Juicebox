@@ -45,7 +45,6 @@ class NormalizationCalculations2 {
 
     private ArrayList<ContactRecord2> list;
     private int totSize;
-    private boolean isEnoughMemory = false;
 
     public NormalizationCalculations2(ArrayList<ContactRecord2> list, int totSize) {
         this.list = list;
@@ -283,7 +282,7 @@ class NormalizationCalculations2 {
 
             // assume all went well and we don't need to recalculate
             recalculate = false;
-            int rowsTossed = 0;
+            //int rowsTossed = 0;
 
             if (x0 == null || iteration == 5) {
                 // if x0 is no good, throw out some percentage of rows and reset the offset array that gives those rows
@@ -315,7 +314,7 @@ class NormalizationCalculations2 {
                 for (int i = 0; i < kr.length; i++) {
                     if (kr[i] * mySum < 0.01) {
                         offset[i] = -1;
-                        rowsTossed++;
+                        //rowsTossed++;
                         recalculate = true;
                     } else {
                         if (offset[i] != -1) offset[i] = index++;

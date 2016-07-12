@@ -34,7 +34,7 @@ public class NormalizationVector2 {
 
     private final double[] data;
 
-    public NormalizationVector2(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int resolution, double[] data) {
+    public NormalizationVector2(double[] data) {
         this.data = data;
     }
 

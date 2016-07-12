@@ -67,10 +67,7 @@ class Dump2 {
     private static void dumpGenomeWideData(Dataset22 dataset, List<Chromosome> chromosomeList,
                                            boolean includeIntra, HiCZoom2 zoom, NormalizationType2 norm,
                                            MatrixType2 matrixType2, int binSize) {
-        if (zoom.getUnit() == HiCZoom2.Unit.FRAG) {
-            System.err.println("All versus All currently not supported on fragment resolution");
-            System.exit(8);
-        }
+
 
         // Build a "whole-genome" matrix
         ArrayList<ContactRecord2> recordArrayList = createWholeGenomeRecords(dataset, chromosomeList, zoom, includeIntra);
@@ -178,10 +175,6 @@ class Dump2 {
             System.err.println("This data set has the following bin sizes (in bp): ");
             for (int zoomIdx = 0; zoomIdx < dataset.getNumberZooms(HiCZoom2.Unit.BP); zoomIdx++) {
                 System.err.print(dataset.getZoom(HiCZoom2.Unit.BP, zoomIdx).getBinSize() + " ");
-            }
-            System.err.println("\nand the following bin sizes (in frag): ");
-            for (int zoomIdx = 0; zoomIdx < dataset.getNumberZooms(HiCZoom2.Unit.FRAG); zoomIdx++) {
-                System.err.print(dataset.getZoom(HiCZoom2.Unit.FRAG, zoomIdx).getBinSize() + " ");
             }
             System.exit(13);
         }
@@ -347,6 +340,11 @@ class Dump2 {
 
     private void run() {
         HiCZoom2 zoom = new HiCZoom2(unit, binSize);
+
+        if (unit != HiCZoom2.Unit.BP) {
+            System.err.println("This streamlined version only supports BP resolutions");
+            System.exit(8);
+        }
 
         //*****************************************************
         if ((matrixType2 == MatrixType2.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {

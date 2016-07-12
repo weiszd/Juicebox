@@ -25,6 +25,7 @@
 package dumponly;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Abstract base class for methods that can be shared by V1 and V2 readers.
@@ -33,7 +34,8 @@ import java.io.IOException;
  *         Date: 12/22/12
  *         Time: 10:15 AM
  */
-public abstract class AbstractDatasetReader2 implements DatasetReader22 {
+public abstract class AbstractDatasetReader2 {
+
 
     final String path;
 
@@ -41,9 +43,24 @@ public abstract class AbstractDatasetReader2 implements DatasetReader22 {
         this.path = path;
     }
 
-    @Override
-    public NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException {
-        return null;  // Override as necessary
-    }
+    abstract int getVersion();
+
+    abstract Dataset22 read() throws IOException;
+
+    abstract Matrix2 readMatrix(String key) throws IOException;
+
+    abstract Block2 readBlock(int blockNumber, MatrixZoomData2 zd) throws IOException;
+
+    abstract Block2 readNormalizedBlock(int blockNumber, MatrixZoomData2 zd, NormalizationType2 no) throws IOException;
+
+    /**
+     * Return the list of occupied block numbers for the given matrix.
+     *
+     * @param matrixZoomData
+     * @return
+     */
+    abstract List<Integer> getBlockNumbers(MatrixZoomData2 matrixZoomData);
+
+    abstract public NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException;
 
 }
