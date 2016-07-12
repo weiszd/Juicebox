@@ -131,26 +131,6 @@ class ExpectedValueCalculation2 {
 
     }
 
-
-    public int getGridSize() {
-        return gridSize;
-    }
-
-    /**
-     * Set list of chromosomes; need to do this when reading from file
-     *
-     * @param chromosomes1 Array of chromosomes to set
-     */
-    public void setChromosomes(Chromosome[] chromosomes1) {
-
-        this.chromosomes = new LinkedHashMap<Integer, Chromosome>();
-        for (Chromosome chr : chromosomes1) {
-            if (chr != null) {
-                chromosomes.put(chr.getIndex(), chr);
-            }
-        }
-    }
-
     /**
      * Add an observed distance.  This is called for each pair in the data set
      *
@@ -178,10 +158,6 @@ class ExpectedValueCalculation2 {
 
         actualDistances[dist] += weight;
 
-    }
-
-    public boolean hasData() {
-        return !chromosomeCounts.isEmpty();
     }
 
     /**
@@ -291,15 +267,6 @@ class ExpectedValueCalculation2 {
     }
 
     /**
-     * Accessor for the normalization factors
-     *
-     * @return The normalization factors
-     */
-    public LinkedHashMap<Integer, Double> getChrScaleFactors() {
-        return chrScaleFactors;
-    }
-
-    /**
      * Accessor for the densities
      *
      * @return The densities
@@ -307,100 +274,4 @@ class ExpectedValueCalculation2 {
     public double[] getDensityAvg() {
         return densityAvg;
     }
-
-    /**
-     * Accessor for the normalization type
-     *
-     * @return The normalization type
-     */
-    public NormalizationType2 getType() {
-        return type;
-    }
-
-    public ExpectedValueFunctionImpl2 getExpectedValueFunction() {
-        computeDensity();
-        return new ExpectedValueFunctionImpl2(type, isFrag ? "FRAG" : "BP", gridSize, densityAvg, chrScaleFactors);
-    }
 }
-
-
-// Smooth in 3 stages,  the window sizes are tuned to human.
-
-//        // Smooth (1)
-//        final int smoothingWidow1 = 15000000;
-//        int start = smoothingWidow1 / gridSize;
-//        int window = (int) (5 * (2000000f / gridSize));
-//        if (window == 0) window = 1;
-//        for (int i = start; i < numberOfBins; i++) {
-//            int kMin = i - window;
-//            int kMax = Math.min(i + window, numberOfBins);
-//            double sum = 0;
-//            for (int k = kMin; k < kMax; k++) {
-//                sum += density[k];
-//            }
-//            densityAvg[i] = sum / (kMax - kMin);
-//        }
-//
-//        // Smooth (2)
-//        start = 70000000 / gridSize;
-//        window = (int)(20 * (2000000f / gridSize));
-//        for (int i = start; i < numberOfBins; i++) {
-//            int kMin = i - window;
-//            int kMax = Math.min(i + window, numberOfBins);
-//            double sum = 0;
-//            for (int k = kMin; k < kMax; k++) {
-//                sum += density[k];
-//            }
-//            densityAvg[i] = sum / (kMax - kMin);
-//        }
-//
-//        // Smooth (3)
-//        start = 170000000 / gridSize;
-//        for (int i = start; i < numberOfBins; i++) {
-//            densityAvg[i] = densityAvg[start];
-//        }
-
-
-/*
-
---- Code above based on the following Python
-
-gridSize => grid (or bin) size  == 10^6
-actualDistances => array of actual distances,  each element represents a bin
-possibleDistances => array of possible distances, each element represents a bin
-jdists => outer distances between pairs
-
-for each jdist
-  actualDistance[jdist]++;
-
-
-for each chromosome
-  chrlen = chromosome length
-  numberOfBins = chrlen / gridSize
-  for each i from 0 to numberOfBins
-     possibleDistances[i] += (numberOfBins - i)
-
-
-for each i from 0 to maxGrid
-  density[i] = actualDistance[i] / possibleDistances[i]
-
-
-for each i from 0 to len(density)
- density_avg[i] = density[i]
-
-for each i from 15000000/gridsize  to  len(density_avg)
-  sum1 = 0
-  for each k from (i - 5*((2*10^6) / gridSize)  to  (i + 5*((2*10^6)/gridsize))
-     sum1 += density[k]
-  density_avg[i] = sum1 / (10*((2*10^6)/gridsize))
-
-for each i from 70000000/gridsize  to  len(density_avg)
-  sum2 = 0
-  for each k from (i - 20*((2*10^6) / gridSize)  to  (i + 20*((2*10^6)/gridsize))
-     sum2 += density[k]
-  density_avg[i] = sum2 / (40*((2*10^6)/gridsize))
-
-for each i from 170000000/gridsize  to  len(density_avg)
-  density_avg[i]=density_avg[170000000/gridsize]
-
-*/

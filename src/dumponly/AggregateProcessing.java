@@ -34,7 +34,7 @@ class AggregateProcessing {
     public static void main(String[] argv) {
 
         String[] args = new String[]{"dump", "OBSERVED", "KR", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/intra_nofrag_30.hic",
-                "1:0:3500000", "1", "BP", "2500000", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/test_stream_dump_kr2"};
+                "1:0:3500000", "1", "BP", "2500000", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/test_stream_dump_kr2_232"};
         Dump2.main(args);
     }
 }

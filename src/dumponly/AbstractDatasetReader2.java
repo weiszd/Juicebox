@@ -41,18 +41,9 @@ public abstract class AbstractDatasetReader2 implements DatasetReader22 {
         this.path = path;
     }
 
-    public String getPath() {
-        return path;
-    }
-
     @Override
     public NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException {
         return null;  // Override as necessary
-    }
-
-    @Override
-    public String readStats() throws IOException {
-        return null; // Override for Combined Dataset Reader
     }
 
 }

@@ -52,11 +52,6 @@ public class ContactRecord2 implements Comparable<ContactRecord2> {
         this.counts = counts;
     }
 
-    public void incrementCount(float score) {
-        counts += score;
-    }
-
-
     public int getBinX() {
         return binX;
     }
@@ -82,10 +77,4 @@ public class ContactRecord2 implements Comparable<ContactRecord2> {
         return "" + binX + " " + binY + " " + counts;
     }
 
-    public String getKey() {
-        if (key == null) {
-            key = binX + "_" + binY;
-        }
-        return key;
-    }
 }

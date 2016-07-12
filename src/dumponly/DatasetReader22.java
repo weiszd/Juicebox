@@ -53,12 +53,6 @@ public interface DatasetReader22 {
      */
     List<Integer> getBlockNumbers(MatrixZoomData2 matrixZoomData);
 
-    void close();
-
     NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException;
-
-    String getPath();
-
-    String readStats() throws IOException;
 
 }

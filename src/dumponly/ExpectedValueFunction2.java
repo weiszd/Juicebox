@@ -34,13 +34,5 @@ public interface ExpectedValueFunction2 {
 
     double getExpectedValue(int chrIdx, int distance);
 
-    int getLength();
-
-    NormalizationType2 getNormalizationType();
-
     String getUnit();
-
-    int getBinSize();
-
-    double[] getExpectedValues();
 }

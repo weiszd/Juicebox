@@ -49,11 +49,6 @@ public class Block2 {
         this.records = records;
     }
 
-    public int getNumber() {
-        return number;
-    }
-
-
     public Collection<ContactRecord2> getContactRecords() {
         return records;
     }

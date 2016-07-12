@@ -35,8 +35,6 @@ import java.util.Map;
  */
 public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
 
-    private final int binSize;
-    private final NormalizationType2 type;
     private final String unit;
 
     private final Map<Integer, Double> normFactors;
@@ -44,27 +42,9 @@ public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
     private final double[] expectedValues;
 
     public ExpectedValueFunctionImpl2(NormalizationType2 type, String unit, int binSize, double[] expectedValues, Map<Integer, Double> normFactors) {
-        this.type = type;
         this.unit = unit;
-        this.binSize = binSize;
         this.normFactors = normFactors;
         this.expectedValues = expectedValues;
-    }
-
-    // This is exposed for testing, should not use directly
-    public Map<Integer, Double> getNormFactors() {
-        return normFactors;
-    }
-
-
-    /**
-     * Expected value vector.  No chromosome normalization
-     *
-     * @return Genome-wide expected value vector
-     */
-    @Override
-    public double[] getExpectedValues() {
-        return expectedValues;
     }
 
     /**
@@ -91,23 +71,9 @@ public class ExpectedValueFunctionImpl2 implements ExpectedValueFunction2 {
     }
 
     @Override
-    public int getLength() {
-        return expectedValues.length;
-    }
-
-    @Override
-    public NormalizationType2 getNormalizationType() {
-        return type;
-    }
-
-    @Override
     public String getUnit() {
         return unit;
     }
 
-    @Override
-    public int getBinSize() {
-        return binSize;
-    }
 
 }

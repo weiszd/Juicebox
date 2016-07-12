@@ -169,7 +169,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
             String genomeId = dis.readString();
             position += genomeId.length() + 1;
 
-            dataset.setGenomeId(genomeId);
+            //dataset.setGenomeId(genomeId);
 
             Map<String, String> attributes = new HashMap<String, String>();
             // Attributes  (key-value pairs)
@@ -187,7 +187,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                 }
             }
 
-            dataset.setAttributes(attributes);
+            //dataset.setAttributes(attributes);
 
             // Read chromosome dictionary
             int nchrs = dis.readInt();
@@ -247,8 +247,8 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
                     stream.skip(nSites * 4);
                     position += nSites * 4;
                 }
-                dataset.setRestrictionEnzyme(map.get(chromosomes.get(1).getName()));
-                dataset.setFragmentCounts(map);
+                //dataset.setRestrictionEnzyme(map.get(chromosomes.get(1).getName()));
+                //dataset.setFragmentCounts(map);
             }
 
 
@@ -706,15 +706,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
     }
 
     @Override
-    public void close() {
-        try {
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
-    @Override
     public synchronized NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException {
 
         String key = NormalizationVector2.getKey(type, chrIdx, unit.toString(), binSize);
@@ -742,9 +733,6 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
 
     }
 
-    public long getNormFilePosition() {
-        return version <= 5 ? (new File(this.path)).length() : normVectorFilePosition;
-    }
 
     static class FragIndexEntry {
         final long position;
@@ -759,14 +747,7 @@ public class DatasetReader2V3 extends AbstractDatasetReader2 {
     public static class IndexEntry {
         public final long position;
         public final int size;
-        int id;
-
-        IndexEntry(int id, long position, int size) {
-            this.id = id;
-            this.position = position;
-            this.size = size;
-        }
-
+        
         public IndexEntry(long position, int size) {
             this.position = position;
             this.size = size;
