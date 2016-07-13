@@ -37,7 +37,6 @@ public class NormalizationVector {
         return type + "_" + chrIdx + "_" + unit + "_" + resolution;
     }
 
-
     public double[] getData() {
         return data;
     }

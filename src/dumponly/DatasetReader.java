@@ -39,6 +39,7 @@ import java.util.*;
 
 public class DatasetReader {
 
+    private static final int bufferSize = 2097152;
     /**
      * Cache of chromosome name -> array of restriction sites
      */
@@ -324,7 +325,7 @@ public class DatasetReader {
 
         if (version >= 6) {
 
-            dis = new LittleEndianInputStream(new BufferedInputStream(stream, MyGlobals.bufferSize));
+            dis = new LittleEndianInputStream(new BufferedInputStream(stream, bufferSize));
 
             try {
                 nExpectedValues = dis.readInt();

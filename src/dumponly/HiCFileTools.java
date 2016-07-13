@@ -53,12 +53,19 @@ class HiCFileTools {
                     dataset = reader.read();
                 }
             }
-            MyGlobals.verifySupportedHiCFileVersion(reader.getVersion());
+            verifySupportedHiCFileVersion(reader.getVersion());
         } catch (Exception e) {
             System.err.println("Could not read hic file: " + e.getMessage());
             System.exit(34);
         }
         return dataset;
+    }
+
+    private static void verifySupportedHiCFileVersion(int version) throws RuntimeException {
+        if (version < 7) {
+            throw new RuntimeException("This file is version " + version +
+                    ". Only versions 7 and greater are supported at this time.");
+        }
     }
 
     public static DatasetReader getReader(List<String> fileList) throws IOException {

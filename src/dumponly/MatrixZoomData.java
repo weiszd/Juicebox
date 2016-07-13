@@ -250,7 +250,7 @@ public class MatrixZoomData {
                         // Optionally check the cache
                         String key = getKey() + "_" + Block2Number + "_" + NormalizationType.NONE;
                         Block nextBlock;
-                        if (MyGlobals.useCache && Block2Cache.containsKey(key)) {
+                        if (Block2Cache.containsKey(key)) {
                             nextBlock = Block2Cache.get(key);
                         } else {
                             nextBlock = reader.readBlock(Block2Number, MatrixZoomData.this);
