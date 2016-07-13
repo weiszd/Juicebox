@@ -22,54 +22,49 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-public class HiCZoom {
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    private final Unit unit;
-    private final int binSize;
+public class LRUCache<K, V> {
+    private AtomicInteger maxEntries;
+    private Map<K, V> map;
 
-    public HiCZoom(Unit unit, int binSize) {
-        this.unit = unit;
-        this.binSize = binSize;
+    public LRUCache(int max) {
+        this.maxEntries = new AtomicInteger(max);
     }
 
-    public HiCZoom clone() {
-        return new HiCZoom(unit, binSize);
+    private void createMap() {
+        this.map = Collections.synchronizedMap(new LinkedHashMap<K, V>(16, 0.75F, true) {
+
+            static final long serialVersionUID = 11289371L;
+
+            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+                return this.size() > LRUCache.this.maxEntries.get();
+            }
+        });
     }
 
-    public Unit getUnit() {
-        return unit;
+    private Map<K, V> getMap() {
+        if (this.map == null) {
+            this.createMap();
+        }
+
+        return this.map;
     }
 
-    public int getBinSize() {
-        return binSize;
+    public V put(K k, V v) {
+        return this.getMap().put(k, v);
     }
 
-    public String getKey() {
-        return unit.toString() + "_" + binSize;
+    public V get(Object key) {
+        return this.getMap().get(key);
     }
 
-    public String toString() {
-        return getKey();
+    public boolean containsKey(Object o) {
+        return this.getMap().containsKey(o);
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        HiCZoom hiCZoom = (HiCZoom) o;
-
-        return (binSize == hiCZoom.binSize) && (unit == hiCZoom.unit);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = unit.hashCode();
-        result = 31 * result + binSize;
-        return result;
-    }
-
-    public enum Unit {BP, FRAG} // leave FRAG here; it IS used
 }

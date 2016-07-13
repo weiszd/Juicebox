@@ -22,18 +22,22 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
 
-public class ExpectedValueFunctionImpl {
+package dumponly.basics;
 
-    private final String unit;
+public class NormalizationVector {
 
-    public ExpectedValueFunctionImpl(String unit) {
-        this.unit = unit;
+    private final double[] data;
+
+    public NormalizationVector(double[] data) {
+        this.data = data;
     }
 
-    public String getUnit() {
-        return unit;
+    public static String getKey(NormalizationType type, int chrIdx, String unit, int resolution) {
+        return type + "_" + chrIdx + "_" + unit + "_" + resolution;
     }
 
+    public double[] getData() {
+        return data;
+    }
 }

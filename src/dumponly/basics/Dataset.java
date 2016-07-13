@@ -22,10 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
-
-import org.broad.igv.feature.Chromosome;
-import org.broad.igv.util.collections.LRUCache;
+package dumponly.basics;
 
 import java.io.IOException;
 import java.util.ArrayList;

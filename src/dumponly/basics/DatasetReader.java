@@ -22,13 +22,11 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
 
 import htsjdk.samtools.seekablestream.SeekableHTTPStream;
 import htsjdk.samtools.seekablestream.SeekableStream;
-import htsjdk.tribble.util.LittleEndianInputStream;
-import org.broad.igv.feature.Chromosome;
 import org.broad.igv.util.CompressionUtils;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
 

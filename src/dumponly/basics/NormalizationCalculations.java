@@ -22,17 +22,16 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-import org.apache.commons.math.stat.StatUtils;
-import org.broad.igv.util.collections.FloatArrayList;
-import org.broad.igv.util.collections.IntArrayList;
+import org.apache.commons.math.stat.descriptive.rank.Percentile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 class NormalizationCalculations {
 
+    private static final Percentile PERCENTILE = new Percentile();
     private ArrayList<ContactRecord> list;
     private int totSize;
 
@@ -349,7 +348,7 @@ class NormalizationCalculations {
             double[] posRowSums = new double[j];
             j = 0;
             for (double sum : rowSums) if (sum != 0) posRowSums[j++] = sum;
-            thresh = StatUtils.percentile(posRowSums, percent);
+            thresh = PERCENTILE.evaluate(posRowSums, percent);
         }
         int[] offset = new int[rowSums.length];
         int index = 0;

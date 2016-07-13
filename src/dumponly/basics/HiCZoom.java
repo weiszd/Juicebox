@@ -22,54 +22,54 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-public class ContactRecord implements Comparable<ContactRecord> {
+public class HiCZoom {
 
-    /**
-     * Bin number in x coordinate
-     */
-    private final int binX;
+    private final Unit unit;
+    private final int binSize;
 
-    /**
-     * Bin number in y coordinate
-     */
-    private final int binY;
-
-    /**
-     * Total number of counts, or cumulative score
-     */
-    private float counts;
-
-    public ContactRecord(int binX, int binY, float counts) {
-        this.binX = binX;
-        this.binY = binY;
-        this.counts = counts;
+    public HiCZoom(Unit unit, int binSize) {
+        this.unit = unit;
+        this.binSize = binSize;
     }
 
-    public int getBinX() {
-        return binX;
+    public HiCZoom clone() {
+        return new HiCZoom(unit, binSize);
     }
 
-    public int getBinY() {
-        return binY;
+    public Unit getUnit() {
+        return unit;
     }
 
-    public float getCounts() {
-        return counts;
+    public int getBinSize() {
+        return binSize;
     }
 
-    @Override
-    public int compareTo(ContactRecord contactRecord) {
-        if (this.binX != contactRecord.binX) {
-            return binX - contactRecord.binX;
-        } else if (this.binY != contactRecord.binY) {
-            return binY - contactRecord.binY;
-        } else return 0;
+    public String getKey() {
+        return unit.toString() + "_" + binSize;
     }
 
     public String toString() {
-        return "" + binX + " " + binY + " " + counts;
+        return getKey();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HiCZoom hiCZoom = (HiCZoom) o;
+
+        return (binSize == hiCZoom.binSize) && (unit == hiCZoom.unit);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = unit.hashCode();
+        result = 31 * result + binSize;
+        return result;
+    }
+
+    public enum Unit {BP, FRAG} // leave FRAG here; it IS used
 }

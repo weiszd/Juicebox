@@ -23,7 +23,7 @@
  */
 
 
-package dumponly;
+package dumponly.basics;
 
 
 import java.util.ArrayList;

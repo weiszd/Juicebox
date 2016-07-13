@@ -22,25 +22,54 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+public class ContactRecord implements Comparable<ContactRecord> {
 
-public class Block {
+    /**
+     * Bin number in x coordinate
+     */
+    private final int binX;
 
-    private final List<ContactRecord> records;
+    /**
+     * Bin number in y coordinate
+     */
+    private final int binY;
 
-    public Block() {
-        records = new ArrayList<ContactRecord>();
+    /**
+     * Total number of counts, or cumulative score
+     */
+    private float counts;
+
+    public ContactRecord(int binX, int binY, float counts) {
+        this.binX = binX;
+        this.binY = binY;
+        this.counts = counts;
     }
 
-    public Block(List<ContactRecord> records) {
-        this.records = records;
+    public int getBinX() {
+        return binX;
     }
 
-    public Collection<ContactRecord> getContactRecords() {
-        return records;
+    public int getBinY() {
+        return binY;
     }
+
+    public float getCounts() {
+        return counts;
+    }
+
+    @Override
+    public int compareTo(ContactRecord contactRecord) {
+        if (this.binX != contactRecord.binX) {
+            return binX - contactRecord.binX;
+        } else if (this.binY != contactRecord.binY) {
+            return binY - contactRecord.binY;
+        } else return 0;
+    }
+
+    public String toString() {
+        return "" + binX + " " + binY + " " + counts;
+    }
+
 }

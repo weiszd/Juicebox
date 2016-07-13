@@ -22,11 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
-
-import htsjdk.tribble.util.LittleEndianOutputStream;
-import org.broad.igv.Globals;
-import org.broad.igv.feature.Chromosome;
+package dumponly.basics;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -34,8 +30,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-class Dump {
+public class Dump {
 
+    public static final String CHR_ALL = "All";
     private static int[] regionIndices = new int[]{-1, -1, -1, -1};
     private static boolean useRegionIndices = false;
     private final List<String> files = new ArrayList<String>();
@@ -74,7 +71,7 @@ class Dump {
 
         int totalSize = 0;
         for (Chromosome c1 : chromosomeList) {
-            if (c1.getName().equals(Globals.CHR_ALL)) continue;
+            if (c1.getName().equals(CHR_ALL)) continue;
             totalSize += c1.getLength() / zoom.getBinSize() + 1;
         }
 
@@ -104,9 +101,9 @@ class Dump {
         int addX = 0;
         int addY = 0;
         for (Chromosome c1 : tmp) {
-            if (c1.getName().equals(Globals.CHR_ALL)) continue;
+            if (c1.getName().equals(CHR_ALL)) continue;
             for (Chromosome c2 : tmp) {
-                if (c2.getName().equals(Globals.CHR_ALL)) continue;
+                if (c2.getName().equals(CHR_ALL)) continue;
                 if (c1.getIndex() < c2.getIndex() || (c1.equals(c2) && includeIntra)) {
                     Matrix matrix = dataset.getMatrix(c1, c2);
                     if (matrix != null) {
@@ -274,7 +271,7 @@ class Dump {
         }
 
 
-        if (matrixType == MatrixType.OBSERVED && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
+        if (matrixType == MatrixType.OBSERVED && chr1.equals(CHR_ALL) && chr2.equals(CHR_ALL)) {
 
             if (args.length == idx + 5) {
                 includeIntra = true;
@@ -347,7 +344,7 @@ class Dump {
         }
 
         //*****************************************************
-        if ((matrixType == MatrixType.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
+        if ((matrixType == MatrixType.OBSERVED) && chr1.equals(CHR_ALL) && chr2.equals(CHR_ALL)) {
             dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType);
         } else {
             try {

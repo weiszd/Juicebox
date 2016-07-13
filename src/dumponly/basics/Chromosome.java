@@ -22,26 +22,41 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-public enum MatrixType {
-    OBSERVED("Observed");
-    private final String value;
+public class Chromosome {
+    private String name;
+    private int index;
+    private int length = 0;
 
-    MatrixType(String value) {
-        this.value = value;
+    public Chromosome(int index, String name, int length) {
+        this.index = index;
+        this.name = name;
+        this.length = length;
     }
 
-    public static MatrixType enumValueFromString(String text) {
-        if (text != null && text.equalsIgnoreCase(OBSERVED.value)) {
-            return OBSERVED;
-        }
-        System.err.println("Invalid matrixType: " + text);
-        System.exit(101);
-        return null;
+    public int getIndex() {
+        return this.index;
+    }
+
+    public int getLength() {
+        return this.length;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public String toString() {
-        return value;
+        return this.name;
     }
+
+    public boolean equals(Object obj) {
+        return ((Chromosome) obj).getIndex() == this.index;
+    }
+
+    public int hashCode() {
+        return super.hashCode() + index;
+    }
+
 }

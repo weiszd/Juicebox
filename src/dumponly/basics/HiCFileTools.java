@@ -22,7 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
 import java.io.IOException;
 import java.util.List;

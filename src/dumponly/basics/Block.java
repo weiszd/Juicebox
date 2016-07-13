@@ -22,15 +22,25 @@
  *  THE SOFTWARE.
  */
 
-package dumponly;
+package dumponly.basics;
 
-public enum NormalizationType {
-    NONE,
-    VC,
-    VC_SQRT, // this is actually used, don't delete
-    KR,
-    GW_KR,
-    INTER_KR,
-    GW_VC,
-    INTER_VC
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class Block {
+
+    private final List<ContactRecord> records;
+
+    public Block() {
+        records = new ArrayList<ContactRecord>();
+    }
+
+    public Block(List<ContactRecord> records) {
+        this.records = records;
+    }
+
+    public Collection<ContactRecord> getContactRecords() {
+        return records;
+    }
 }

@@ -22,22 +22,26 @@
  *  THE SOFTWARE.
  */
 
+package dumponly.basics;
 
-package dumponly;
+public enum MatrixType {
+    OBSERVED("Observed");
+    private final String value;
 
-public class NormalizationVector {
-
-    private final double[] data;
-
-    public NormalizationVector(double[] data) {
-        this.data = data;
+    MatrixType(String value) {
+        this.value = value;
     }
 
-    public static String getKey(NormalizationType type, int chrIdx, String unit, int resolution) {
-        return type + "_" + chrIdx + "_" + unit + "_" + resolution;
+    public static MatrixType enumValueFromString(String text) {
+        if (text != null && text.equalsIgnoreCase(OBSERVED.value)) {
+            return OBSERVED;
+        }
+        System.err.println("Invalid matrixType: " + text);
+        System.exit(101);
+        return null;
     }
 
-    public double[] getData() {
-        return data;
+    public String toString() {
+        return value;
     }
 }
