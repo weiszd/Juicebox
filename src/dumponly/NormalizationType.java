@@ -24,24 +24,13 @@
 
 package dumponly;
 
-public enum MatrixType2 {
-    OBSERVED("Observed");
-    private final String value;
-
-    MatrixType2(String value) {
-        this.value = value;
-    }
-
-    public static MatrixType2 enumValueFromString(String text) {
-        if (text != null && text.equalsIgnoreCase(OBSERVED.value)) {
-            return OBSERVED;
-        }
-        System.err.println("Invalid matrixType: " + text);
-        System.exit(101);
-        return null;
-    }
-
-    public String toString() {
-        return value;
-    }
+public enum NormalizationType {
+    NONE,
+    VC,
+    VC_SQRT, // this is actually used, don't delete
+    KR,
+    GW_KR,
+    INTER_KR,
+    GW_VC,
+    INTER_VC
 }

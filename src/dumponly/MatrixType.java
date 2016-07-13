@@ -24,23 +24,24 @@
 
 package dumponly;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+public enum MatrixType {
+    OBSERVED("Observed");
+    private final String value;
 
-public class Block2 {
-
-    private final List<ContactRecord2> records;
-
-    public Block2() {
-        records = new ArrayList<ContactRecord2>();
+    MatrixType(String value) {
+        this.value = value;
     }
 
-    public Block2(List<ContactRecord2> records) {
-        this.records = records;
+    public static MatrixType enumValueFromString(String text) {
+        if (text != null && text.equalsIgnoreCase(OBSERVED.value)) {
+            return OBSERVED;
+        }
+        System.err.println("Invalid matrixType: " + text);
+        System.exit(101);
+        return null;
     }
 
-    public Collection<ContactRecord2> getContactRecords() {
-        return records;
+    public String toString() {
+        return value;
     }
 }

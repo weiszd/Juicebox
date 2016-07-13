@@ -33,17 +33,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-public class MatrixZoomData2 {
+public class MatrixZoomData {
 
     private final Chromosome chr1;  // Chromosome on the X axis
     private final Chromosome chr2;  // Chromosome on the Y axis
-    private final HiCZoom2 zoom;    // Unit and bin size
+    private final HiCZoom zoom;    // Unit and bin size
     // Observed values are organized into sub-matrices ("Block2s")
     private final int Block2BinCount;   // Block2 size in bins
     private final int Block2ColumnCount;     // number of Block2 columns
     // Cache the last 20 Block2s loaded
-    private final LRUCache<String, Block2> Block2Cache = new LRUCache<String, Block2>(20);
-    private final DatasetReader2V3 reader;
+    private final LRUCache<String, Block> Block2Cache = new LRUCache<String, Block>(20);
+    private final DatasetReader reader;
 
     /**
      * Constructor, sets the grid axes.  Called when read from file.
@@ -55,8 +55,8 @@ public class MatrixZoomData2 {
      * @param Block2ColumnCount Number of bins divided by 1000 (Block2_SIZE)
      * @param reader           Pointer to file reader
      */
-    public MatrixZoomData2(Chromosome chr1, Chromosome chr2, HiCZoom2 zoom, int Block2BinCount, int Block2ColumnCount,
-                           DatasetReader2V3 reader) {
+    public MatrixZoomData(Chromosome chr1, Chromosome chr2, HiCZoom zoom, int Block2BinCount, int Block2ColumnCount,
+                          DatasetReader reader) {
 
         this.reader = reader;
 
@@ -80,7 +80,7 @@ public class MatrixZoomData2 {
         return chr2.getIndex();
     }
 
-    public HiCZoom2 getZoom() {
+    public HiCZoom getZoom() {
         return zoom;
     }
 
@@ -143,8 +143,8 @@ public class MatrixZoomData2 {
     }
 
 
-    public void dump(PrintWriter printWriter, LittleEndianOutputStream les, NormalizationType2 norm, MatrixType2 matrixType2,
-                     boolean useRegionIndices, int[] regionIndices, ExpectedValueFunctionImpl2 df) throws IOException {
+    public void dump(PrintWriter printWriter, LittleEndianOutputStream les, NormalizationType norm, MatrixType matrixType,
+                     boolean useRegionIndices, int[] regionIndices, ExpectedValueFunctionImpl df) throws IOException {
 
         // determine which output will be used
         if (printWriter == null && les == null) {
@@ -153,7 +153,7 @@ public class MatrixZoomData2 {
         boolean usePrintWriter = printWriter != null && les == null;
         boolean isIntraChromosomal = chr1.getIndex() == chr2.getIndex();
 
-        if (matrixType2 == null) {
+        if (matrixType == null) {
             return;
         }
 
@@ -167,9 +167,9 @@ public class MatrixZoomData2 {
         }
 
         for (Integer Block2Number : Block2sToIterateOver) {
-            Block2 b = reader.readNormalizedBlock(Block2Number, MatrixZoomData2.this, norm);
+            Block b = reader.readNormalizedBlock(Block2Number, MatrixZoomData.this, norm);
             if (b != null) {
-                for (ContactRecord2 rec : b.getContactRecords()) {
+                for (ContactRecord rec : b.getContactRecords()) {
                     float counts = rec.getCounts();
                     int x = rec.getBinX();
                     int y = rec.getBinY();
@@ -184,11 +184,11 @@ public class MatrixZoomData2 {
                                     xActual >= regionIndices[2] && xActual <= regionIndices[3])) {
                         // but leave in upper right triangle coordinates
                         if (usePrintWriter) {
-                            if (matrixType2 == MatrixType2.OBSERVED) {
+                            if (matrixType == MatrixType.OBSERVED) {
                                 printWriter.println(xActual + "\t" + yActual + "\t" + counts);
                             }
                         } else {
-                            if (matrixType2 == MatrixType2.OBSERVED) {
+                            if (matrixType == MatrixType.OBSERVED) {
                                 les.writeInt(x);
                                 les.writeInt(y);
                                 les.writeFloat(counts);
@@ -209,25 +209,25 @@ public class MatrixZoomData2 {
      *
      * @return iterator for contact records
      */
-    public Iterator<ContactRecord2> contactRecordIterator() {
+    public Iterator<ContactRecord> contactRecordIterator() {
         return new ContactRecordIterator();
     }
 
     /**
      * Class for iterating over the contact records
      */
-    public class ContactRecordIterator implements Iterator<ContactRecord2> {
+    public class ContactRecordIterator implements Iterator<ContactRecord> {
 
         final List<Integer> Block2Numbers;
         int Block2Idx;
-        Iterator<ContactRecord2> currentBlock2Iterator;
+        Iterator<ContactRecord> currentBlock2Iterator;
 
         /**
          * Initializes the iterator
          */
         public ContactRecordIterator() {
             this.Block2Idx = -1;
-            this.Block2Numbers = reader.getBlockNumbers(MatrixZoomData2.this);
+            this.Block2Numbers = reader.getBlockNumbers(MatrixZoomData.this);
         }
 
         /**
@@ -248,14 +248,14 @@ public class MatrixZoomData2 {
                         int Block2Number = Block2Numbers.get(Block2Idx);
 
                         // Optionally check the cache
-                        String key = getKey() + "_" + Block2Number + "_" + NormalizationType2.NONE;
-                        Block2 nextBlock2;
+                        String key = getKey() + "_" + Block2Number + "_" + NormalizationType.NONE;
+                        Block nextBlock;
                         if (MyGlobals.useCache && Block2Cache.containsKey(key)) {
-                            nextBlock2 = Block2Cache.get(key);
+                            nextBlock = Block2Cache.get(key);
                         } else {
-                            nextBlock2 = reader.readBlock(Block2Number, MatrixZoomData2.this);
+                            nextBlock = reader.readBlock(Block2Number, MatrixZoomData.this);
                         }
-                        currentBlock2Iterator = nextBlock2.getContactRecords().iterator();
+                        currentBlock2Iterator = nextBlock.getContactRecords().iterator();
                         return true;
                     } catch (IOException e) {
                         System.err.println("Error fetching Block2");
@@ -273,7 +273,7 @@ public class MatrixZoomData2 {
          * @return The next contact record
          */
         @Override
-        public ContactRecord2 next() {
+        public ContactRecord next() {
             return currentBlock2Iterator == null ? null : currentBlock2Iterator.next();
         }
 

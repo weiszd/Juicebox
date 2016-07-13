@@ -34,43 +34,43 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-class Dump2 {
+class Dump {
 
     private static int[] regionIndices = new int[]{-1, -1, -1, -1};
     private static boolean useRegionIndices = false;
     private final List<String> files = new ArrayList<String>();
-    private HiCZoom2.Unit unit = null;
-    private NormalizationType2 norm = null;
+    private HiCZoom.Unit unit = null;
+    private NormalizationType norm = null;
     private String chr1, chr2;
-    private Dataset22 dataset = null;
+    private Dataset dataset = null;
     private List<Chromosome> chromosomeList;
     private Map<String, Chromosome> chromosomeMap;
     private int binSize = 0;
-    private MatrixType2 matrixType2 = null;
+    private MatrixType matrixType = null;
     private String ofile = null;
     private boolean includeIntra = false;
 
-    private Dump2() {
+    private Dump() {
 
     }
 
     public static void main(String[] argv) {
-        Dump2 dump2 = new Dump2();
-        dump2.readArguments(argv);
-        dump2.run();
+        Dump dump = new Dump();
+        dump.readArguments(argv);
+        dump.run();
     }
 
     private static String getUsage() {
         return "dump <observed> <NONE/VC/VC_SQRT/KR> <hicFile(s)> <chr1>[:x1:x2] <chr2>[:y1:y2] <BP/FRAG> <binsize> <outfile>";
     }
 
-    private static void dumpGenomeWideData(Dataset22 dataset, List<Chromosome> chromosomeList,
-                                           boolean includeIntra, HiCZoom2 zoom, NormalizationType2 norm,
-                                           MatrixType2 matrixType2) {
+    private static void dumpGenomeWideData(Dataset dataset, List<Chromosome> chromosomeList,
+                                           boolean includeIntra, HiCZoom zoom, NormalizationType norm,
+                                           MatrixType matrixType) {
 
 
         // Build a "whole-genome" matrix
-        ArrayList<ContactRecord2> recordArrayList = createWholeGenomeRecords(dataset, chromosomeList, zoom, includeIntra);
+        ArrayList<ContactRecord> recordArrayList = createWholeGenomeRecords(dataset, chromosomeList, zoom, includeIntra);
 
         int totalSize = 0;
         for (Chromosome c1 : chromosomeList) {
@@ -78,12 +78,12 @@ class Dump2 {
             totalSize += c1.getLength() / zoom.getBinSize() + 1;
         }
 
-        NormalizationCalculations2 calculations = new NormalizationCalculations2(recordArrayList, totalSize);
+        NormalizationCalculations calculations = new NormalizationCalculations(recordArrayList, totalSize);
         double[] vector = calculations.getNorm(norm);
 
-        if (matrixType2 == MatrixType2.OBSERVED) {   // type == "observed"
+        if (matrixType == MatrixType.OBSERVED) {   // type == "observed"
 
-            for (ContactRecord2 cr : recordArrayList) {
+            for (ContactRecord cr : recordArrayList) {
                 int x = cr.getBinX();
                 int y = cr.getBinY();
                 float value = cr.getCounts();
@@ -99,8 +99,8 @@ class Dump2 {
         }
     }
 
-    private static ArrayList<ContactRecord2> createWholeGenomeRecords(Dataset22 dataset, List<Chromosome> tmp, HiCZoom2 zoom, boolean includeIntra) {
-        ArrayList<ContactRecord2> recordArrayList = new ArrayList<ContactRecord2>();
+    private static ArrayList<ContactRecord> createWholeGenomeRecords(Dataset dataset, List<Chromosome> tmp, HiCZoom zoom, boolean includeIntra) {
+        ArrayList<ContactRecord> recordArrayList = new ArrayList<ContactRecord>();
         int addX = 0;
         int addY = 0;
         for (Chromosome c1 : tmp) {
@@ -108,16 +108,16 @@ class Dump2 {
             for (Chromosome c2 : tmp) {
                 if (c2.getName().equals(Globals.CHR_ALL)) continue;
                 if (c1.getIndex() < c2.getIndex() || (c1.equals(c2) && includeIntra)) {
-                    Matrix2 matrix = dataset.getMatrix(c1, c2);
+                    Matrix matrix = dataset.getMatrix(c1, c2);
                     if (matrix != null) {
-                        MatrixZoomData2 zd = matrix.getZoomData(zoom);
+                        MatrixZoomData zd = matrix.getZoomData(zoom);
                         if (zd != null) {
-                            Iterator<ContactRecord2> iter = zd.contactRecordIterator();
+                            Iterator<ContactRecord> iter = zd.contactRecordIterator();
                             while (iter.hasNext()) {
-                                ContactRecord2 cr = iter.next();
+                                ContactRecord cr = iter.next();
                                 int binX = cr.getBinX() + addX;
                                 int binY = cr.getBinY() + addY;
-                                recordArrayList.add(new ContactRecord2(binX, binY, cr.getCounts()));
+                                recordArrayList.add(new ContactRecord(binX, binY, cr.getCounts()));
                             }
                         }
                     }
@@ -138,12 +138,12 @@ class Dump2 {
      * @param chr2        Chromosome 2
      * @param norm        Normalization
      * @param zoom        Zoom level
-     * @param matrixType2 observed/oe/pearson
+     * @param matrixType observed/oe/pearson
      * @param ofile       Output file string (binary output), possibly null (then prints to standard out)
      * @throws IOException
      */
-    static private void dumpMatrix(Dataset22 dataset, Chromosome chr1, Chromosome chr2, NormalizationType2 norm,
-                                   HiCZoom2 zoom, MatrixType2 matrixType2, String ofile) throws IOException {
+    static private void dumpMatrix(Dataset dataset, Chromosome chr1, Chromosome chr2, NormalizationType norm,
+                                   HiCZoom zoom, MatrixType matrixType, String ofile) throws IOException {
         LittleEndianOutputStream les = null;
         BufferedOutputStream bos = null;
         PrintWriter txtWriter = null;
@@ -158,7 +158,7 @@ class Dump2 {
             }
         }
 
-        Matrix2 matrix = dataset.getMatrix(chr1, chr2);
+        Matrix matrix = dataset.getMatrix(chr1, chr2);
         if (matrix == null) {
             System.err.println("No reads in " + chr1 + " " + chr2);
             System.exit(12);
@@ -168,19 +168,19 @@ class Dump2 {
             regionIndices = new int[]{regionIndices[2], regionIndices[3], regionIndices[0], regionIndices[1]};
         }
 
-        MatrixZoomData2 zd = matrix.getZoomData(zoom);
+        MatrixZoomData zd = matrix.getZoomData(zoom);
         if (zd == null) {
 
             System.err.println("Unknown resolution: " + zoom);
             System.err.println("This data set has the following bin sizes (in bp): ");
-            for (int zoomIdx = 0; zoomIdx < dataset.getNumberZooms(HiCZoom2.Unit.BP); zoomIdx++) {
-                System.err.print(dataset.getZoom(HiCZoom2.Unit.BP, zoomIdx).getBinSize() + " ");
+            for (int zoomIdx = 0; zoomIdx < dataset.getNumberZooms(HiCZoom.Unit.BP); zoomIdx++) {
+                System.err.print(dataset.getZoom(HiCZoom.Unit.BP, zoomIdx).getBinSize() + " ");
             }
             System.exit(13);
         }
 
         try {
-            zd.dump(txtWriter, les, norm, matrixType2, useRegionIndices, regionIndices, null);
+            zd.dump(txtWriter, les, norm, matrixType, useRegionIndices, regionIndices, null);
         } finally {
             if (les != null) les.close();
             if (bos != null) bos.close();
@@ -201,15 +201,15 @@ class Dump2 {
 
         String mType = args[1].toLowerCase();
 
-        matrixType2 = MatrixType2.enumValueFromString(mType);
-        if (matrixType2 == null) {
+        matrixType = MatrixType.enumValueFromString(mType);
+        if (matrixType == null) {
             System.err.println("Matrix or vector must be one of \"observed\", \"oe\", \"pearson\", \"norm\", " +
                     "\"expected\", or \"eigenvector\".");
             System.exit(15);
         }
 
         try {
-            norm = NormalizationType2.valueOf(args[2]);
+            norm = NormalizationType.valueOf(args[2]);
         } catch (IllegalArgumentException error) {
             System.err.println("Normalization must be one of \"NONE\", \"VC\", \"VC_SQRT\", \"KR\", \"GW_KR\"," +
                     " \"GW_VC\", \"INTER_KR\", or \"INTER_VC\".");
@@ -235,7 +235,7 @@ class Dump2 {
         }
 
         // initialize chromosome map
-        dataset = HiCFileTools2.extractDatasetForCLT(files);
+        dataset = HiCFileTools.extractDatasetForCLT(files);
         chromosomeList = dataset.getChromosomes();
         chromosomeMap = new HashMap<String, Chromosome>();
         for (Chromosome c : chromosomeList) {
@@ -258,7 +258,7 @@ class Dump2 {
 
 
         try {
-            unit = HiCZoom2.Unit.valueOf(args[idx + 2]);
+            unit = HiCZoom.Unit.valueOf(args[idx + 2]);
         } catch (IllegalArgumentException error) {
             System.err.println("Unit must be in BP or FRAG.");
             System.exit(20);
@@ -274,7 +274,7 @@ class Dump2 {
         }
 
 
-        if (matrixType2 == MatrixType2.OBSERVED && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
+        if (matrixType == MatrixType.OBSERVED && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
 
             if (args.length == idx + 5) {
                 includeIntra = true;
@@ -339,19 +339,19 @@ class Dump2 {
     }
 
     private void run() {
-        HiCZoom2 zoom = new HiCZoom2(unit, binSize);
+        HiCZoom zoom = new HiCZoom(unit, binSize);
 
-        if (unit != HiCZoom2.Unit.BP) {
+        if (unit != HiCZoom.Unit.BP) {
             System.err.println("This streamlined version only supports BP resolutions");
             System.exit(8);
         }
 
         //*****************************************************
-        if ((matrixType2 == MatrixType2.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
-            dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType2);
+        if ((matrixType == MatrixType.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
+            dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType);
         } else {
             try {
-                dumpMatrix(dataset, chromosomeMap.get(chr1), chromosomeMap.get(chr2), norm, zoom, matrixType2, ofile);
+                dumpMatrix(dataset, chromosomeMap.get(chr1), chromosomeMap.get(chr2), norm, zoom, matrixType, ofile);
             } catch (Exception e) {
                 System.err.println("Unable to dump matrix");
                 e.printStackTrace();

@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class DatasetReader2V3 {
+public class DatasetReader {
 
     /**
      * Cache of chromosome name -> array of restriction sites
@@ -48,20 +48,20 @@ public class DatasetReader2V3 {
     private SeekableStream stream;
     private Map<String, IndexEntry> masterIndex;
     private Map<String, IndexEntry> normVectorIndex;
-    private Dataset22 dataset = null;
+    private Dataset dataset = null;
     private int version = -1;
     private Map<String, FragIndexEntry> fragmentSitesIndex;
     private Map<String, Map<Integer, IndexEntry>> blockIndexMap;
     private long masterIndexPos;
 
-    public DatasetReader2V3(String path) throws IOException {
+    public DatasetReader(String path) throws IOException {
 
         this.path = path;
         this.stream = IGVSeekableStreamFactory.getInstance().getStreamFor(path);
 
         if (this.stream != null) {
             masterIndex = new HashMap<String, IndexEntry>();
-            dataset = new Dataset22(this);
+            dataset = new Dataset(this);
         }
         compressionUtils = new CompressionUtils();
         blockIndexMap = new HashMap<String, Map<Integer, IndexEntry>>();
@@ -92,10 +92,10 @@ public class DatasetReader2V3 {
         return null;
     }
 
-    private MatrixZoomData2 readMatrixZoomData2(Chromosome chr1, Chromosome chr2, int[] chr1Sites, int[] chr2Sites,
-                                                LittleEndianInputStream dis) throws IOException {
+    private MatrixZoomData readMatrixZoomData2(Chromosome chr1, Chromosome chr2, int[] chr1Sites, int[] chr2Sites,
+                                               LittleEndianInputStream dis) throws IOException {
 
-        HiCZoom2.Unit unit = HiCZoom2.Unit.valueOf(dis.readString());
+        HiCZoom.Unit unit = HiCZoom.Unit.valueOf(dis.readString());
         dis.readInt();                // Old "zoom" index -- not used
 
         // Stats.  Not used yet, but we need to read them anyway
@@ -105,14 +105,14 @@ public class DatasetReader2V3 {
         dis.readFloat();
 
         int binSize = dis.readInt();
-        HiCZoom2 zoom = new HiCZoom2(unit, binSize);
+        HiCZoom zoom = new HiCZoom(unit, binSize);
         // todo: Default binSize value for "ALL" is 6197...
         // We need to make sure our maps hold a valid binSize value as default.
 
         int blockBinCount = dis.readInt();
         int blockColumnCount = dis.readInt();
 
-        MatrixZoomData2 zd = new MatrixZoomData2(chr1, chr2, zoom, blockBinCount, blockColumnCount, this);
+        MatrixZoomData zd = new MatrixZoomData(chr1, chr2, zoom, blockBinCount, blockColumnCount, this);
 
         int nBlocks = dis.readInt();
         HashMap<Integer, IndexEntry> blockIndex = new HashMap<Integer, IndexEntry>(nBlocks);
@@ -128,7 +128,7 @@ public class DatasetReader2V3 {
         return zd;
     }
 
-    public Dataset22 read() throws IOException {
+    public Dataset read() throws IOException {
 
         try {
             long position = stream.position();
@@ -289,13 +289,13 @@ public class DatasetReader2V3 {
             masterIndex.put(key, new IndexEntry(filePosition, sizeInBytes));
         }
 
-        Map<String, ExpectedValueFunctionImpl2> expectedValuesMap = new LinkedHashMap<String, ExpectedValueFunctionImpl2>();
+        Map<String, ExpectedValueFunctionImpl> expectedValuesMap = new LinkedHashMap<String, ExpectedValueFunctionImpl>();
 
         // Expected values from non-normalized matrix
         int nExpectedValues = dis.readInt();
         for (int i = 0; i < nExpectedValues; i++) {
 
-            NormalizationType2 no = NormalizationType2.NONE;
+            NormalizationType no = NormalizationType.NONE;
             String unit = dis.readString();
             int binSize = dis.readInt();
             String key = unit + "_" + binSize + "_" + no;
@@ -314,7 +314,7 @@ public class DatasetReader2V3 {
                 normFactors.put(chrIdx, normFactor);
             }
 
-            ExpectedValueFunctionImpl2 df = new ExpectedValueFunctionImpl2(unit);
+            ExpectedValueFunctionImpl df = new ExpectedValueFunctionImpl(unit);
             expectedValuesMap.put(key, df);
             //dataset.setExpectedValueFunctionMap(expectedValuesMap);
 
@@ -354,8 +354,8 @@ public class DatasetReader2V3 {
                     normFactors.put(chrIdx, normFactor);
                 }
 
-                NormalizationType2 type = NormalizationType2.valueOf(typeString);
-                ExpectedValueFunctionImpl2 df = new ExpectedValueFunctionImpl2(unit);
+                NormalizationType type = NormalizationType.valueOf(typeString);
+                ExpectedValueFunctionImpl df = new ExpectedValueFunctionImpl(unit);
                 expectedValuesMap.put(key, df);
 
             }
@@ -366,14 +366,14 @@ public class DatasetReader2V3 {
             normVectorIndex = new HashMap<String, IndexEntry>(nEntries * 2);
             for (int i = 0; i < nEntries; i++) {
 
-                NormalizationType2 type = NormalizationType2.valueOf(dis.readString());
+                NormalizationType type = NormalizationType.valueOf(dis.readString());
                 int chrIdx = dis.readInt();
                 String unit = dis.readString();
                 int resolution = dis.readInt();
                 long filePosition = dis.readLong();
                 int sizeInBytes = dis.readInt();
 
-                String key = NormalizationVector2.getKey(type, chrIdx, unit, resolution);
+                String key = NormalizationVector.getKey(type, chrIdx, unit, resolution);
 
                 dataset.addNormalizationType(type);
 
@@ -384,7 +384,7 @@ public class DatasetReader2V3 {
         }
     }
 
-    public Matrix2 readMatrix(String key) throws IOException {
+    public Matrix readMatrix(String key) throws IOException {
         IndexEntry idx = masterIndex.get(key);
         if (idx == null) {
             return null;
@@ -403,7 +403,7 @@ public class DatasetReader2V3 {
         // # of resolution levels (bp and frags)
         int nResolutions = dis.readInt();
 
-        List<MatrixZoomData2> zdList = new ArrayList<MatrixZoomData2>();
+        List<MatrixZoomData> zdList = new ArrayList<MatrixZoomData>();
 
         int[] chr1Sites = fragmentSitesCache.get(chr1.getName());
         if (chr1Sites == null && fragmentSitesIndex != null) {
@@ -423,16 +423,16 @@ public class DatasetReader2V3 {
         }
 
         for (int i = 0; i < nResolutions; i++) {
-            MatrixZoomData2 zd = readMatrixZoomData2(chr1, chr2, chr1Sites, chr2Sites, dis);
+            MatrixZoomData zd = readMatrixZoomData2(chr1, chr2, chr1Sites, chr2Sites, dis);
             zdList.add(zd);
         }
 
-        return new Matrix2(zdList);
+        return new Matrix(zdList);
     }
 
-    synchronized public Block2 readBlock(int blockNumber, MatrixZoomData2 zd) throws IOException {
+    synchronized public Block readBlock(int blockNumber, MatrixZoomData zd) throws IOException {
 
-        Block2 b = null;
+        Block b = null;
         Map<Integer, IndexEntry> blockIndex = blockIndexMap.get(zd.getKey());
         if (blockIndex != null) {
 
@@ -455,14 +455,14 @@ public class DatasetReader2V3 {
 
                 LittleEndianInputStream dis = new LittleEndianInputStream(new ByteArrayInputStream(buffer));
                 int nRecords = dis.readInt();
-                List<ContactRecord2> records = new ArrayList<ContactRecord2>(nRecords);
+                List<ContactRecord> records = new ArrayList<ContactRecord>(nRecords);
 
                 if (version < 7) {
                     for (int i = 0; i < nRecords; i++) {
                         int binX = dis.readInt();
                         int binY = dis.readInt();
                         float counts = dis.readFloat();
-                        records.add(new ContactRecord2(binX, binY, counts));
+                        records.add(new ContactRecord(binX, binY, counts));
                     }
                 } else {
 
@@ -486,7 +486,7 @@ public class DatasetReader2V3 {
 
                                 int binX = binXOffset + dis.readShort();
                                 float counts = useShort ? dis.readShort() : dis.readFloat();
-                                records.add(new ContactRecord2(binX, binY, counts));
+                                records.add(new ContactRecord(binX, binY, counts));
                             }
                         }
                     } else if (type == 2) {
@@ -504,12 +504,12 @@ public class DatasetReader2V3 {
                             if (useShort) {
                                 short counts = dis.readShort();
                                 if (counts != Short.MIN_VALUE) {
-                                    records.add(new ContactRecord2(bin1, bin2, counts));
+                                    records.add(new ContactRecord(bin1, bin2, counts));
                                 }
                             } else {
                                 float counts = dis.readFloat();
                                 if (!Float.isNaN(counts)) {
-                                    records.add(new ContactRecord2(bin1, bin2, counts));
+                                    records.add(new ContactRecord(bin1, bin2, counts));
                                 }
                             }
 
@@ -520,38 +520,38 @@ public class DatasetReader2V3 {
                         throw new RuntimeException("Unknown Block2 type: " + type);
                     }
                 }
-                b = new Block2(records);
+                b = new Block(records);
             }
         }
 
         // If no Block2 exists, mark with an "empty block" to prevent further attempts
         if (b == null) {
-            b = new Block2();
+            b = new Block();
         }
         return b;
     }
 
-    public Block2 readNormalizedBlock(int blockNumber, MatrixZoomData2 zd, NormalizationType2 no) throws IOException {
+    public Block readNormalizedBlock(int blockNumber, MatrixZoomData zd, NormalizationType no) throws IOException {
 
 
         if (no == null) {
             throw new IOException("Normalization type is null");
-        } else if (no == NormalizationType2.NONE) {
+        } else if (no == NormalizationType.NONE) {
             return readBlock(blockNumber, zd);
         } else {
-            NormalizationVector2 nv1 = dataset.getNormalizationVector(zd.getChr1Idx(), zd.getZoom(), no);
-            NormalizationVector2 nv2 = dataset.getNormalizationVector(zd.getChr2Idx(), zd.getZoom(), no);
+            NormalizationVector nv1 = dataset.getNormalizationVector(zd.getChr1Idx(), zd.getZoom(), no);
+            NormalizationVector nv2 = dataset.getNormalizationVector(zd.getChr2Idx(), zd.getZoom(), no);
             if (nv1 == null || nv2 == null) {
                 throw new IOException("Normalization missing for: " + zd.getKey());
             }
             double[] nv1Data = nv1.getData();
             double[] nv2Data = nv2.getData();
-            Block2 rawBlock = readBlock(blockNumber, zd);
+            Block rawBlock = readBlock(blockNumber, zd);
             if (rawBlock == null) return null;
 
-            Collection<ContactRecord2> records = rawBlock.getContactRecords();
-            List<ContactRecord2> normRecords = new ArrayList<ContactRecord2>(records.size());
-            for (ContactRecord2 rec : records) {
+            Collection<ContactRecord> records = rawBlock.getContactRecords();
+            List<ContactRecord> normRecords = new ArrayList<ContactRecord>(records.size());
+            for (ContactRecord rec : records) {
                 int x = rec.getBinX();
                 int y = rec.getBinY();
                 float counts;
@@ -560,24 +560,24 @@ public class DatasetReader2V3 {
                 } else {
                     counts = Float.NaN;
                 }
-                normRecords.add(new ContactRecord2(x, y, counts));
+                normRecords.add(new ContactRecord(x, y, counts));
             }
 
             //double sparsity = (normRecords.size() * 100) / (Preprocessor.BLOCK_SIZE * Preprocessor.BLOCK_SIZE);
             //System.out.println(sparsity);
 
-            return new Block2(normRecords);
+            return new Block(normRecords);
         }
     }
 
-    public List<Integer> getBlockNumbers(MatrixZoomData2 zd) {
+    public List<Integer> getBlockNumbers(MatrixZoomData zd) {
         Map<Integer, IndexEntry> blockIndex = blockIndexMap.get(zd.getKey());
         return blockIndex == null ? null : new ArrayList<Integer>(blockIndex.keySet());
     }
 
-    public synchronized NormalizationVector2 readNormalizationVector(NormalizationType2 type, int chrIdx, HiCZoom2.Unit unit, int binSize) throws IOException {
+    public synchronized NormalizationVector readNormalizationVector(NormalizationType type, int chrIdx, HiCZoom.Unit unit, int binSize) throws IOException {
 
-        String key = NormalizationVector2.getKey(type, chrIdx, unit.toString(), binSize);
+        String key = NormalizationVector.getKey(type, chrIdx, unit.toString(), binSize);
         if (normVectorIndex == null) return null;
         IndexEntry idx = normVectorIndex.get(key);
         if (idx == null) return null;
@@ -597,7 +597,7 @@ public class DatasetReader2V3 {
             }
         }
         if (allNaN) return null;
-        else return new NormalizationVector2(values);
+        else return new NormalizationVector(values);
 
 
     }

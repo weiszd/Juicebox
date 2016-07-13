@@ -31,16 +31,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Matrix2 {
+public class Matrix {
 
-    private List<MatrixZoomData2> bpZoomData;
+    private List<MatrixZoomData> bpZoomData;
 
     /**
      * Constructor for creating a matrix from precomputed data.
      *
      * @param zoomDataList
      */
-    public Matrix2(List<MatrixZoomData2> zoomDataList) {
+    public Matrix(List<MatrixZoomData> zoomDataList) {
         initZoomDataMap(zoomDataList);
     }
 
@@ -48,18 +48,18 @@ public class Matrix2 {
         return "" + chr1 + "_" + chr2;
     }
 
-    private void initZoomDataMap(List<MatrixZoomData2> zoomDataList) {
+    private void initZoomDataMap(List<MatrixZoomData> zoomDataList) {
 
-        bpZoomData = new ArrayList<MatrixZoomData2>();
-        for (MatrixZoomData2 zd : zoomDataList) {
-            if (zd.getZoom().getUnit() == HiCZoom2.Unit.BP) {
+        bpZoomData = new ArrayList<MatrixZoomData>();
+        for (MatrixZoomData zd : zoomDataList) {
+            if (zd.getZoom().getUnit() == HiCZoom.Unit.BP) {
                 bpZoomData.add(zd);
             }
 
             // Zooms should be sorted, but in case they are not...
-            Comparator<MatrixZoomData2> comp = new Comparator<MatrixZoomData2>() {
+            Comparator<MatrixZoomData> comp = new Comparator<MatrixZoomData>() {
                 @Override
-                public int compare(MatrixZoomData2 o1, MatrixZoomData2 o2) {
+                public int compare(MatrixZoomData o1, MatrixZoomData o2) {
                     return o2.getBinSize() - o1.getBinSize();
                 }
             };
@@ -68,10 +68,10 @@ public class Matrix2 {
 
     }
 
-    public MatrixZoomData2 getZoomData(HiCZoom2 zoom) {
-        List<MatrixZoomData2> zdList = bpZoomData;
+    public MatrixZoomData getZoomData(HiCZoom zoom) {
+        List<MatrixZoomData> zdList = bpZoomData;
         //linear search for bin size, the lists are not large
-        for (MatrixZoomData2 zd : zdList) {
+        for (MatrixZoomData zd : zdList) {
             if (zd.getBinSize() == zoom.getBinSize()) {
                 return zd;
             }

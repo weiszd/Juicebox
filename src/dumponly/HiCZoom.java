@@ -22,23 +22,54 @@
  *  THE SOFTWARE.
  */
 
-
 package dumponly;
 
-public class NormalizationVector2 {
+public class HiCZoom {
 
-    private final double[] data;
+    private final Unit unit;
+    private final int binSize;
 
-    public NormalizationVector2(double[] data) {
-        this.data = data;
+    public HiCZoom(Unit unit, int binSize) {
+        this.unit = unit;
+        this.binSize = binSize;
     }
 
-    public static String getKey(NormalizationType2 type, int chrIdx, String unit, int resolution) {
-        return type + "_" + chrIdx + "_" + unit + "_" + resolution;
+    public HiCZoom clone() {
+        return new HiCZoom(unit, binSize);
     }
 
-
-    public double[] getData() {
-        return data;
+    public Unit getUnit() {
+        return unit;
     }
+
+    public int getBinSize() {
+        return binSize;
+    }
+
+    public String getKey() {
+        return unit.toString() + "_" + binSize;
+    }
+
+    public String toString() {
+        return getKey();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HiCZoom hiCZoom = (HiCZoom) o;
+
+        return (binSize == hiCZoom.binSize) && (unit == hiCZoom.unit);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = unit.hashCode();
+        result = 31 * result + binSize;
+        return result;
+    }
+
+    public enum Unit {BP, FRAG} // leave FRAG here; it IS used
 }

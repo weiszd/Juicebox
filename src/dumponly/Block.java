@@ -24,52 +24,23 @@
 
 package dumponly;
 
-public class HiCZoom2 {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-    private final Unit unit;
-    private final int binSize;
+public class Block {
 
-    public HiCZoom2(Unit unit, int binSize) {
-        this.unit = unit;
-        this.binSize = binSize;
+    private final List<ContactRecord> records;
+
+    public Block() {
+        records = new ArrayList<ContactRecord>();
     }
 
-    public HiCZoom2 clone() {
-        return new HiCZoom2(unit, binSize);
+    public Block(List<ContactRecord> records) {
+        this.records = records;
     }
 
-    public Unit getUnit() {
-        return unit;
+    public Collection<ContactRecord> getContactRecords() {
+        return records;
     }
-
-    public int getBinSize() {
-        return binSize;
-    }
-
-    public String getKey() {
-        return unit.toString() + "_" + binSize;
-    }
-
-    public String toString() {
-        return getKey();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        HiCZoom2 hiCZoom2 = (HiCZoom2) o;
-
-        return (binSize == hiCZoom2.binSize) && (unit == hiCZoom2.unit);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = unit.hashCode();
-        result = 31 * result + binSize;
-        return result;
-    }
-
-    public enum Unit {BP, FRAG} // leave FRAG here; it IS used
 }

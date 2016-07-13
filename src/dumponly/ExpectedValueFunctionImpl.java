@@ -24,11 +24,11 @@
 
 package dumponly;
 
-public class ExpectedValueFunctionImpl2 {
+public class ExpectedValueFunctionImpl {
 
     private final String unit;
 
-    public ExpectedValueFunctionImpl2(String unit) {
+    public ExpectedValueFunctionImpl(String unit) {
         this.unit = unit;
     }
 

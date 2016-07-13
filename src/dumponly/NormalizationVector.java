@@ -22,15 +22,23 @@
  *  THE SOFTWARE.
  */
 
+
 package dumponly;
 
-public enum NormalizationType2 {
-    NONE,
-    VC,
-    VC_SQRT, // this is actually used, don't delete
-    KR,
-    GW_KR,
-    INTER_KR,
-    GW_VC,
-    INTER_VC
+public class NormalizationVector {
+
+    private final double[] data;
+
+    public NormalizationVector(double[] data) {
+        this.data = data;
+    }
+
+    public static String getKey(NormalizationType type, int chrIdx, String unit, int resolution) {
+        return type + "_" + chrIdx + "_" + unit + "_" + resolution;
+    }
+
+
+    public double[] getData() {
+        return data;
+    }
 }

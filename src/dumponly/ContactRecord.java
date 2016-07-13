@@ -24,7 +24,7 @@
 
 package dumponly;
 
-public class ContactRecord2 implements Comparable<ContactRecord2> {
+public class ContactRecord implements Comparable<ContactRecord> {
 
     /**
      * Bin number in x coordinate
@@ -41,7 +41,7 @@ public class ContactRecord2 implements Comparable<ContactRecord2> {
      */
     private float counts;
 
-    public ContactRecord2(int binX, int binY, float counts) {
+    public ContactRecord(int binX, int binY, float counts) {
         this.binX = binX;
         this.binY = binY;
         this.counts = counts;
@@ -60,7 +60,7 @@ public class ContactRecord2 implements Comparable<ContactRecord2> {
     }
 
     @Override
-    public int compareTo(ContactRecord2 contactRecord) {
+    public int compareTo(ContactRecord contactRecord) {
         if (this.binX != contactRecord.binX) {
             return binX - contactRecord.binX;
         } else if (this.binY != contactRecord.binY) {

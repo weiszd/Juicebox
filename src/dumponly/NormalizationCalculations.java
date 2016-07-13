@@ -31,12 +31,12 @@ import org.broad.igv.util.collections.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class NormalizationCalculations2 {
+class NormalizationCalculations {
 
-    private ArrayList<ContactRecord2> list;
+    private ArrayList<ContactRecord> list;
     private int totSize;
 
-    public NormalizationCalculations2(ArrayList<ContactRecord2> list, int totSize) {
+    public NormalizationCalculations(ArrayList<ContactRecord> list, int totSize) {
         this.list = list;
         this.totSize = totSize;
     }
@@ -174,11 +174,11 @@ class NormalizationCalculations2 {
     }
 
 
-    public double[] getNorm(NormalizationType2 normOption) {
+    public double[] getNorm(NormalizationType normOption) {
         double[] norm;
-        if (normOption == NormalizationType2.KR || normOption == NormalizationType2.GW_KR || normOption == NormalizationType2.INTER_KR) {
+        if (normOption == NormalizationType.KR || normOption == NormalizationType.GW_KR || normOption == NormalizationType.INTER_KR) {
             norm = computeKR();
-        } else if (normOption == NormalizationType2.VC || normOption == NormalizationType2.GW_VC || normOption == NormalizationType2.INTER_VC) {
+        } else if (normOption == NormalizationType.VC || normOption == NormalizationType.GW_VC || normOption == NormalizationType.INTER_VC) {
             norm = computeVC();
         } else {
             System.err.println("Not supported for normalization " + normOption);
@@ -202,7 +202,7 @@ class NormalizationCalculations2 {
 
         for (int i = 0; i < rowsums.length; i++) rowsums[i] = 0;
 
-        for (ContactRecord2 cr : list) {
+        for (ContactRecord cr : list) {
             int x = cr.getBinX();
             int y = cr.getBinY();
             float value = cr.getCounts();
@@ -225,7 +225,7 @@ class NormalizationCalculations2 {
     private double getSumFactor(double[] norm) {
         double matrix_sum = 0;
         double norm_sum = 0;
-        for (ContactRecord2 cr : list) {
+        for (ContactRecord cr : list) {
             int x = cr.getBinX();
             int y = cr.getBinY();
             float value = cr.getCounts();
@@ -331,7 +331,7 @@ class NormalizationCalculations2 {
 
         for (int i = 0; i < rowSums.length; i++) rowSums[i] = 0;
 
-        for (ContactRecord2 cr : list) {
+        for (ContactRecord cr : list) {
             int x = cr.getBinX();
             int y = cr.getBinY();
             float value = cr.getCounts();
@@ -366,7 +366,7 @@ class NormalizationCalculations2 {
     }
 
     private void populateMatrix(SparseSymmetricMatrix A, int[] offset) {
-        for (ContactRecord2 cr : list) {
+        for (ContactRecord cr : list) {
             int x = cr.getBinX();
             int y = cr.getBinY();
             float value = cr.getCounts();
