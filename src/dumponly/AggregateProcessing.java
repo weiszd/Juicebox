@@ -31,6 +31,11 @@ class AggregateProcessing {
 
         String[] args = new String[]{"dump", "OBSERVED", "KR", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/intra_nofrag_30.hic",
                 "1:0:3500000", "1", "BP", "2500000", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/test_stream_dump_kr2_232"};
+        args = new String[]{"dump", "observed", "KR", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/intra_nofrag_30.hic", "19:0:1280000",
+                "19:0:1280000", "BP", "5000", "/Users/muhammadsaadshamim/Desktop/LocalFiles/gm12878/test_mbr_dump_res"};
+        Long l1 = System.nanoTime();
         Dump2.main(args);
+        Long l2 = System.nanoTime();
+        System.out.println((double) (l2 - l1) / 1e9);
     }
 }

@@ -66,7 +66,7 @@ class Dump2 {
 
     private static void dumpGenomeWideData(Dataset22 dataset, List<Chromosome> chromosomeList,
                                            boolean includeIntra, HiCZoom2 zoom, NormalizationType2 norm,
-                                           MatrixType2 matrixType2, int binSize) {
+                                           MatrixType2 matrixType2) {
 
 
         // Build a "whole-genome" matrix
@@ -348,7 +348,7 @@ class Dump2 {
 
         //*****************************************************
         if ((matrixType2 == MatrixType2.OBSERVED) && chr1.equals(Globals.CHR_ALL) && chr2.equals(Globals.CHR_ALL)) {
-            dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType2, binSize);
+            dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType2);
         } else {
             try {
                 dumpMatrix(dataset, chromosomeMap.get(chr1), chromosomeMap.get(chr2), norm, zoom, matrixType2, ofile);
