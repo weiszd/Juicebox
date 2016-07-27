@@ -7,8 +7,7 @@ creating files that can be loaded into Juicebox.
 
 
 Check out the <a href="http://aidenlab.org/juicebox">Juicebox website</a> for more details on how to
-use Juicebox, as well as following a detailed tutorial. Instructions below pertain primarily to usage of
-command line tools and the Juicebox jar files.
+use Juicebox, as well as following a detailed tutorial.
 
 Juicebox was created by <a href="https://github.com/jrobinso">Jim Robinson</a>,
 <a href="https://github.com/nchernia">Neva C. Durand</a>, and <a href="http://www.erez.com/">Erez Lieberman Aiden</a>. Past contributors include <a href="https://github.com/zgire">Zulkifl Gire</a> and <a href="https://github.com/mhoeger">Marie Hoeger</a>.
@@ -53,68 +52,28 @@ but don't worry about that for development; 2GB should be fine.
 * One last note: be sure to `Commit and Push` when you commit files, it's hidden in the dropdown menu button in the
 commit window.
 
--------
-Example
--------
-We've provided a step-by-step guide to showcase some of the features of
-Juicebox.
-
-1.  At a command line prompt, type:
-      java -Xms512m -Xmx2048m -jar Juicebox.jar
-2.  Click File->Open to load a new Hi-C map. Click GM12878, in situ MboI,
-    primary+replicate (4.9B). The map will load and show all chromosomes.
-3.  Click on chromosome 17. Using the selector below Normalization, change the
-    normalization to Balanced.
-4.  Slide the resolution slider to 5 KB.
-5.  In the Goto panel, type 17:64500000-69000000 and hit the refresh button.
-6.  Click Annotations in the menu bar and go to Load Basic Annotations. Select
-    the Dataset Specific 2-D Features, Peaks and Contact Domains for this map.
-    You will see a series of yellow boxes and cyan points loaded. The cyan
-    points denote the exact peaks and so are small. These are the contact
-    domains and peaks that we found when analyzing this map.
-7.  Go to the Annotations menu and click Load Basic Annotations again. Click on
-    GM12878 and select the H3K36me3 track and the CTCF track.
-8.  You can line up what you see in the heat map with the tracks. Right click
-    on the heat map and select Enable straight edge. Then move around on the
-    map to see the features lined up with the tracks.  Press F2 to turn on and
-    off the 2D annotations.
-9.  Now, to create your own map from your own data, go to the command line
-    prompt.
-10. On Unix or Mac, type:
-      juicebox pre data/test.txt.gz data/test.hic hg19
-    On Windows, type:
-      juicebox.bat pre data/test.txt.gz data/test.hic hg19
-11. A .hic file should be produced. In Juicebox, click File -> Open.. and then
-    click the Local button at the bottom of the dialog.  Navigate to the data/
-    directory and click on test.hic
-12. The file should load. Click on chromosome 1. Go to 1Mb resolution.
-13. Move your mouse until it hovers over the bin at 100mb x 100mb.
-14. The hover text on the right should read:
-      1:100,000,001-101,000,000
-      1:100,000,001-101,000,000
-      observed value = 410
-      expected value = 339.504
-      O/E = 1.208
-15. To extract raw counts from the .hic file, go to the command prompt.
-16. On a Unix or Mac system, type:
-      juicebox dump observed KR data/test.hic 1 1 BP 2500000 > chr1.txt
-    On Windows, type:
-      juicebox.bat dump observed KR data/test.hic 1 1 BP 2500000 > chr1.txt
-17. The file chr1.txt contains the observed matrix of chromosome 1 with
-    KR (Balanced) normalization at 2.5Mb resolution.
-
-See below for more documentation.
-
 ------------
 Distribution
 ------------
 The files included in this distribution are as follows:
 * README
-* Juicebox.jar, Juicebox_CLT.jar, juicebox, and juicebox.bat (executables)
 * build.xml and juicebox.properties (for compilation from source)
 * src (directory containing source code)
 * lib (directory containing libraries for compilation)
 * data (directory containing test data)
+
+Executables for Juicebox can be downloaded from aidenlab.org/juicebox
+The latest command line tools jar can be downloaded from aidenlab.org/commandlinetools
+
+-------------
+Documentation
+-------------
+We have extensive documentation for how to use Juicebox at
+aidenlab.org/juicebox/ including a video, a Quick Start Guide, and a
+detailed tutorial.
+
+Extensive documentation for using the command line tools is available at
+aidenlab.org/commandlinetools/
 
 ----------------------------------
 Hardware and Software Requirements
@@ -140,17 +99,7 @@ Note: the -Xms512m flag sets the minimum memory heap size at 512 megabytes, and
 the -Xmx2048m flag sets the maximum size at 2048 megabytes (2 gigabytes). These
 values may be adjusted as appropriate for your machine.
 
--------------
-Documentation
--------------
-We have extensive documentation for how to use Juicebox at
-http://www.aidenlab.org/juicebox/ including a video, a Quick Start Guide, and a
-detailed tutorial.
 
-The version of Juicebox included in this distribution has an additional
-capability: you can load your own .hic files from your local machine.  To load
-your own file, go to File -> Open.. and click the Local button at the bottom of
-the dialog. From there you can navigate to the .hic file.
 
 ------------------------
 Command Line Tools Usage
