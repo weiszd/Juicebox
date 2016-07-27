@@ -144,20 +144,8 @@
     </fileset>
   </path>
   
-  <path id="library.jogl.classpath">
-    <fileset dir="${basedir}/lib/jogl">
-      <patternset refid="library.patterns"/>
-    </fileset>
-  </path>
-  
   <path id="library.jsi1.1.classpath">
     <pathelement location="${basedir}/lib/general/jsi1.1.jar"/>
-  </path>
-  
-  <path id="library.lwjgl.classpath">
-    <fileset dir="${basedir}/lib/lwjgl">
-      <patternset refid="library.patterns"/>
-    </fileset>
   </path>
   
   <!-- Modules -->
@@ -183,8 +171,6 @@
   
   <path id="juicebox.module.production.classpath">
     <path refid="${module.jdk.classpath.juicebox}"/>
-    <path refid="library.jogl.classpath"/>
-    <path refid="library.lwjgl.classpath"/>
     <path refid="library.broadinstitute.classpath"/>
     <path refid="library.jcuda.classpath"/>
     <path refid="library.general.classpath"/>
@@ -193,8 +179,6 @@
   
   <path id="juicebox.runtime.production.module.classpath">
     <pathelement location="${juicebox.output.dir}"/>
-    <path refid="library.jogl.classpath"/>
-    <path refid="library.lwjgl.classpath"/>
     <path refid="library.broadinstitute.classpath"/>
     <path refid="library.jcuda.classpath"/>
     <path refid="library.general.classpath"/>
@@ -204,8 +188,6 @@
   <path id="juicebox.module.classpath">
     <path refid="${module.jdk.classpath.juicebox}"/>
     <pathelement location="${juicebox.output.dir}"/>
-    <path refid="library.jogl.classpath"/>
-    <path refid="library.lwjgl.classpath"/>
     <path refid="library.broadinstitute.classpath"/>
     <path refid="library.jcuda.classpath"/>
     <path refid="library.general.classpath"/>
@@ -215,8 +197,6 @@
   <path id="juicebox.runtime.module.classpath">
     <pathelement location="${juicebox.testoutput.dir}"/>
     <pathelement location="${juicebox.output.dir}"/>
-    <path refid="library.jogl.classpath"/>
-    <path refid="library.lwjgl.classpath"/>
     <path refid="library.broadinstitute.classpath"/>
     <path refid="library.jcuda.classpath"/>
     <path refid="library.general.classpath"/>
@@ -295,7 +275,7 @@
       <zipfileset src="${basedir}/lib/general/VectorGraphics2D-0.11.jar"/>
       <zipfileset src="${basedir}/lib/broadinstitute/igv.jar"/>
       <zipfileset src="${basedir}/lib/broadinstitute/htsjdk-1.139.jar"/>
-      <zipfileset src="${basedir}/lib/jcuda/jcuda-0.7.0.jar"/>
+      <zipfileset src="${basedir}/lib/jcuda/jcuda-0.7.5.jar"/>
       <zipfileset src="${basedir}/lib/jcuda/jcudaUtils-0.0.4.jar"/>
     </jar>
     <copy file="${temp.jar.path.Juicebox.jar}" tofile="${artifact.temp.output.juicebox:jar}/Juicebox.jar"/>
@@ -312,7 +292,7 @@
       <zipfileset src="${basedir}/lib/general/VectorGraphics2D-0.11.jar"/>
       <zipfileset src="${basedir}/lib/broadinstitute/igv.jar"/>
       <zipfileset src="${basedir}/lib/broadinstitute/htsjdk-1.139.jar"/>
-      <zipfileset src="${basedir}/lib/jcuda/jcuda-0.7.0.jar"/>
+      <zipfileset src="${basedir}/lib/jcuda/jcuda-0.7.5.jar"/>
       <zipfileset src="${basedir}/lib/jcuda/jcudaUtils-0.0.4.jar"/>
     </jar>
     <copy file="${temp.jar.path.Juicebox.jar2}" tofile="${artifact.temp.output.juicebox_clt:jar}/Juicebox.jar"/>
