@@ -46,9 +46,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by muhammadsaadshamim on 8/4/15.
- */
 public class MainMenuBar {
     private static final int recentMapListMaxItems = 10;
     private static final int recentLocationMaxItems = 20;
@@ -631,19 +628,6 @@ public class MainMenuBar {
                 importMapAsFile.setSelected(true);
             }
         });
-
-
-        //---Slideshow----
-        slideShow = new JMenuItem();
-        slideShow.setText("View Slideshow");
-        slideShow.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                superAdapter.launchSlideShow();
-                HiCGlobals.slideshowEnabled = true;
-            }
-        });
-        //bookmarksMenu.add(slideShow);
 
         bookmarksMenu.addSeparator();
         bookmarksMenu.add(exportSavedStateMenuItem);

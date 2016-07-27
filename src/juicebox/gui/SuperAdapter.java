@@ -31,7 +31,6 @@ import juicebox.data.*;
 import juicebox.mapcolorui.HeatmapPanel;
 import juicebox.state.ImportFileDialog;
 import juicebox.state.LoadStateFromXMLFile;
-import juicebox.state.Slideshow;
 import juicebox.state.XMLFileHandling;
 import juicebox.track.LoadAction;
 import juicebox.track.LoadEncodeAction;
@@ -137,12 +136,6 @@ public class SuperAdapter {
         controlTitle = null;
         updateTitle();
     }
-
-    public void launchSlideShow() {
-        new Slideshow(mainWindow, this);
-    }
-
-//    public Slideshow getSlideshow() { return new Slideshow(mainWindow,this); }
 
     public void launchImportState(File fileForExport) {
         new ImportFileDialog(fileForExport, mainWindow);
