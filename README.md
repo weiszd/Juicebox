@@ -3,7 +3,7 @@ About Juicebox
 --------------
 Juicebox is visualization software for Hi-C data.  In this distribution, we
 include both the visualization software itself and command line tools for
-creating files that can be loaded into Juicebox.
+creating and analyzing files that can be loaded into Juicebox.
 
 
 Check out the <a href="http://aidenlab.org/juicebox">Juicebox website</a>
@@ -11,9 +11,17 @@ for more details on how to use Juicebox, as well as following a detailed
 tutorial.
 
 Juicebox was created by <a href="https://github.com/jrobinso">Jim Robinson</a>,
-<a href="https://github.com/nchernia">Neva C. Durand</a>, and <a href="http://www.erez.com/">Erez Lieberman Aiden</a>. Past contributors include <a href="https://github.com/zgire">Zulkifl Gire</a> and <a href="https://github.com/mhoeger">Marie Hoeger</a>.
+<a href="https://github.com/nchernia">Neva C. Durand</a>, and
+<a href="http://www.erez.com/">Erez Lieberman Aiden</a>.
 
-Ongoing development work is carried out by <a href="https://github.com/nchernia">Neva C. Durand</a>, <a href="https://github.com/asddf123789">Fanny Huang</a>, <a href="https://github.com/mikeehman">Nam Hee Kim</a>, <a href="https://github.com/imachol">Ido Machol</a>,  <a href="https://github.com/nguyenkvi">Vi Nguyen</a>, <a href="https://github.com/bluejay9676">Jay Ryu</a>, and <a href="https://github.com/sa501428">Muhammad Saad Shamim</a>.
+Ongoing development work is carried out by <a href="https://github.com/nchernia">Neva C. Durand</a>,
+<a href="https://github.com/asddf123789">Fanny Huang</a>, <a href="https://github.com/mikeehman">Nam
+Hee Kim</a>, <a href="https://github.com/imachol">Ido Machol</a>,
+<a href="https://github.com/nguyenkvi">Vi Nguyen</a>, <a href="https://github.com/bluejay9676">Jay
+Ryu</a>, and <a href="https://github.com/sa501428">Muhammad Saad Shamim</a>.
+
+Past contributors include <a href="https://github.com/zgire">Zulkifl
+Gire</a> and <a href="https://github.com/mhoeger">Marie Hoeger</a>.
 
 --------------
 IntelliJ Setup
