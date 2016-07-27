@@ -1,25 +1,21 @@
-/*
- * The MIT License (MIT)
+/*  
+ *  Copyright 2010 Tom Castle (www.tc33.org)
+ *  Licensed under GNU Lesser General Public License
+ * 
+ *  This file is part of JHeatChart - the heat maps charting api for Java.
  *
- * Copyright (c) 2011-2016 Broad Institute, Aiden Lab
+ *  JHeatChart is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published 
+ *  by the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
+ *  JHeatChart is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ * 
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with JHeatChart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.tc33.jheatchart;
@@ -36,102 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-/**
- * The <code>HeatChart</code> class describes a chart which can display
- * 3-dimensions of values - x,y and z, where x and y are the usual 2-dimensional
- * axis and z is portrayed by colour intensity. Heat charts are sometimes known
- * as heat maps.
- * <p/>
- * <p/>
- * Use of this chart would typically involve 3 steps:
- * <ol>
- * <li>Construction of a new instance, providing the necessary z-values.</li>
- * <li>Configure the visual settings.</li>
- * <li>A call to either <code>getChartImage()</code> or <code>saveToFile(String)</code>.</li>
- * </ol>
- * <p/>
- * <h3>Instantiation</h3>
- * <p/>
- * Construction of a new <code>HeatChart</code> instance is through its one
- * constructor which takes a 2-dimensional array of <tt>doubles</tt> which
- * should contain the z-values for the chart. Consider this array to be
- * the grid of values which will instead be represented as colours in the chart.
- * <p/>
- * <p/>
- * Setting of the x-values and y-values which are displayed along the
- * appropriate axis is optional, and by default will simply display the values
- * 0 to n-1, where n is the number of rows or columns. Otherwise, the x/y axis
- * values can be set with the <code>setXValues</code> and <code>setYValues
- * </code> methods. Both methods are overridden with two forms:
- * <p/>
- * <h4>Object axis values</h4>
- * <p/>
- * <p/>
- * The simplest way to set the axis values is to use the methods which take an
- * array of Object[]. This array must have the same length as the number of
- * columns for setXValues and same as the number of rows for setYValues. The
- * string representation of the objects will then be used as the axis values.
- * <p/>
- * <h4>Offset and Interval</h4>
- * <p/>
- * <p/>
- * This is convenient way of defining numerical values along the axis. One of
- * the two methods takes an interval and an offset for either the
- * x or y axis. These parameters supply the necessary information to describe
- * the values based upon the z-value indexes. The quantity of x-values and
- * y-values is already known from the lengths of the z-values array dimensions.
- * Then the offset parameters indicate what the first value will be, with the
- * intervals providing the increment from one column or row to the next.
- * <p/>
- * <p/>
- * <strong>Consider an example:</strong>
- * <blockquote><pre>
- * double[][] zValues = new double[][]{
- *        {1.2, 1.3, 1.5},
- *        {1.0, 1.1, 1.6},
- *        {0.7, 0.9, 1.3}
- * };
- * <p/>
- * double xOffset = 1.0;
- * double yOffset = 0.0;
- * double xInterval = 1.0;
- * double yInterval = 2.0;
- * <p/>
- * chart.setXValues(xOffset, xInterval);
- * chart.setYValues(yOffset, yInterval);
- * </pre></blockquote>
- * <p/>
- * <p>In this example, the z-values range from 0.7 to 1.6. The x-values range
- * from the xOffset value 1.0 to 4.0, which is calculated as the number of x-values
- * multiplied by the xInterval, shifted by the xOffset of 1.0. The y-values are
- * calculated in the same way to give a range of values from 0.0 to 6.0.
- * <p/>
- * <h3>Configuration</h3>
- * <p/>
- * This step is optional. By default the heat chart will be generated without a
- * title or labels on the axis, and the colouring of the heat map will be in
- * grayscale. A large range of configuration options are available to customise
- * the chart. All customisations are available through simple accessor methods.
- * See the javadoc of each of the methods for more information.
- * <p/>
- * <h3>Output</h3>
- * <p/>
- * The generated heat chart can be obtained in two forms, using the following
- * methods:
- * <ul>
- * <li><strong>getChartImage()</strong> - The chart will be returned as a
- * <code>BufferedImage</code> object that can be used in any number of ways,
- * most notably it can be inserted into a Swing component, for use in a GUI
- * application.</li>
- * <li><strong>saveToFile(File)</strong> - The chart will be saved to the file
- * system at the file location specified as a parameter. The image format that
- * the image will be saved in is derived from the extension of the file name.</li>
- * </ul>
- * <p/>
- * <strong>Note:</strong> The chart image will not actually be created until
- * either saveToFile(File) or getChartImage() are called, and will be
- * regenerated on each successive call.
- */
 public class HeatChart {
 
     /**
@@ -1095,7 +995,6 @@ public class HeatChart {
      * @return true if the x-axis values will be displayed, false otherwise.
      */
     public boolean isShowXAxisValues() {
-        //TODO Could get rid of these flags and use a frequency of -1 to signal no values.
         return showXAxisValues;
     }
 
@@ -1378,7 +1277,7 @@ public class HeatChart {
         // Draw the heatmap image.
         drawHeatMap(chartGraphics, zValues);
 
-        // Draw the axis labels. TODO MSS - redo drawing axes
+        // Draw the axis labels.
         drawXLabel(chartGraphics);
         drawYLabel(chartGraphics);
 
@@ -1414,9 +1313,6 @@ public class HeatChart {
      * Calculates all unknown component dimensions.
      */
     private void measureComponents() {
-        //TODO This would be a good place to check that all settings have sensible values or throw illegal state exception.
-
-        //TODO Put this somewhere so it only gets created once.
         BufferedImage chartImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D tempGraphics = chartImage.createGraphics();
 
@@ -1582,7 +1478,6 @@ public class HeatChart {
         if (xAxisLabel != null) {
             // Strings are drawn from the baseline position of the leftmost char.
             int yPosXAxisLabel = chartSize.height - (margin / 2) - xAxisLabelDescent;
-            //TODO This will need to be updated if the y-axis values/label can be moved to the right.
             int xPosXAxisLabel = heatMapC.x - (xAxisLabelSize.width / 2);
 
             chartGraphics.setFont(axisLabelsFont);
