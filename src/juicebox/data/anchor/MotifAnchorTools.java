@@ -148,7 +148,7 @@ public class MotifAnchorTools {
         for (MotifAnchor anchor : anchors) {
             int width = anchor.getWidth();
             if (width < gapThreshold) {
-                anchor.widenMargins(gapThreshold - width);
+                anchor.widenMarginsBy(gapThreshold - width);
             }
         }
     }

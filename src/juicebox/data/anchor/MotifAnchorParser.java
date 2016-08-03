@@ -27,6 +27,7 @@ package juicebox.data.anchor;
 import juicebox.HiCGlobals;
 import juicebox.data.HiCFileTools;
 import juicebox.data.feature.FeatureFilter;
+import juicebox.data.feature.FeatureFunction;
 import juicebox.data.feature.GenomeWideList;
 import org.broad.igv.Globals;
 import org.broad.igv.feature.Chromosome;
@@ -241,8 +242,8 @@ public class MotifAnchorParser {
      * @param bedFilePath
      * @return List of motif anchors from the provided bed file
      */
-    public static GenomeWideList<MotifAnchor> loadFromBEDFile(List<Chromosome> chromosomes, String bedFilePath) {
-        List<MotifAnchor> anchors = new ArrayList<MotifAnchor>();
+    public static GenomeWideList<Locus> loadFromBEDFile(List<Chromosome> chromosomes, String bedFilePath) {
+        List<Locus> anchors = new ArrayList<Locus>();
 
         try {
             //BufferedReader br = ParsingUtils.openBufferedReader(bedFilePath);
@@ -252,7 +253,30 @@ public class MotifAnchorParser {
             ec.printStackTrace();
         }
 
-        return new GenomeWideList<MotifAnchor>(chromosomes, anchors);
+        return new GenomeWideList<Locus>(chromosomes, anchors);
+    }
+
+    /**
+     * @param chromosomes
+     * @param bedFilePath
+     * @return List of motif anchors from the provided bed file
+     */
+    public static GenomeWideList<MotifAnchor> loadFromBEDFileAsAnchors(List<Chromosome> chromosomes, String bedFilePath) {
+        GenomeWideList<Locus> anchors = loadFromBEDFile(chromosomes, bedFilePath);
+        final GenomeWideList<MotifAnchor> motifAnchors = new GenomeWideList<MotifAnchor>();
+
+        anchors.processLists(new FeatureFunction<Locus>() {
+            @Override
+            public void process(String chr, List<Locus> featureList) {
+                List<MotifAnchor> convertedMotifs = new ArrayList<MotifAnchor>();
+                for (Locus locus : featureList) {
+                    convertedMotifs.add(new MotifAnchor(locus.getChr(), locus.getX1(), locus.getX2()));
+                }
+                motifAnchors.setFeatures(chr, convertedMotifs);
+            }
+        });
+
+        return motifAnchors;
     }
 
     /**
@@ -268,8 +292,8 @@ public class MotifAnchorParser {
      * @return list of motifs
      * @throws IOException
      */
-    private static List<MotifAnchor> parseBEDFile(BufferedReader bufferedReader, List<Chromosome> chromosomes) throws IOException {
-        Set<MotifAnchor> anchors = new HashSet<MotifAnchor>();
+    private static List<Locus> parseBEDFile(BufferedReader bufferedReader, List<Chromosome> chromosomes) throws IOException {
+        Set<Locus> anchors = new HashSet<Locus>();
         String nextLine;
 
         int errorCount = 0;
@@ -298,11 +322,11 @@ public class MotifAnchorParser {
                     continue;
                 }
 
-                anchors.add(new MotifAnchor(chr.getIndex(), start1, end1));
+                anchors.add(new Locus(chr.getIndex(), start1, end1));
             }
         }
         bufferedReader.close();
-        return new ArrayList<MotifAnchor>(anchors);
+        return new ArrayList<Locus>(anchors);
     }
 
     /**

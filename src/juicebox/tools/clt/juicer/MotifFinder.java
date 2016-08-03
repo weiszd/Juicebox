@@ -62,9 +62,9 @@ public class MotifFinder extends JuicerCLT {
     }
 
     public static GenomeWideList<MotifAnchor> getIntersectionOfBEDFiles(List<Chromosome> chromosomes, List<String> bedFiles) {
-        GenomeWideList<MotifAnchor> proteins = MotifAnchorParser.loadFromBEDFile(chromosomes, bedFiles.get(0));
+        GenomeWideList<MotifAnchor> proteins = MotifAnchorParser.loadFromBEDFileAsAnchors(chromosomes, bedFiles.get(0));
         for (int i = 1; i < bedFiles.size(); i++) {
-            GenomeWideList<MotifAnchor> nextProteinList = MotifAnchorParser.loadFromBEDFile(chromosomes, bedFiles.get(i));
+            GenomeWideList<MotifAnchor> nextProteinList = MotifAnchorParser.loadFromBEDFileAsAnchors(chromosomes, bedFiles.get(i));
             MotifAnchorTools.intersectLists(proteins, nextProteinList, false);
         }
         return proteins;
