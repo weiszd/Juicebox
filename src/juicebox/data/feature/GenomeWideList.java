@@ -24,7 +24,7 @@
 
 package juicebox.data.feature;
 
-import juicebox.data.HiCFileTools;
+import juicebox.data.ChromosomeHandler;
 import org.broad.igv.feature.Chromosome;
 
 import java.util.*;
@@ -49,10 +49,10 @@ public class GenomeWideList<T extends Feature> {
     }
 
     /**
-     * @param chromosomes for genome
+     * @param handler for genome
      */
-    private GenomeWideList(List<Chromosome> chromosomes) {
-        for (Chromosome chr : chromosomes) {
+    private GenomeWideList(ChromosomeHandler handler) {
+        for (Chromosome chr : handler.getChromosomes()) {
             featureLists.put("" + chr.getIndex(), new ArrayList<T>());
         }
     }
@@ -61,15 +61,15 @@ public class GenomeWideList<T extends Feature> {
      * @param genomeID
      */
     public GenomeWideList(String genomeID) {
-        this(HiCFileTools.loadChromosomes(genomeID));
+        this(new ChromosomeHandler(genomeID));
     }
 
     /**
-     * @param chromosomes for genome
+     * @param handler for genome
      * @param features    to be added to list
      */
-    public GenomeWideList(List<Chromosome> chromosomes, List<T> features) {
-        this(chromosomes);
+    public GenomeWideList(ChromosomeHandler handler, List<T> features) {
+        this(handler);
         addAll(features);
     }
 
@@ -78,7 +78,7 @@ public class GenomeWideList<T extends Feature> {
      * @param features to be added to list
      */
     public GenomeWideList(String genomeID, List<T> features) {
-        this(HiCFileTools.loadChromosomes(genomeID), features);
+        this(new ChromosomeHandler(genomeID), features);
     }
 
     /**

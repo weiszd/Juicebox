@@ -24,7 +24,7 @@
 
 package juicebox.mapcolorui;
 
-import juicebox.data.HiCFileTools;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.MatrixZoomData;
 import juicebox.track.HiCGridAxis;
 import juicebox.track.feature.Feature2D;
@@ -118,14 +118,14 @@ public class FeatureRenderer {
             int binEnd2 = yAxis.getBinNumberForGenomicPosition(highlightedFeature.getEnd2());
 
             g2.setColor(Color.BLACK);
-            if (HiCFileTools.equivalentChromosome(highlightedFeature.getChr1(), zd.getChr1())) {
+            if (ChromosomeHandler.equivalentChromosome(highlightedFeature.getChr1(), zd.getChr1())) {
                 int x = (int) ((binStart1 - binOriginX) * scaleFactor);
                 int h = (int) Math.max(1, scaleFactor * (binEnd1 - binStart1));
 
                 g2.drawLine(x, 0, x, maxHeight);
                 g2.drawLine(x + h, 0, x + h, maxHeight);
             }
-            if (HiCFileTools.equivalentChromosome(highlightedFeature.getChr2(), zd.getChr2())) {
+            if (ChromosomeHandler.equivalentChromosome(highlightedFeature.getChr2(), zd.getChr2())) {
                 int y = (int) ((binStart2 - binOriginY) * scaleFactor);
                 int w = (int) Math.max(1, scaleFactor * (binEnd2 - binStart2));
 

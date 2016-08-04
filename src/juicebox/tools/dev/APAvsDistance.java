@@ -24,17 +24,6 @@
 
 package juicebox.tools.dev;
 
-import juicebox.data.HiCFileTools;
-import juicebox.data.anchor.MotifAnchor;
-import juicebox.data.anchor.MotifAnchorParser;
-import juicebox.data.feature.GenomeWideList;
-import juicebox.tools.clt.juicer.MotifFinder;
-import org.broad.igv.feature.Chromosome;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by muhammadsaadshamim on 1/19/16.
  * <p/>
@@ -59,6 +48,7 @@ class APAvsDistance {
 
     public static void main() {
 
+        /*
         GenomeWideList<MotifAnchor> motifs = MotifAnchorParser.loadMotifsFromGenomeID("hg19", null);
 
         List<Chromosome> chromosomes = HiCFileTools.loadChromosomes("hg19");
@@ -80,6 +70,7 @@ class APAvsDistance {
 
         GenomeWideList<MotifAnchor> proteins = MotifFinder.getIntersectionOfBEDFiles(chromosomes, bedFiles);
 
+*/
         // preservative intersection of these protein list with motif list
 
 

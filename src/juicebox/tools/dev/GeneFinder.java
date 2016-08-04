@@ -24,7 +24,7 @@
 
 package juicebox.tools.dev;
 
-import juicebox.data.HiCFileTools;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.anchor.GeneLocation;
 import juicebox.data.anchor.GeneTools;
 import juicebox.data.anchor.Locus;
@@ -32,9 +32,6 @@ import juicebox.data.anchor.MotifAnchorParser;
 import juicebox.data.feature.GenomeWideList;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
-import org.broad.igv.feature.Chromosome;
-
-import java.util.List;
 
 /**
  * Created by muhammadsaadshamim on 8/3/16.
@@ -57,10 +54,10 @@ public class GeneFinder extends JuicerCLT {
 
     @Override
     public void run() {
-        List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeID);
+        ChromosomeHandler handler = new ChromosomeHandler(genomeID);
 
-        GenomeWideList<Locus> bedFilePositions = MotifAnchorParser.loadFromBEDFile(chromosomes, bedFilePath);
-        GenomeWideList<GeneLocation> genes = GeneTools.parseGenome(genomeID, chromosomes);
+        GenomeWideList<Locus> bedFilePositions = MotifAnchorParser.loadFromBEDFile(handler, bedFilePath);
+        GenomeWideList<GeneLocation> genes = GeneTools.parseGenome(genomeID, handler);
 
     }
 }

@@ -26,11 +26,9 @@ package juicebox.tools.clt.juicer;
 
 import juicebox.HiCGlobals;
 import juicebox.data.ChromosomeHandler;
-import juicebox.data.HiCFileTools;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
 import juicebox.track.feature.*;
-import org.broad.igv.feature.Chromosome;
 
 import java.awt.*;
 import java.io.File;
@@ -111,12 +109,7 @@ public class LoopDomains extends JuicerCLT {
     @Override
     public void run() {
 
-        List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeID);
-        if (givenChromosomes != null) {
-            chromosomes = new ArrayList<Chromosome>(HiCFileTools.stringToChromosomes(givenChromosomes,
-                    chromosomes));
-        }
-        ChromosomeHandler handler = new ChromosomeHandler(chromosomes);
+        ChromosomeHandler handler = new ChromosomeHandler(genomeID, givenChromosomes);
 
         // need to keep motifs for loop list
         final Feature2DList loopList = Feature2DParser.loadFeatures(loopListPath, handler, true, null, true);

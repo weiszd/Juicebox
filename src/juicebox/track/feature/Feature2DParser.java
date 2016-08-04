@@ -27,7 +27,6 @@ package juicebox.track.feature;
 import juicebox.HiCGlobals;
 import juicebox.MainWindow;
 import juicebox.data.ChromosomeHandler;
-import juicebox.data.HiCFileTools;
 import juicebox.tools.utils.juicer.arrowhead.ArrowheadScoreList;
 import juicebox.tools.utils.juicer.arrowhead.HighScore;
 import org.broad.igv.Globals;
@@ -51,8 +50,7 @@ public class Feature2DParser {
 
     public static Feature2DList loadFeatures(String path, String genomeID, boolean loadAttributes,
                                              FeatureFilter featureFilter, boolean useFeature2DWithMotif) {
-        ChromosomeHandler handler = new ChromosomeHandler(HiCFileTools.loadChromosomes(genomeID));
-        return loadFeatures(path, handler, loadAttributes, featureFilter, useFeature2DWithMotif);
+        return loadFeatures(path, new ChromosomeHandler(genomeID), loadAttributes, featureFilter, useFeature2DWithMotif);
     }
 
     public static Feature2DList loadFeatures(String path, ChromosomeHandler chromosomeHandler, boolean loadAttributes,

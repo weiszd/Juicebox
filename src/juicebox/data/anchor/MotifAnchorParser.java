@@ -25,7 +25,7 @@
 package juicebox.data.anchor;
 
 import juicebox.HiCGlobals;
-import juicebox.data.HiCFileTools;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.feature.FeatureFilter;
 import juicebox.data.feature.FeatureFunction;
 import juicebox.data.feature.GenomeWideList;
@@ -77,13 +77,13 @@ public class MotifAnchorParser {
             System.err.println("Unable to create input stream for global motifs " + motifLocation);
             System.exit(49);
         } finally {
-            List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeID);
+            ChromosomeHandler handler = new ChromosomeHandler(genomeID);
 
             Set<MotifAnchor> anchors = new HashSet<MotifAnchor>();
 
             try {
                 if (reader != null) {
-                    anchors.addAll(parseGlobalMotifFile(reader, chromosomes));
+                    anchors.addAll(parseGlobalMotifFile(reader, handler));
                 }
             } catch (Exception e3) {
                 //e3.printStackTrace();
@@ -99,7 +99,7 @@ public class MotifAnchorParser {
                     //e4.printStackTrace();
                 }
             }
-            newAnchorList = new GenomeWideList<MotifAnchor>(chromosomes, new ArrayList<MotifAnchor>(anchors));
+            newAnchorList = new GenomeWideList<MotifAnchor>(handler, new ArrayList<MotifAnchor>(anchors));
         }
 
         if (anchorFilter != null)
@@ -130,19 +130,19 @@ public class MotifAnchorParser {
         return filePath;
     }
 
-    private static GenomeWideList<MotifAnchor> parseMotifFile(String path, List<Chromosome> chromosomes,
+    private static GenomeWideList<MotifAnchor> parseMotifFile(String path, ChromosomeHandler handler,
                                                               FeatureFilter<MotifAnchor> anchorFilter) {
         List<MotifAnchor> anchors = new ArrayList<MotifAnchor>();
 
         try {
             //BufferedReader br = ParsingUtils.openBufferedReader(path);
             BufferedReader br = new BufferedReader(new InputStreamReader(ParsingUtils.openInputStream(path)), HiCGlobals.bufferSize);
-            anchors.addAll(parseGlobalMotifFile(br, chromosomes));
+            anchors.addAll(parseGlobalMotifFile(br, handler));
         } catch (IOException ec) {
             ec.printStackTrace();
         }
 
-        GenomeWideList<MotifAnchor> newAnchorList = new GenomeWideList<MotifAnchor>(chromosomes, anchors);
+        GenomeWideList<MotifAnchor> newAnchorList = new GenomeWideList<MotifAnchor>(handler, anchors);
         if (anchorFilter != null)
             newAnchorList.filterLists(anchorFilter);
 
@@ -153,11 +153,11 @@ public class MotifAnchorParser {
      * Parses a motif file (assumes FIMO output format)
      *
      * @param bufferedReader
-     * @param chromosomes
+     * @param handler
      * @return list of motifs and their attributes (score, sequence, etc)
      * @throws IOException
      */
-    private static List<MotifAnchor> parseGlobalMotifFile(BufferedReader bufferedReader, List<Chromosome> chromosomes) throws IOException {
+    private static List<MotifAnchor> parseGlobalMotifFile(BufferedReader bufferedReader, ChromosomeHandler handler) throws IOException {
         Set<MotifAnchor> anchors = new HashSet<MotifAnchor>();
         String nextLine;
 
@@ -207,7 +207,7 @@ public class MotifAnchorParser {
                 qValue = Double.parseDouble(tokens[7]);
                 sequence = tokens[8];
 
-                Chromosome chr = HiCFileTools.getChromosomeNamed(chr1Name, chromosomes);
+                Chromosome chr = handler.getChromosomeFromName(chr1Name);
                 if (chr == null) {
                     if (HiCGlobals.printVerboseComments) {
                         if (errorCount < 10) {
@@ -238,31 +238,31 @@ public class MotifAnchorParser {
     }
 
     /**
-     * @param chromosomes
+     * @param handler
      * @param bedFilePath
      * @return List of motif anchors from the provided bed file
      */
-    public static GenomeWideList<Locus> loadFromBEDFile(List<Chromosome> chromosomes, String bedFilePath) {
+    public static GenomeWideList<Locus> loadFromBEDFile(ChromosomeHandler handler, String bedFilePath) {
         List<Locus> anchors = new ArrayList<Locus>();
 
         try {
             //BufferedReader br = ParsingUtils.openBufferedReader(bedFilePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(ParsingUtils.openInputStream(bedFilePath)), HiCGlobals.bufferSize);
-            anchors.addAll(parseBEDFile(br, chromosomes));
+            anchors.addAll(parseBEDFile(br, handler));
         } catch (IOException ec) {
             ec.printStackTrace();
         }
 
-        return new GenomeWideList<Locus>(chromosomes, anchors);
+        return new GenomeWideList<Locus>(handler, anchors);
     }
 
     /**
-     * @param chromosomes
+     * @param handler
      * @param bedFilePath
      * @return List of motif anchors from the provided bed file
      */
-    public static GenomeWideList<MotifAnchor> loadFromBEDFileAsAnchors(List<Chromosome> chromosomes, String bedFilePath) {
-        GenomeWideList<Locus> anchors = loadFromBEDFile(chromosomes, bedFilePath);
+    public static GenomeWideList<MotifAnchor> loadFromBEDFileAsAnchors(ChromosomeHandler handler, String bedFilePath) {
+        GenomeWideList<Locus> anchors = loadFromBEDFile(handler, bedFilePath);
         final GenomeWideList<MotifAnchor> motifAnchors = new GenomeWideList<MotifAnchor>();
 
         anchors.processLists(new FeatureFunction<Locus>() {
@@ -292,7 +292,7 @@ public class MotifAnchorParser {
      * @return list of motifs
      * @throws IOException
      */
-    private static List<Locus> parseBEDFile(BufferedReader bufferedReader, List<Chromosome> chromosomes) throws IOException {
+    private static List<Locus> parseBEDFile(BufferedReader bufferedReader, ChromosomeHandler handler) throws IOException {
         Set<Locus> anchors = new HashSet<Locus>();
         String nextLine;
 
@@ -310,7 +310,7 @@ public class MotifAnchorParser {
                 end1 = Integer.parseInt(tokens[2]);
 
 
-                Chromosome chr = HiCFileTools.getChromosomeNamed(chr1Name, chromosomes);
+                Chromosome chr = handler.getChromosomeFromName(chr1Name);
                 if (chr == null) {
                     if (errorCount < 10) {
                         System.out.println("Skipping line: " + nextLine);

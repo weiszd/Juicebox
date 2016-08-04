@@ -346,7 +346,7 @@ public class GoToPanel extends JPanel implements ActionListener, FocusListener {
         }
 
         try {
-            geneLocationHashMap = GeneTools.readGeneFileToLocationMap(reader, hic.getDataset().getChromosomes());
+            geneLocationHashMap = GeneTools.readGeneFileToLocationMap(reader, hic.getChromosomeHandler());
         } catch (Exception error) {
             MessageUtils.showErrorMessage("Failed to parse gene database", error);
             positionChrTop.setBackground(Color.yellow);

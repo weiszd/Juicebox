@@ -99,9 +99,8 @@ public class HiCCUPSDiff extends JuicerCLT {
         }
         // intersecting for the edge case where one of the hic files may not be using all chromosomes
         // e.g. the mbr_19 files for testing
-        handler = new ChromosomeHandler(HiCFileTools.getSetIntersection(ds1.getChromosomes(), ds2.getChromosomes()));
-        if (givenChromosomes != null && givenChromosomes.size() > 0)
-            handler.setToSpecifiedChromosomes(givenChromosomes);
+        handler = new ChromosomeHandler(ChromosomeHandler.getSetIntersection(ds1.getChromosomes(), ds2.getChromosomes()),
+                givenChromosomes);
 
         List<HiCZoom> availableZooms = (List<HiCZoom>) HiCFileTools.getZoomSetIntersection(ds1.getBpZooms(), ds1.getBpZooms());
 

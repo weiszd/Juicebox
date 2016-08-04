@@ -26,7 +26,6 @@ package juicebox.tools.clt.juicer;
 
 import juicebox.HiCGlobals;
 import juicebox.data.ChromosomeHandler;
-import juicebox.data.HiCFileTools;
 import juicebox.data.anchor.MotifAnchorTools;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
@@ -87,9 +86,7 @@ public class CompareLists extends JuicerCLT {
     @Override
     public void run() {
 
-        ChromosomeHandler handler = new ChromosomeHandler(HiCFileTools.loadChromosomes(genomeID));
-        if (givenChromosomes != null)
-            handler.setToSpecifiedChromosomes(givenChromosomes);
+        ChromosomeHandler handler = new ChromosomeHandler(genomeID, givenChromosomes);
 
         Feature2DList listA = null, listB = null;
         if (compareTypeID == 0) {

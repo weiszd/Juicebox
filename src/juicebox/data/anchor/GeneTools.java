@@ -26,8 +26,8 @@ package juicebox.data.anchor;
 
 import htsjdk.samtools.seekablestream.SeekableHTTPStream;
 import juicebox.HiCGlobals;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.feature.GenomeWideList;
-import org.broad.igv.feature.Chromosome;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,11 +44,11 @@ import java.util.Map;
  */
 public class GeneTools {
 
-    public static GenomeWideList<GeneLocation> parseGenome(String genomeID, List<Chromosome> chromosomes) {
+    public static GenomeWideList<GeneLocation> parseGenome(String genomeID, ChromosomeHandler handler) {
         GenomeWideList<GeneLocation> geneLocationList = null;
         try {
             BufferedReader reader = getReaderToGeneFile(genomeID);
-            geneLocationList = new GenomeWideList<GeneLocation>(chromosomes, getAllGenes(reader, chromosomes));
+            geneLocationList = new GenomeWideList<GeneLocation>(handler, getAllGenes(reader, handler));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,20 +64,15 @@ public class GeneTools {
         return new BufferedReader(new InputStreamReader(stream), HiCGlobals.bufferSize);
     }
 
-    public static List<GeneLocation> getAllGenes(BufferedReader reader, List<Chromosome> chromosomes) throws IOException {
+    public static List<GeneLocation> getAllGenes(BufferedReader reader, ChromosomeHandler handler) throws IOException {
 
         List<GeneLocation> allGenes = new ArrayList<GeneLocation>();
-
-        Map<String, Integer> chrNameToIndex = new HashMap<String, Integer>();
-        for (Chromosome chromosome : chromosomes) {
-            chrNameToIndex.put(chromosome.getName().toLowerCase().replaceAll("chr", ""), chromosome.getIndex());
-        }
 
         String nextLine;
         while ((nextLine = reader.readLine()) != null) {
             String[] values = nextLine.split(" ");
             String chrKey = values[2].trim().replaceAll("chr", "");
-            int chrIndex = chrNameToIndex.get(chrKey);
+            int chrIndex = handler.getChromosomeFromName(chrKey).getIndex();
             int location = Integer.valueOf(values[3].trim());
 
             // both gene names
@@ -89,9 +84,9 @@ public class GeneTools {
     }
 
     public static Map<String, GeneLocation> readGeneFileToLocationMap(BufferedReader reader,
-                                                                      List<Chromosome> chromosomes) throws IOException {
+                                                                      ChromosomeHandler handler) throws IOException {
 
-        List<GeneLocation> allGenes = getAllGenes(reader, chromosomes);
+        List<GeneLocation> allGenes = getAllGenes(reader, handler);
 
         Map<String, GeneLocation> geneLocationHashMap = new HashMap<String, GeneLocation>();
         for (GeneLocation gene : allGenes) {

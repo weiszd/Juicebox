@@ -30,6 +30,7 @@ import juicebox.tools.utils.common.MatrixTools;
 import juicebox.windowui.HiCZoom;
 import juicebox.windowui.NormalizationType;
 import org.apache.commons.math.linear.RealMatrix;
+import org.broad.igv.Globals;
 import org.broad.igv.feature.Chromosome;
 
 import java.io.*;
@@ -42,7 +43,6 @@ import java.util.regex.Pattern;
 public class HiCFileTools {
 
     // coalescing some of the magic strings
-    public static final String ALL_CHROMOSOME = "All";
     public static final String KR = "KR";
     public static final String VC = "VC";
     public static final String VC_SQRT = "VC_SQRT";
@@ -83,84 +83,12 @@ public class HiCFileTools {
         return dataset;
     }
 
-    /**
-     * Load the list of chromosomes based on given genome id or file
-     *
-     * @param idOrFile string
-     * @return list of chromosomes
-     */
-    public static List<Chromosome> loadChromosomes(String idOrFile) {
-
-        InputStream is = null;
-
-        try {
-            // Note: to get this to work, had to edit Intellij settings
-            // so that "?*.sizes" are considered sources to be copied to class path
-            is = ChromosomeSizes.class.getResourceAsStream(idOrFile + ".chrom.sizes");
-
-            if (is == null) {
-                // Not an ID,  see if its a file
-                File file = new File(idOrFile);
-
-                try {
-                    if (file.exists()) {
-                        is = new FileInputStream(file);
-                    } else {
-                        System.err.println("Could not find chromosome sizes file for: " + idOrFile);
-                        System.exit(35);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            List<Chromosome> chromosomes = new ArrayList<Chromosome>();
-            chromosomes.add(0, null);   // Index 0 reserved for "whole genome" pseudo-chromosome
-
-            Pattern pattern = Pattern.compile("\t");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is), HiCGlobals.bufferSize);
-            String nextLine;
-            long genomeLength = 0;
-            int idx = 1;
-
-            try {
-                while ((nextLine = reader.readLine()) != null) {
-                    String[] tokens = pattern.split(nextLine);
-                    if (tokens.length == 2) {
-                        String name = tokens[0];
-                        int length = Integer.parseInt(tokens[1]);
-                        genomeLength += length;
-                        chromosomes.add(idx, new Chromosome(idx, name, length));
-                        idx++;
-                    } else {
-                        System.out.println("Skipping " + nextLine);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // Add the "pseudo-chromosome" All, representing the whole genome.  Units are in kilo-bases
-            chromosomes.set(0, new Chromosome(0, ALL_CHROMOSOME, (int) (genomeLength / 1000)));
-
-            return chromosomes;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public static boolean isAllChromosome(Chromosome chromosome) {
         return isAllChromosome(chromosome.getName());
     }
 
     public static boolean isAllChromosome(String name) {
-        return name.equalsIgnoreCase(ALL_CHROMOSOME);
+        return name.equalsIgnoreCase(Globals.CHR_ALL);
     }
 
     /**
@@ -221,7 +149,7 @@ public class HiCFileTools {
             }
 
             // Add the "pseudo-chromosome" All, representing the whole genome.  Units are in kilo-bases
-            chromosomes.set(0, new Chromosome(0, ALL_CHROMOSOME, (int) (genomeLength / 1000)));
+            chromosomes.set(0, new Chromosome(0, Globals.CHR_ALL, (int) (genomeLength / 1000)));
 
 
             return chromosomes;
@@ -292,16 +220,6 @@ public class HiCFileTools {
      * @param collection2
      * @return intersection of set1 and set2
      */
-    public static Set<Chromosome> getSetIntersection(Collection<Chromosome> collection1, Collection<Chromosome> collection2) {
-        Set<Chromosome> set1 = new HashSet<Chromosome>(collection1);
-        Set<Chromosome> set2 = new HashSet<Chromosome>(collection2);
-
-        boolean set1IsLarger = set1.size() > set2.size();
-        Set<Chromosome> cloneSet = new HashSet<Chromosome>(set1IsLarger ? set2 : set1);
-        cloneSet.retainAll(set1IsLarger ? set1 : set2);
-        return cloneSet;
-    }
-
     public static Set<HiCZoom> getZoomSetIntersection(Collection<HiCZoom> collection1, Collection<HiCZoom> collection2) {
         Set<HiCZoom> set1 = new HashSet<HiCZoom>(collection1);
         Set<HiCZoom> set2 = new HashSet<HiCZoom>(collection2);
@@ -312,45 +230,7 @@ public class HiCFileTools {
         return cloneSet;
     }
 
-    /**
-     * For each given chromosome name, find its equivalent Chromosome object
-     *
-     * @param chromosomesSpecified by strings
-     * @param referenceChromosomes as Chromosome objects
-     * @return the specified Chromosomes corresponding to the given strings
-     */
-    public static Set<Chromosome> stringToChromosomes(Set<String> chromosomesSpecified,
-                                                      List<Chromosome> referenceChromosomes) {
-        Set<Chromosome> chromosomes = new HashSet<Chromosome>();
 
-        for (String strKey : chromosomesSpecified) {
-            boolean chrFound = false;
-            for (Chromosome chrKey : referenceChromosomes) {
-                if (equivalentChromosome(strKey, chrKey)) {
-                    chromosomes.add(chrKey);
-                    chrFound = true;
-                    break;
-                }
-            }
-            if (!chrFound) {
-                System.err.println("Chromosome " + strKey + " not found");
-            }
-        }
-        return new HashSet<Chromosome>(chromosomes);
-    }
-
-    /**
-     * Evaluates whether the same chromosome is being referenced by the token
-     *
-     * @param token
-     * @param chr
-     * @return
-     */
-    public static boolean equivalentChromosome(String token, Chromosome chr) {
-        String token2 = token.toLowerCase().replaceAll("chr", "");
-        String chrName = chr.getName().toLowerCase().replaceAll("chr", "");
-        return token2.equals(chrName);
-    }
 
     public static PrintWriter openWriter(File file) {
         try {
@@ -449,14 +329,6 @@ public class HiCFileTools {
         return null;
     }
     */
-
-    public static Chromosome getChromosomeNamed(String chrName, List<Chromosome> chromosomes) {
-        for (Chromosome chr : chromosomes) {
-            if (equivalentChromosome(chrName, chr))
-                return chr;
-        }
-        return null;
-    }
 
     public static double[] extractChromosomeExpectedVector(Dataset ds, int index, HiCZoom zoom, NormalizationType normalization) {
         ExpectedValueFunction expectedValueFunction = ds.getExpectedValues(zoom, normalization);

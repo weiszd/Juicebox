@@ -92,7 +92,7 @@ public class HiC {
     private boolean m_zoomChanged;
     private boolean m_displayOptionChanged;
     private boolean m_normalizationTypeChanged;
-    private ChromosomeHandler internalChromosomeHandler;
+    private ChromosomeHandler internalChrHandler;
 
     public HiC(SuperAdapter superAdapter) {
         this.superAdapter = superAdapter;
@@ -259,7 +259,7 @@ public class HiC {
 
     public void setDataset(Dataset dataset) {
         this.dataset = dataset;
-        internalChromosomeHandler = new ChromosomeHandler(dataset.getChromosomes());
+        internalChrHandler = new ChromosomeHandler(dataset.getChromosomes());
     }
 
     public void setSelectedChromosomes(Chromosome chrX, Chromosome chrY) {
@@ -865,8 +865,8 @@ public class HiC {
 
     private void setChromosomesFromBroadcast(String chrXName, String chrYName) {
         if (!chrXName.equals(xContext.getChromosome().getName()) || !chrYName.equals(yContext.getChromosome().getName())) {
-            Chromosome chrX = HiCFileTools.getChromosomeNamed(chrXName, chromosomes);
-            Chromosome chrY = HiCFileTools.getChromosomeNamed(chrYName, chromosomes);
+            Chromosome chrX = internalChrHandler.getChromosomeFromName(chrXName);
+            Chromosome chrY = internalChrHandler.getChromosomeFromName(chrYName);
 
             if (chrX == null || chrY == null) {
                 //log.info("Most probably origin is a different species saved location or sync/link between two different species maps.");
@@ -978,7 +978,7 @@ public class HiC {
     }
 
     public void loadLoopList(String path) {
-        feature2DHandler.loadLoopList(path, internalChromosomeHandler);
+        feature2DHandler.loadLoopList(path, internalChrHandler);
     }
 
     public List<Feature2DList> getAllVisibleLoopLists() {
@@ -1126,7 +1126,7 @@ public class HiC {
     }
 
     public Chromosome getChromosomeFromName(String name) {
-        return internalChromosomeHandler.getChromosomeFromName(name);
+        return internalChrHandler.getChromosomeFromName(name);
     }
 
     public Chromosome getChromosomeFromIndex(int index) {
@@ -1134,7 +1134,7 @@ public class HiC {
     }
 
     public ChromosomeHandler getChromosomeHandler() {
-        return internalChromosomeHandler;
+        return internalChrHandler;
     }
 
     public enum ZoomCallType {STANDARD, DRAG, DIRECT, INITIAL}

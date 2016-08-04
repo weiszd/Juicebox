@@ -31,6 +31,7 @@ import java.io.*;
 
 /**
  * TODO These should probably be deleted, but keeping them until respective author decides/refactors
+ * probably a duplicate
  * Created by muhammadsaadshamim on 8/3/15.
  */
 class Unused {
@@ -57,7 +58,7 @@ class Unused {
         }
 
         int location1 = 0;
-        for (Chromosome c1 : hic.getChromosomeHandler().getChromosomes()) {
+        for (Chromosome c1 : hic.getChromosomes()) {
             if (c1.getName().equals(Globals.CHR_ALL)) continue;
             int chrBinned = c1.getLength() / resolution + 1;
             double[] chrNV = new double[chrBinned];
