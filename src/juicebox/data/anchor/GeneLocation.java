@@ -22,45 +22,43 @@
  *  THE SOFTWARE.
  */
 
-package juicebox.tools.dev;
+package juicebox.data.anchor;
 
-import juicebox.data.HiCFileTools;
-import juicebox.data.anchor.GeneLocation;
-import juicebox.data.anchor.GeneTools;
-import juicebox.data.anchor.Locus;
-import juicebox.data.anchor.MotifAnchorParser;
-import juicebox.data.feature.GenomeWideList;
-import juicebox.tools.clt.CommandLineParserForJuicer;
-import juicebox.tools.clt.JuicerCLT;
-import org.broad.igv.feature.Chromosome;
-
-import java.util.List;
+import juicebox.data.feature.Feature;
 
 /**
  * Created by muhammadsaadshamim on 8/3/16.
  */
-public class GeneFinder extends JuicerCLT {
+public class GeneLocation extends Feature {
+    private final int centerPosition;
+    private String name;
+    private int chrIndex = -1;
 
-    private String genomeID, bedFilePath, loopList;
+    public GeneLocation(String name, int chrIndex, int centerPosition) {
+        this.name = name;
+        this.chrIndex = chrIndex;
+        this.centerPosition = centerPosition;
+    }
 
-    protected GeneFinder() {
-        super("genes <genomeID> <bed_file> <looplist>");
+    public int getCenterPosition() {
+        return centerPosition;
     }
 
     @Override
-    protected void readJuicerArguments(String[] args, CommandLineParserForJuicer juicerParser) {
-        int i = 1;
-        genomeID = args[i++];
-        bedFilePath = args[i++];
-        loopList = args[i++];
+    public String getKey() {
+        return "" + chrIndex;
     }
 
     @Override
-    public void run() {
-        List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeID);
+    public Feature deepClone() {
+        return new GeneLocation(name, chrIndex, centerPosition);
+    }
 
-        GenomeWideList<Locus> bedFilePositions = MotifAnchorParser.loadFromBEDFile(chromosomes, bedFilePath);
-        GenomeWideList<GeneLocation> genes = GeneTools.parseGenome(genomeID, chromosomes);
+    public String getName() {
+        return name;
+    }
 
+    public int getIndex() {
+        return chrIndex;
     }
 }

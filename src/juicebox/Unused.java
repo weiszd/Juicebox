@@ -28,7 +28,6 @@ import org.broad.igv.Globals;
 import org.broad.igv.feature.Chromosome;
 
 import java.io.*;
-import java.util.List;
 
 /**
  * TODO These should probably be deleted, but keeping them until respective author decides/refactors
@@ -43,7 +42,6 @@ class Unused {
         int resolution = Integer.valueOf(tokens[0]);
         int vectorLength = Integer.valueOf(tokens[1]);
         int expectedLength = Integer.valueOf(tokens[2]);
-        List<Chromosome> chromosomes = hic.getChromosomes();
 
         double[] nv = new double[vectorLength];
         double[] exp = new double[expectedLength];
@@ -59,7 +57,7 @@ class Unused {
         }
 
         int location1 = 0;
-        for (Chromosome c1 : chromosomes) {
+        for (Chromosome c1 : hic.getChromosomeHandler().getChromosomes()) {
             if (c1.getName().equals(Globals.CHR_ALL)) continue;
             int chrBinned = c1.getLength() / resolution + 1;
             double[] chrNV = new double[chrBinned];

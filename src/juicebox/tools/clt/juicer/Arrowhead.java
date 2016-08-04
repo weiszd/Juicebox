@@ -26,10 +26,7 @@ package juicebox.tools.clt.juicer;
 
 import juicebox.HiC;
 import juicebox.HiCGlobals;
-import juicebox.data.Dataset;
-import juicebox.data.ExpectedValueFunction;
-import juicebox.data.HiCFileTools;
-import juicebox.data.Matrix;
+import juicebox.data.*;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
 import juicebox.tools.utils.juicer.arrowhead.ArrowheadScoreList;
@@ -42,7 +39,6 @@ import org.broad.igv.Globals;
 import org.broad.igv.feature.Chromosome;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -203,7 +199,6 @@ public class Arrowhead extends JuicerCLT {
             }
         }
 
-        List<Chromosome> chromosomes = ds.getChromosomes();
 
         Feature2DList contactDomainsGenomeWide = new Feature2DList();
         Feature2DList contactDomainListScoresGenomeWide = new Feature2DList();
@@ -211,9 +206,10 @@ public class Arrowhead extends JuicerCLT {
 
         Feature2DList inputList = new Feature2DList();
         Feature2DList inputControl = new Feature2DList();
+        ChromosomeHandler handler = new ChromosomeHandler(ds.getChromosomes());
         if (controlAndListProvided) {
-            inputList.add(Feature2DParser.loadFeatures(featureList, chromosomes, true, null, false));
-            inputControl.add(Feature2DParser.loadFeatures(controlList, chromosomes, true, null, false));
+            inputList.add(Feature2DParser.loadFeatures(featureList, handler, true, null, false));
+            inputControl.add(Feature2DParser.loadFeatures(controlList, handler, true, null, false));
         }
 
         File outputBlockFile = new File(outputDirectory, resolution + "_blocks");
@@ -226,16 +222,16 @@ public class Arrowhead extends JuicerCLT {
 
         // chromosome filtering must be done after input/control created
         // because full set of chromosomes required to parse lists
+
         if (givenChromosomes != null)
-            chromosomes = new ArrayList<Chromosome>(HiCFileTools.stringToChromosomes(givenChromosomes,
-                    chromosomes));
+            handler.setToSpecifiedChromosomes(givenChromosomes);
 
         HiCZoom zoom = new HiCZoom(HiC.Unit.BP, resolution);
 
-        double maxProgressStatus = determineHowManyChromosomesWillActuallyRun(ds, chromosomes);
+        double maxProgressStatus = determineHowManyChromosomesWillActuallyRun(ds, handler);
         int currentProgressStatus = 0;
 
-        for (Chromosome chr : chromosomes) {
+        for (Chromosome chr : handler.getChromosomes()) {
 
             if (chr.getName().equals(Globals.CHR_ALL)) continue;
 

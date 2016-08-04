@@ -92,6 +92,7 @@ public class HiC {
     private boolean m_zoomChanged;
     private boolean m_displayOptionChanged;
     private boolean m_normalizationTypeChanged;
+    private ChromosomeHandler internalChromosomeHandler;
 
     public HiC(SuperAdapter superAdapter) {
         this.superAdapter = superAdapter;
@@ -258,6 +259,7 @@ public class HiC {
 
     public void setDataset(Dataset dataset) {
         this.dataset = dataset;
+        internalChromosomeHandler = new ChromosomeHandler(dataset.getChromosomes());
     }
 
     public void setSelectedChromosomes(Chromosome chrX, Chromosome chrY) {
@@ -393,7 +395,7 @@ public class HiC {
         return xContext != null && HiCFileTools.isAllChromosome(xContext.getChromosome());
     }
 
-    public java.util.List<Chromosome> getChromosomes() {
+    public List<Chromosome> getChromosomes() {
         return chromosomes;
     }
 
@@ -643,13 +645,6 @@ public class HiC {
                 true, zoomCallType, allowLocationBroadcast);
     }
 
-    private boolean safeActuallySetZoomAndLocation(HiCZoom newZoom, int genomeX, int genomeY, double scaleFactor,
-                                                   boolean resetZoom, ZoomCallType zoomCallType, String message,
-                                                   boolean allowLocationBroadcast) {
-        return safeActuallySetZoomAndLocation("", "", newZoom, genomeX, genomeY, scaleFactor, resetZoom, zoomCallType,
-                message, allowLocationBroadcast);
-    }
-
     /*  TODO Undo Zoom implementation mss2 _UZI
      private boolean canUndoZoomChange = false;
      private boolean canRedoZoomChange = false;
@@ -717,6 +712,13 @@ public class HiC {
          }
       }
      */
+
+    private boolean safeActuallySetZoomAndLocation(HiCZoom newZoom, int genomeX, int genomeY, double scaleFactor,
+                                                   boolean resetZoom, ZoomCallType zoomCallType, String message,
+                                                   boolean allowLocationBroadcast) {
+        return safeActuallySetZoomAndLocation("", "", newZoom, genomeX, genomeY, scaleFactor, resetZoom, zoomCallType,
+                message, allowLocationBroadcast);
+    }
 
     private boolean safeActuallySetZoomAndLocation(final String chrXName, final String chrYName,
                                                    final HiCZoom newZoom, final int genomeX, final int genomeY,
@@ -976,7 +978,7 @@ public class HiC {
     }
 
     public void loadLoopList(String path) {
-        feature2DHandler.loadLoopList(path, chromosomes);
+        feature2DHandler.loadLoopList(path, internalChromosomeHandler);
     }
 
     public List<Feature2DList> getAllVisibleLoopLists() {
@@ -1123,8 +1125,19 @@ public class HiC {
                 (isInPearsonsMode() && currentZoom.getBinSize() == HiCGlobals.MAX_PEARSON_ZOOM);
     }
 
+    public Chromosome getChromosomeFromName(String name) {
+        return internalChromosomeHandler.getChromosomeFromName(name);
+    }
+
+    public Chromosome getChromosomeFromIndex(int index) {
+        return dataset.getChromosomes().get(index);
+    }
+
+    public ChromosomeHandler getChromosomeHandler() {
+        return internalChromosomeHandler;
+    }
+
     public enum ZoomCallType {STANDARD, DRAG, DIRECT, INITIAL}
 
     public enum Unit {BP, FRAG}
 }
-

@@ -26,6 +26,7 @@ package juicebox.tools.clt;
 
 
 import juicebox.HiCGlobals;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.Dataset;
 import juicebox.data.HiCFileTools;
 import juicebox.tools.utils.juicer.hiccups.HiCCUPSConfiguration;
@@ -70,6 +71,7 @@ class UnitTests {
         Dataset ds = HiCFileTools.extractDatasetForCLT(Arrays.asList(folder + "inter_30.hic"), true);
         File outputMergedFile = new File(outputDirectory, "merged_loops");
         List<Chromosome> commonChromosomes = ds.getChromosomes();
+        ChromosomeHandler handler = new ChromosomeHandler(commonChromosomes);
         NormalizationType norm = NormalizationType.KR;
 
         List<HiCCUPSConfiguration> filteredConfigurations = new ArrayList<HiCCUPSConfiguration>();
@@ -81,10 +83,10 @@ class UnitTests {
         String link2 = baseLink + "10000";
 
         Map<Integer, Feature2DList> loopLists = new HashMap<Integer, Feature2DList>();
-        loopLists.put(5000, Feature2DParser.loadFeatures(link1, commonChromosomes, true, null, false));
-        loopLists.put(10000, Feature2DParser.loadFeatures(link2, commonChromosomes, true, null, false));
+        loopLists.put(5000, Feature2DParser.loadFeatures(link1, handler, true, null, false));
+        loopLists.put(10000, Feature2DParser.loadFeatures(link2, handler, true, null, false));
 
-        Feature2DList finalList = HiCCUPSUtils.postProcess(loopLists, ds, commonChromosomes,
+        Feature2DList finalList = HiCCUPSUtils.postProcess(loopLists, ds, handler,
                 filteredConfigurations, norm, outputDirectory);
         finalList.exportFeatureList(outputMergedFile, true, Feature2DList.ListFormat.FINAL);
         System.out.println(finalList.getNumTotalFeatures() + " loops written to file: " +

@@ -25,6 +25,7 @@
 package juicebox.tools.clt;
 
 import jargs.gnu.CmdLineParser;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.Dataset;
 import juicebox.data.Matrix;
 import juicebox.windowui.NormalizationType;
@@ -42,14 +43,15 @@ public abstract class JuicerCLT extends JuiceboxCLT {
 
     protected NormalizationType norm = NormalizationType.KR;
     protected Set<String> givenChromosomes = null;
+    protected ChromosomeHandler handler = null;
 
     protected JuicerCLT(String usage) {
         super(usage);
     }
 
-    protected int determineHowManyChromosomesWillActuallyRun(Dataset ds, List<Chromosome> chromosomes) {
+    protected int determineHowManyChromosomesWillActuallyRun(Dataset ds, ChromosomeHandler handler) {
         int maxProgressStatus = 0;
-        for (Chromosome chr : chromosomes) {
+        for (Chromosome chr : handler.getChromosomes()) {
             if (chr.getName().equals(Globals.CHR_ALL)) continue;
             Matrix matrix = ds.getMatrix(chr, chr);
             if (matrix == null) continue;
@@ -68,6 +70,7 @@ public abstract class JuicerCLT extends JuiceboxCLT {
     protected abstract void readJuicerArguments(String[] args, CommandLineParserForJuicer juicerParser);
 
     private void assessIfChromosomesHaveBeenSpecified(CommandLineParserForJuicer juicerParser) {
+        givenChromosomes = new HashSet<String>();
         List<String> possibleChromosomes = juicerParser.getChromosomeOption();
         if (possibleChromosomes != null && possibleChromosomes.size() > 0) {
             givenChromosomes = new HashSet<String>(possibleChromosomes);

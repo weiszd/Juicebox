@@ -25,6 +25,7 @@
 package juicebox.tools.clt.juicer;
 
 import juicebox.HiCGlobals;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.HiCFileTools;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
@@ -115,11 +116,12 @@ public class LoopDomains extends JuicerCLT {
             chromosomes = new ArrayList<Chromosome>(HiCFileTools.stringToChromosomes(givenChromosomes,
                     chromosomes));
         }
+        ChromosomeHandler handler = new ChromosomeHandler(chromosomes);
 
         // need to keep motifs for loop list
-        final Feature2DList loopList = Feature2DParser.loadFeatures(loopListPath, chromosomes, true, null, true);
+        final Feature2DList loopList = Feature2DParser.loadFeatures(loopListPath, handler, true, null, true);
         // domains have to use the extended with motif class, but they'll just have null values for that
-        Feature2DList domainList = Feature2DParser.loadFeatures(domainListPath, chromosomes, false, null, true);
+        Feature2DList domainList = Feature2DParser.loadFeatures(domainListPath, handler, false, null, true);
 
         loopList.clearAllAttributes();
         domainList.clearAllAttributes();

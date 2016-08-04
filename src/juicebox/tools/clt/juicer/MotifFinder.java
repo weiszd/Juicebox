@@ -24,6 +24,7 @@
 
 package juicebox.tools.clt.juicer;
 
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.HiCFileTools;
 import juicebox.data.anchor.MotifAnchor;
 import juicebox.data.anchor.MotifAnchorParser;
@@ -106,8 +107,9 @@ public class MotifFinder extends JuicerCLT {
     @Override
     public void run() {
         List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeID);
+        ChromosomeHandler handler = new ChromosomeHandler(chromosomes);
 
-        Feature2DList features = Feature2DParser.loadFeatures(loopListPath, chromosomes, true, null, true);
+        Feature2DList features = Feature2DParser.loadFeatures(loopListPath, handler, true, null, true);
 
         findUniqueMotifs(chromosomes, features);
 

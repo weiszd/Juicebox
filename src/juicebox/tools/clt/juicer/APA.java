@@ -27,10 +27,7 @@ package juicebox.tools.clt.juicer;
 import com.google.common.primitives.Ints;
 import juicebox.HiC;
 import juicebox.HiCGlobals;
-import juicebox.data.Dataset;
-import juicebox.data.HiCFileTools;
-import juicebox.data.Matrix;
-import juicebox.data.MatrixZoomData;
+import juicebox.data.*;
 import juicebox.tools.clt.CommandLineParserForJuicer;
 import juicebox.tools.clt.JuicerCLT;
 import juicebox.tools.utils.juicer.apa.APADataStack;
@@ -213,15 +210,15 @@ public class APA extends JuicerCLT {
             System.out.println("Processing APA for resolution " + resolution);
             HiCZoom zoom = new HiCZoom(HiC.Unit.BP, resolution);
 
-            List<Chromosome> chromosomes = ds.getChromosomes();
+
+            ChromosomeHandler handler = new ChromosomeHandler(ds.getChromosomes());
             if (givenChromosomes != null)
-                chromosomes = new ArrayList<Chromosome>(HiCFileTools.stringToChromosomes(givenChromosomes,
-                        chromosomes));
+                handler.setToSpecifiedChromosomes(givenChromosomes);
 
             // Metrics resulting from apa filtering
             final Map<String, Integer[]> filterMetrics = new HashMap<String, Integer[]>();
 
-            Feature2DList loopList = Feature2DParser.loadFeatures(loopListPath, chromosomes, false,
+            Feature2DList loopList = Feature2DParser.loadFeatures(loopListPath, handler, false,
                     new FeatureFilter() {
                         // Remove duplicates and filters by size
                         // also save internal metrics for these measures
@@ -241,10 +238,10 @@ public class APA extends JuicerCLT {
 
             if (loopList.getNumTotalFeatures() > 0) {
 
-                double maxProgressStatus = chromosomes.size();
+                double maxProgressStatus = handler.size();
                 int currentProgressStatus = 0;
 
-                for (Chromosome chr : chromosomes) {
+                for (Chromosome chr : handler.getChromosomes()) {
                     APADataStack apaDataStack = new APADataStack(L, outputDirectory, "" + resolution);
 
                     if (chr.getName().equals(Globals.CHR_ALL)) continue;

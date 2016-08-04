@@ -26,6 +26,7 @@ package juicebox.track.feature;
 
 import juicebox.HiCGlobals;
 import juicebox.MainWindow;
+import juicebox.data.ChromosomeHandler;
 import juicebox.data.HiCFileTools;
 import juicebox.tools.utils.juicer.arrowhead.ArrowheadScoreList;
 import juicebox.tools.utils.juicer.arrowhead.HighScore;
@@ -50,25 +51,26 @@ public class Feature2DParser {
 
     public static Feature2DList loadFeatures(String path, String genomeID, boolean loadAttributes,
                                              FeatureFilter featureFilter, boolean useFeature2DWithMotif) {
-        return loadFeatures(path, HiCFileTools.loadChromosomes(genomeID), loadAttributes, featureFilter, useFeature2DWithMotif);
+        ChromosomeHandler handler = new ChromosomeHandler(HiCFileTools.loadChromosomes(genomeID));
+        return loadFeatures(path, handler, loadAttributes, featureFilter, useFeature2DWithMotif);
     }
 
-    public static Feature2DList loadFeatures(String path, List<Chromosome> chromosomes, boolean loadAttributes,
+    public static Feature2DList loadFeatures(String path, ChromosomeHandler chromosomeHandler, boolean loadAttributes,
                                              FeatureFilter featureFilter, boolean useFeature2DWithMotif) {
         Feature2DList newList;
         if (path.endsWith(".px")) {
-            newList = parseHiCCUPSLoopFile(path, chromosomes, loadAttributes, featureFilter);
+            newList = parseHiCCUPSLoopFile(path, chromosomeHandler, loadAttributes, featureFilter);
         } else if (path.endsWith(".px2")) {
-            newList = parseDomainFile(path, chromosomes, loadAttributes, featureFilter);
+            newList = parseDomainFile(path, chromosomeHandler, loadAttributes, featureFilter);
         } else {
-            newList = parseLoopFile(path, chromosomes, loadAttributes, featureFilter, useFeature2DWithMotif);
+            newList = parseLoopFile(path, chromosomeHandler, loadAttributes, featureFilter, useFeature2DWithMotif);
         }
         newList.removeDuplicates();
         return newList;
     }
 
 
-    private static Feature2DList parseLoopFile(String path, List<Chromosome> chromosomes, boolean loadAttributes,
+    private static Feature2DList parseLoopFile(String path, ChromosomeHandler handler, boolean loadAttributes,
                                                FeatureFilter featureFilter, boolean useFeature2DWithMotif) {
 
         Feature2DList newList = new Feature2DList();
@@ -133,8 +135,8 @@ public class Feature2DParser {
                     }
                 }
 
-                Chromosome chr1 = HiCFileTools.getChromosomeNamed(chr1Name, chromosomes);
-                Chromosome chr2 = HiCFileTools.getChromosomeNamed(chr2Name, chromosomes);
+                Chromosome chr1 = handler.getChromosomeFromName(chr1Name);
+                Chromosome chr2 = handler.getChromosomeFromName(chr2Name);
                 if (chr1 == null || chr2 == null) {
                     if (HiCGlobals.printVerboseComments) {
                         if (errorCount < 100) {
@@ -208,7 +210,7 @@ public class Feature2DParser {
         return feature2DList;
     }
 
-    private static Feature2DList parseHiCCUPSLoopFile(String path, List<Chromosome> chromosomes,
+    private static Feature2DList parseHiCCUPSLoopFile(String path, ChromosomeHandler chromosomeHandler,
                                                       boolean loadAttributes, FeatureFilter featureFilter) {
         Feature2DList newList = new Feature2DList();
         int attCol = 4;
@@ -269,8 +271,8 @@ public class Feature2DParser {
                     }
                 }
 
-                Chromosome chr1 = HiCFileTools.getChromosomeNamed(chr1Name, chromosomes);
-                Chromosome chr2 = HiCFileTools.getChromosomeNamed(chr2Name, chromosomes);
+                Chromosome chr1 = chromosomeHandler.getChromosomeFromName(chr1Name);
+                Chromosome chr2 = chromosomeHandler.getChromosomeFromName(chr2Name);
                 if (chr1 == null || chr2 == null) {
                     if (HiCGlobals.printVerboseComments) {
                         if (errorCount < 100) {
@@ -310,7 +312,7 @@ public class Feature2DParser {
         return newList;
     }
 
-    private static Feature2DList parseDomainFile(String path, List<Chromosome> chromosomes,
+    private static Feature2DList parseDomainFile(String path, ChromosomeHandler handler,
                                                  boolean loadAttributes, FeatureFilter featureFilter) {
         Feature2DList newList = new Feature2DList();
         int attCol = 3;
@@ -364,7 +366,7 @@ public class Feature2DParser {
                     }
                 }
 
-                Chromosome chrA = HiCFileTools.getChromosomeNamed(chrAName, chromosomes);
+                Chromosome chrA = handler.getChromosomeFromName(chrAName);
                 if (chrA == null) {
                     if (HiCGlobals.printVerboseComments) {
                         if (errorCount < 100) {

@@ -264,7 +264,7 @@ public class HiCCUPS extends JuicerCLT {
      */
     public void initializeDirectly(String inputHiCFileName, String outputDirectoryPath,
                                    String featureListPath, NormalizationType preferredNorm, int matrixSize,
-                                   List<Chromosome> providedCommonChromosomes,
+                                   ChromosomeHandler handler,
                                    List<HiCCUPSConfiguration> configurations, double[] thresholds) {
         ds = HiCFileTools.extractDatasetForCLT(Arrays.asList(inputHiCFileName.split("\\+")), true);
         outputDirectory = HiCFileTools.createValidDirectory(outputDirectoryPath);
@@ -274,7 +274,7 @@ public class HiCCUPS extends JuicerCLT {
             this.featureListPath = featureListPath;
         }
 
-        directlyInitializedCommonChromosomes = providedCommonChromosomes;
+        this.handler = handler;
 
         if (preferredNorm != null) norm = preferredNorm;
 
@@ -338,12 +338,11 @@ public class HiCCUPS extends JuicerCLT {
             }
         }
 
-        List<Chromosome> commonChromosomes = ds.getChromosomes();
+        ChromosomeHandler handler = new ChromosomeHandler(ds.getChromosomes());
         if (directlyInitializedCommonChromosomes != null && directlyInitializedCommonChromosomes.size() > 0) {
-            commonChromosomes = directlyInitializedCommonChromosomes;
+            handler = new ChromosomeHandler(directlyInitializedCommonChromosomes);
         } else if (givenChromosomes != null && givenChromosomes.size() > 0) {
-            commonChromosomes = new ArrayList<Chromosome>(HiCFileTools.stringToChromosomes(givenChromosomes,
-                    commonChromosomes));
+            handler.setToSpecifiedChromosomes(givenChromosomes);
         }
 
         Map<Integer, Feature2DList> loopLists = new HashMap<Integer, Feature2DList>();
@@ -352,19 +351,19 @@ public class HiCCUPS extends JuicerCLT {
 
         Feature2DHandler inputListFeature2DHandler = new Feature2DHandler();
         if (listGiven) {
-            inputListFeature2DHandler.loadLoopList(featureListPath, commonChromosomes);
+            inputListFeature2DHandler.loadLoopList(featureListPath, handler);
         }
 
         for (HiCCUPSConfiguration conf : configurations) {
             System.out.println("Running HiCCUPS for resolution " + conf.getResolution());
-            Feature2DList enrichedPixels = runHiccupsProcessing(ds, conf, commonChromosomes, inputListFeature2DHandler);
+            Feature2DList enrichedPixels = runHiccupsProcessing(ds, conf, handler, inputListFeature2DHandler);
             if (enrichedPixels != null) {
                 loopLists.put(conf.getResolution(), enrichedPixels);
             }
         }
 
         if (dataShouldBePostProcessed) {
-            Feature2DList finalList = HiCCUPSUtils.postProcess(loopLists, ds, commonChromosomes,
+            Feature2DList finalList = HiCCUPSUtils.postProcess(loopLists, ds, handler,
                     configurations, norm, outputDirectory);
             finalList.exportFeatureList(outputMergedFile, true, Feature2DList.ListFormat.FINAL);
             System.out.println(finalList.getNumTotalFeatures() + " loops written to file: " +
@@ -379,10 +378,11 @@ public class HiCCUPS extends JuicerCLT {
      *
      * @param ds                dataset from hic file
      * @param conf              configuration of hiccups inputs
-     * @param commonChromosomes list of chromosomes to run hiccups on
+     * @param handler list of chromosomes to run hiccups on
      * @return list of enriched pixels
      */
-    private Feature2DList runHiccupsProcessing(Dataset ds, HiCCUPSConfiguration conf, List<Chromosome> commonChromosomes, Feature2DHandler inputListFeature2DHandler) {
+    private Feature2DList runHiccupsProcessing(Dataset ds, HiCCUPSConfiguration conf, ChromosomeHandler handler,
+                                               Feature2DHandler inputListFeature2DHandler) {
 
         long begin_time = System.currentTimeMillis();
 
@@ -427,11 +427,11 @@ public class HiCCUPS extends JuicerCLT {
         // two runs, 1st to build histograms, 2nd to identify loops
 
         // determine which chromosomes will run
-        double maxProgressStatus = determineHowManyChromosomesWillActuallyRun(ds, commonChromosomes) * 2;
+        double maxProgressStatus = determineHowManyChromosomesWillActuallyRun(ds, handler) * 2;
 
         int currentProgressStatus = 0;
         for (int runNum : new int[]{0, 1}) {
-            for (Chromosome chromosome : commonChromosomes) {
+            for (Chromosome chromosome : handler.getChromosomes()) {
 
                 // skip these matrices
                 if (chromosome.getName().equals(Globals.CHR_ALL)) continue;
