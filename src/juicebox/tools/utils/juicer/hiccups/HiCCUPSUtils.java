@@ -28,6 +28,7 @@ import juicebox.HiCGlobals;
 import juicebox.data.Dataset;
 import juicebox.data.HiCFileTools;
 import juicebox.data.NormalizationVector;
+import juicebox.data.feature.Feature;
 import juicebox.tools.clt.juicer.HiCCUPS;
 import juicebox.tools.utils.common.ArrayTools;
 import juicebox.track.feature.Feature2D;
@@ -36,6 +37,7 @@ import juicebox.track.feature.Feature2DTools;
 import juicebox.track.feature.FeatureFilter;
 import juicebox.windowui.NormalizationType;
 import org.broad.igv.feature.Chromosome;
+import org.lwjgl.Sys;
 
 import java.awt.*;
 import java.io.File;
@@ -241,10 +243,34 @@ public class HiCCUPSUtils {
         while (!featureLL.isEmpty()) {
 
             // See Feature2D
+            if(resolution == 5000) {
+                System.out.println("RAW");
+                for (Feature2D xyz : featureLL) {
+                    System.out.println(xyz);
+                }
+            }
+
             Collections.sort(featureLL);
+
+            if(resolution == 5000) {
+                System.out.println("SORT");
+                for (Feature2D xyz : featureLL) {
+                    System.out.println(xyz);
+                }
+            }
+
             Collections.reverse(featureLL);
+            if(resolution == 5000) {
+                System.out.println("REVERSE");
+                for (Feature2D xyz : featureLL) {
+                    System.out.println(xyz);
+                }
+                System.exit(1234);
+            }
+
 
             Feature2D pixel = featureLL.pollFirst();
+            //Feature2D pixel = featureLL.get(0);
             featureLL.remove(pixel);
             List<Feature2D> pixelList = new ArrayList<Feature2D>();
             pixelList.add(pixel);
@@ -519,8 +545,12 @@ public class HiCCUPSUtils {
         for (HiCCUPSConfiguration conf : configurations) {
 
             int res = conf.getResolution();
+            System.out.println("Entering Res: " + res);
+            looplists.get(res).exportFeatureList(new File(outputDirectory, "read" + "_" + res), true, Feature2DList.ListFormat.ENRICHED);
             removeLowMapQFeatures(looplists.get(res), res, ds, commonChromosomes, norm);
+            looplists.get(res).exportFeatureList(new File(outputDirectory, "lowmapq" + "_" + res), true, Feature2DList.ListFormat.ENRICHED);
             coalesceFeaturesToCentroid(looplists.get(res), res, conf.getClusterRadius());
+            looplists.get(res).exportFeatureList(new File(outputDirectory, "centroid" + "_" + res), true, Feature2DList.ListFormat.ENRICHED);
             filterOutFeaturesByFDR(looplists.get(res));
             looplists.get(res).exportFeatureList(new File(outputDirectory, POST_PROCESSED + "_" + res), true, Feature2DList.ListFormat.FINAL);
         }

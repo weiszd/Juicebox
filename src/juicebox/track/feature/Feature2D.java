@@ -352,6 +352,8 @@ public class Feature2D implements Comparable<Feature2D> {
         // highest observed point ordering needed for hiccups sorting
         if (allowHiCCUPSOrdering && attributes.containsKey(HiCCUPSUtils.OBSERVED)
                 && o.attributes.containsKey(HiCCUPSUtils.OBSERVED)) {
+            //System.out.println("I entered hiccups ordering!");
+            //System.exit(123);
             float val = Float.parseFloat(getAttribute(HiCCUPSUtils.OBSERVED)) - Float.parseFloat(o.getAttribute(HiCCUPSUtils.OBSERVED));
             if (val > 0) return 1;
             if (val < 0) return -1;
