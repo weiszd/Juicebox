@@ -44,8 +44,6 @@ import org.broad.igv.feature.Chromosome;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -83,10 +81,13 @@ public class MainViewPanel {
     private static JPanel chrSidePanel;
     private static JPanel chrSidePanel3;
     private final JToggleButton annotationsPanelToggleButton = new JToggleButton("Show Annotation Panel");
+    private final JPanel mainPanel = new JPanel();
     private MiniAnnotationsLayerPanel miniAnnotationsLayerPanel;
     private JPanel tooltipPanel;
     private boolean tooltipAllowedToUpdated = true;
     private boolean ignoreUpdateThumbnail = false;
+    private JPanel rightSidePanel;
+    private JPanel bigPanel;
 
     public void setIgnoreUpdateThumbnail(boolean flag) {ignoreUpdateThumbnail = flag;}
 
@@ -102,7 +103,7 @@ public class MainViewPanel {
                                    Dimension bigPanelDim, Dimension panelDim) {
         contentPane.setLayout(new BorderLayout());
 
-        final JPanel mainPanel = new JPanel();
+        //mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         contentPane.add(mainPanel, BorderLayout.CENTER);
         mainPanel.setBackground(Color.white);
@@ -113,7 +114,7 @@ public class MainViewPanel {
         toolbarPanel.setLayout(new GridBagLayout());
         mainPanel.add(toolbarPanel, BorderLayout.NORTH);
 
-        JPanel bigPanel = new JPanel();
+        bigPanel = new JPanel();
         bigPanel.setLayout(new BorderLayout());
         bigPanel.setBackground(Color.white);
 
@@ -451,11 +452,17 @@ public class MainViewPanel {
         // not sure this is working
         //toolbarPanel.setPreferredSize(new Dimension(panelHeight,100));
         toolbarPanel.setEnabled(false);
+        initializeRightSidePanel(superAdapter);
+        mainPanel.add(bigPanel, BorderLayout.CENTER);
+    }
 
-
+    private void initializeRightSidePanel(final SuperAdapter superAdapter) {
         //======== Right side panel ========
 
-        JPanel rightSidePanel = new JPanel(new BorderLayout());//(new BorderLayout());
+        if (rightSidePanel != null) {
+            mainPanel.remove(rightSidePanel);
+        }
+        rightSidePanel = new JPanel(new GridLayout(0, 1));//(new BorderLayout());
         rightSidePanel.setBackground(Color.white);
         rightSidePanel.setPreferredSize(new Dimension(210, 1000));
         rightSidePanel.setMaximumSize(new Dimension(10000, 10000));
@@ -477,14 +484,14 @@ public class MainViewPanel {
 //        rightSidePanel.add(gapPanel,BorderLayout.WEST);
         thumbPanel.add(thumbnailPanel, BorderLayout.CENTER);
         thumbPanel.setBackground(Color.white);
-        rightSidePanel.add(thumbPanel, BorderLayout.NORTH);
-
+        //rightSidePanel.add(thumbPanel, BorderLayout.NORTH);
+        rightSidePanel.add(thumbPanel);
         //========= mini-annotations panel ======
         miniAnnotationsLayerPanel = new MiniAnnotationsLayerPanel(superAdapter);
         miniAnnotationsLayerPanel.setEnabled(false);
 
         //========= mouse hover text ======
-        tooltipPanel = new JPanel(new BorderLayout());
+        tooltipPanel = new JPanel(new GridLayout(0, 1));
         tooltipPanel.setBackground(Color.white);
         mouseHoverTextPanel = new JEditorPane();
         mouseHoverTextPanel.setEditable(false);
@@ -495,6 +502,7 @@ public class MainViewPanel {
         int mouseTextY = rightSidePanel.getBounds().y + rightSidePanel.getBounds().height;
 
         Dimension prefSize = new Dimension(210, 375 - miniAnnotationsLayerPanel.getDynamicHeight());
+        //Dimension prefSize = new Dimension(210, 210);
         mouseHoverTextPanel.setPreferredSize(prefSize);
 
         JScrollPane tooltipScroller = new JScrollPane(mouseHoverTextPanel);
@@ -502,38 +510,42 @@ public class MainViewPanel {
         tooltipScroller.setBorder(null);
 
         tooltipPanel.add(tooltipScroller, BorderLayout.NORTH);
-        tooltipPanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+        //  tooltipPanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
         tooltipPanel.setBounds(new Rectangle(new Point(0, mouseTextY), prefSize));
         tooltipPanel.setBackground(Color.white);
         tooltipPanel.setBorder(null);
 
         rightSidePanel.add(tooltipPanel, BorderLayout.CENTER);
 
-        annotationsPanelToggleButton.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (annotationsPanelToggleButton.isSelected()) {
-                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
-                } else {
-                    annotationsPanelToggleButton.setText("Show Annotation Panel");
-                }
-            }
-        });
-        annotationsPanelToggleButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (annotationsPanelToggleButton.isSelected()) {
-                    superAdapter.setLayersPanelVisible(true);
-                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
-                } else {
-                    superAdapter.setLayersPanelVisible(false);
-                    annotationsPanelToggleButton.setText("Show Annotation Panel");
-                }
-            }
-        });
-        annotationsPanelToggleButton.setSelected(false);
-        annotationsPanelToggleButton.setEnabled(false);
-        rightSidePanel.add(annotationsPanelToggleButton, BorderLayout.SOUTH);
+        rightSidePanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+
+//        annotationsPanelToggleButton.addChangeListener(new ChangeListener() {
+//            @Override
+//            public void stateChanged(ChangeEvent e) {
+//                if (annotationsPanelToggleButton.isSelected()) {
+//                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
+//                } else {
+//                    annotationsPanelToggleButton.setText("Show Annotation Panel");
+//                }
+//            }
+//        });
+//        annotationsPanelToggleButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                if (annotationsPanelToggleButton.isSelected()) {
+//                    superAdapter.setLayersPanelVisible(true);
+//                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
+//                } else {
+//                    superAdapter.setLayersPanelVisible(false);
+//                    annotationsPanelToggleButton.setText("Show Annotation Panel");
+//                }
+//            }
+//        });
+//
+//        annotationsPanelToggleButton.setSelected(false);
+//        annotationsPanelToggleButton.setEnabled(false);
+//        rightSidePanel.add(annotationsPanelToggleButton, BorderLayout.SOUTH);
+
 
         // compute preferred size
         Dimension preferredSize = new Dimension();
@@ -547,18 +559,26 @@ public class MainViewPanel {
         preferredSize.height += insets.bottom;
         rightSidePanel.setMinimumSize(preferredSize);
         rightSidePanel.setPreferredSize(preferredSize);
-        mainPanel.add(bigPanel, BorderLayout.CENTER);
         mainPanel.add(rightSidePanel, BorderLayout.EAST);
+
     }
 
-    public void setMiniAnnotationsLayerPanel(MiniAnnotationsLayerPanel miniAnnotationsLayerPanel) {
-        tooltipPanel.remove(this.miniAnnotationsLayerPanel);
+    public void setMiniAnnotationsLayerPanel(MiniAnnotationsLayerPanel miniAnnotationsLayerPanel, SuperAdapter superAdapter) {
+        //tooltipPanel.remove(this.miniAnnotationsLayerPanel);
         Dimension prefSize = new Dimension(210, 375 - miniAnnotationsLayerPanel.getDynamicHeight());
-        mouseHoverTextPanel.setPreferredSize(prefSize);
-        mouseHoverTextPanel.revalidate();
-        mouseHoverTextPanel.repaint();
+        //Dimension prefSize = new Dimension(210, 210);
+
+//        mouseHoverTextPanel.setPreferredSize(prefSize);
+//        mouseHoverTextPanel.revalidate();
+//        mouseHoverTextPanel.repaint();
         this.miniAnnotationsLayerPanel = miniAnnotationsLayerPanel;
-        tooltipPanel.add(this.miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+        //tooltipPanel.add(this.miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+//        rightSidePanel.repaint();
+//        rightSidePanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+
+        //initializeMainView(SuperAdapter );
+
+        initializeRightSidePanel(superAdapter);
     }
 
     public JPanel getHiCPanel() {
@@ -984,7 +1004,7 @@ public class MainViewPanel {
     }
 
     public void updateMiniAnnotationsLayerPanel(SuperAdapter superAdapter) {
-        setMiniAnnotationsLayerPanel(new MiniAnnotationsLayerPanel(superAdapter));
+        setMiniAnnotationsLayerPanel(new MiniAnnotationsLayerPanel(superAdapter), superAdapter);
         miniAnnotationsLayerPanel.revalidate();
         miniAnnotationsLayerPanel.repaint();
     }
