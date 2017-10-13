@@ -44,6 +44,8 @@ import org.broad.igv.feature.Chromosome;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -80,7 +82,7 @@ public class MainViewPanel {
     private static JPanel bottomChromosomeFigPanel;
     private static JPanel chrSidePanel;
     private static JPanel chrSidePanel3;
-    private final JToggleButton annotationsPanelToggleButton = new JToggleButton("Show Annotation Panel");
+    private JToggleButton annotationsPanelToggleButton = new JToggleButton("Show Annotation Panel");
     private final JPanel mainPanel = new JPanel();
     private MiniAnnotationsLayerPanel miniAnnotationsLayerPanel;
     private JPanel tooltipPanel;
@@ -462,7 +464,10 @@ public class MainViewPanel {
         if (rightSidePanel != null) {
             mainPanel.remove(rightSidePanel);
         }
-        rightSidePanel = new JPanel(new GridLayout(0, 1));//(new BorderLayout());
+
+
+        rightSidePanel = new JPanel();//(new BorderLayout());
+        rightSidePanel.setLayout(new BoxLayout(rightSidePanel,BoxLayout.Y_AXIS));
         rightSidePanel.setBackground(Color.white);
         rightSidePanel.setPreferredSize(new Dimension(210, 1000));
         rightSidePanel.setMaximumSize(new Dimension(10000, 10000));
@@ -509,42 +514,51 @@ public class MainViewPanel {
         tooltipScroller.setBackground(Color.white);
         tooltipScroller.setBorder(null);
 
-        tooltipPanel.add(tooltipScroller, BorderLayout.NORTH);
+        tooltipPanel.add(tooltipScroller);
         //  tooltipPanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
         tooltipPanel.setBounds(new Rectangle(new Point(0, mouseTextY), prefSize));
         tooltipPanel.setBackground(Color.white);
         tooltipPanel.setBorder(null);
 
-        rightSidePanel.add(tooltipPanel, BorderLayout.CENTER);
+        rightSidePanel.add(tooltipPanel);
 
-        rightSidePanel.add(miniAnnotationsLayerPanel, BorderLayout.SOUTH);
+        rightSidePanel.add(miniAnnotationsLayerPanel);
 
 //        annotationsPanelToggleButton.addChangeListener(new ChangeListener() {
 //            @Override
 //            public void stateChanged(ChangeEvent e) {
-//                if (annotationsPanelToggleButton.isSelected()) {
-//                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
-//                } else {
-//                    annotationsPanelToggleButton.setText("Show Annotation Panel");
-//                }
-//            }
-//        });
-//        annotationsPanelToggleButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                if (annotationsPanelToggleButton.isSelected()) {
-//                    superAdapter.setLayersPanelVisible(true);
-//                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
-//                } else {
-//                    superAdapter.setLayersPanelVisible(false);
-//                    annotationsPanelToggleButton.setText("Show Annotation Panel");
-//                }
-//            }
-//        });
 //
-//        annotationsPanelToggleButton.setSelected(false);
-//        annotationsPanelToggleButton.setEnabled(false);
-//        rightSidePanel.add(annotationsPanelToggleButton, BorderLayout.SOUTH);
+//            }
+//        });
+
+        annotationsPanelToggleButton.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (annotationsPanelToggleButton.isSelected()) {
+                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
+                } else {
+                    annotationsPanelToggleButton.setText("Show Annotation Panel");
+                }
+            }
+        });
+        annotationsPanelToggleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (annotationsPanelToggleButton.isSelected()) {
+                    superAdapter.setLayersPanelVisible(true);
+                    annotationsPanelToggleButton.setText("Hide Annotation Panel");
+                } else {
+                    superAdapter.setLayersPanelVisible(false);
+                    annotationsPanelToggleButton.setText("Show Annotation Panel");
+                }
+            }
+        });
+
+        annotationsPanelToggleButton.setSelected(false);
+        annotationsPanelToggleButton.setEnabled(false);
+
+        rightSidePanel.add(Box.createHorizontalGlue());
+        rightSidePanel.add(annotationsPanelToggleButton);
 
 
         // compute preferred size
