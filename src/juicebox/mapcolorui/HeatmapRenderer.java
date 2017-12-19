@@ -28,6 +28,7 @@ import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Range;
+import juicebox.HiC;
 import juicebox.HiCGlobals;
 import juicebox.MainWindow;
 import juicebox.data.Block;
@@ -133,7 +134,8 @@ class HeatmapRenderer {
                           final ExpectedValueFunction df,
                           final ExpectedValueFunction controlDF,
                           Graphics2D g,
-                          boolean isImportant) {
+                          boolean isImportant,
+                          HiC hic) {
 
 
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
@@ -284,6 +286,95 @@ class HeatmapRenderer {
                 } else {
                     return false;
                 }
+            } else if (displayOption == MatrixType.VS &&
+                    HiCGlobals.isDarkulaModeEnabled &&
+                    hic.isBonusLoaded() && hic.getNumBonusDatasets() == 6) {
+
+                List<Block> comboBlocks = new ArrayList<>();
+                List<MatrixZoomData> zd6 = new ArrayList<>();
+                List<List<Block>> blocks6 = new ArrayList<>();
+
+                List<Double> averages = new ArrayList<>();
+                double totalAverages = 0;
+
+
+                for (int i = 0; i < 6; i++) {
+                    MatrixZoomData zdi = hic.getBonusZd(i);
+                    zd6.add(zdi);
+                    List<Block> blocksi = zdi.getNormalizedBlocksOverlapping(x, y, maxX, maxY, normalizationType, isImportant);
+                    blocks6.add(blocksi);
+                    if (blocksi != null) comboBlocks.addAll(blocksi);
+                    averages.add(zdi.getAverageCount());
+                    totalAverages += zdi.getAverageCount();
+                }
+
+                if (comboBlocks.isEmpty()) return false;
+
+                String key = zd6.get(0).getColorScaleKey(displayOption);
+                ColorScale cs = getColorScale(key, displayOption, isWholeGenome, comboBlocks);
+
+                double averageAcrossMapAndControl = totalAverages / 6;
+
+                MatrixZoomData zd123, zd456;
+/*
+                if (zd123 != null && blocks123 != null) {
+                    for (Block b : blocks123) {
+
+                        Collection<ContactRecord> recs = b.getContactRecords();
+                        if (recs != null) {
+                            for (ContactRecord rec : recs) {
+
+                                double score = rec.getCounts() / averageCount;
+                                score = score * averageAcrossMapAndControl;
+                                if (Double.isNaN(score)) continue;
+
+                                int binX = rec.getBinX();
+                                int binY = rec.getBinY();
+
+                                int px = binX - originX;
+                                int py = binY - originY;
+
+                                Color color = cs.getColor((float) score);
+                                g.setColor(color);
+
+                                if (px > -1 && py > -1 && px <= width && py <= height) {
+                                    g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (zd456 != null && blocks456 != null) {
+                    for (Block b : blocks456) {
+                        Collection<ContactRecord> recs = b.getContactRecords();
+                        if (recs != null) {
+                            for (ContactRecord rec : recs) {
+
+                                double score = rec.getCounts() / ctrlAverageCount;
+                                score = score * averageAcrossMapAndControl;
+                                if (Double.isNaN(score)) continue;
+
+                                int binX = rec.getBinX();
+                                int binY = rec.getBinY();
+
+                                Color color = cs.getColor((float) score);
+                                g.setColor(color);
+
+                                if (sameChr && (rec.getBinX() != rec.getBinY())) {
+                                    int px = (binY - originX);
+                                    int py = (binX - originY);
+                                    if (px > -1 && py > -1 && px <= width && py <= height) {
+                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+*/
+
+
             } else if (displayOption == MatrixType.VS || displayOption == MatrixType.OEVS) {
 
                 List<Block> comboBlocks = new ArrayList<>();

@@ -52,7 +52,7 @@ public class HiCFileLoader {
     private static LoadDialog loadDialog = null;
     private static String propertiesFileURL = System.getProperty("jnlp.loadMenu");
 
-    public static File loadMenuItemActionPerformed(SuperAdapter superAdapter, boolean control, File openHiCPath) {
+    public static File loadMenuItemActionPerformed(SuperAdapter superAdapter, boolean control, File openHiCPath, boolean isBonusMode) {
         FilenameFilter hicFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".hic");
@@ -71,7 +71,7 @@ public class HiCFileLoader {
             }
             openHiCPath = new File(path);
             superAdapter.addRecentMapMenuEntry(str.toString().trim() + "@@" + files[0].getAbsolutePath(), true);
-            superAdapter.safeLoad(fileNames, control, str.toString());
+            superAdapter.safeLoad(fileNames, control, str.toString(), isBonusMode);
         }
         return openHiCPath;
     }
@@ -81,7 +81,7 @@ public class HiCFileLoader {
 
         if (url != null) {
             superAdapter.addRecentMapMenuEntry(title.trim() + "@@" + url, true);
-            superAdapter.safeLoad(Collections.singletonList(url), control, title);
+            superAdapter.safeLoad(Collections.singletonList(url), control, title, false);
         }
     }
 
@@ -101,7 +101,7 @@ public class HiCFileLoader {
                     urlList.add(url);
                     title.append((new URL(url)).getPath()).append(" ");
                 }
-                superAdapter.safeLoad(urlList, control, title.toString());
+                superAdapter.safeLoad(urlList, control, title.toString(), false);
             } catch (MalformedURLException e1) {
                 superAdapter.launchFileLoadingError(urlString);
             }

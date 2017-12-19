@@ -389,7 +389,7 @@ public class SuperAdapter {
         mainWindow.repaint();
     }
 
-    private boolean unsafeLoad(final List<String> files, final boolean control, boolean restore) throws IOException {
+    private boolean unsafeLoad(final List<String> files, final boolean control, boolean restore, boolean isBonusMode) throws IOException {
 
         StringBuilder newFilesToBeLoaded = new StringBuilder();
         boolean allFilesAreHiC = true;
@@ -427,11 +427,11 @@ public class SuperAdapter {
                 JOptionPane.showMessageDialog(mainWindow, "This version of \"hic\" format is no longer supported");
                 return false;
             }
-            if (control && !dataset.getGenomeId().equals(hic.getDataset().getGenomeId())) {
+            if ((control) && !dataset.getGenomeId().equals(hic.getDataset().getGenomeId())) {
                 JOptionPane.showMessageDialog(mainWindow, "Cannot load maps with different genomes");
                 return false;
             }
-            if (control && dataset.getVersion() != hic.getDataset().getVersion() &&
+            if ((control) && dataset.getVersion() != hic.getDataset().getVersion() &&
                     (dataset.getVersion() < 7 || hic.getDataset().getVersion() < 7)) {
                 JOptionPane.showMessageDialog(mainWindow, "Cannot load control with .hic files less than version 7");
                 return false;
@@ -442,7 +442,10 @@ public class SuperAdapter {
             }
 
             MatrixType[] options;
-            if (control) {
+            if (isBonusMode) {
+                hic.addBonusDatasets(dataset);
+                options = HiCGlobals.enabledMatrixTypesWithControl;
+            } else if (control) {
                 hic.setControlDataset(dataset);
                 options = HiCGlobals.enabledMatrixTypesWithControl;
             } else {
@@ -485,7 +488,9 @@ public class SuperAdapter {
             mainViewPanel.setSelectedDisplayOption(options, control);
             setEnableForAllElements(true);
 
-            if (control) {
+            if (isBonusMode) {
+                currentlyLoadedControlFiles += " *- ";
+            } else if (control) {
                 currentlyLoadedControlFiles = newFilesToBeLoaded.toString();
             } else {
                 currentlyLoadedMainFiles = newFilesToBeLoaded.toString();
@@ -502,25 +507,25 @@ public class SuperAdapter {
         return true;
     }
 
-    public void safeLoad(final List<String> files, final boolean control, final String title) {
+    public void safeLoad(final List<String> files, final boolean control, final String title, final boolean bonusMode) {
         addRecentMapMenuEntry(title.trim() + "@@" + files.get(0), true);
         Runnable runnable = new Runnable() {
             public void run() {
                 boolean isRestorenMode = false;
-                unsafeLoadWithTitleFix(files, control, title, isRestorenMode);
+                unsafeLoadWithTitleFix(files, control, title, isRestorenMode, bonusMode);
             }
         };
         mainWindow.executeLongRunningTask(runnable, "MainWindow safe load");
     }
 
-    public void unsafeLoadWithTitleFix(List<String> files, boolean control, String title, boolean restore) {
+    public void unsafeLoadWithTitleFix(List<String> files, boolean control, String title, boolean restore, boolean bonusMode) {
         String resetTitle = datasetTitle;
-        if (control) resetTitle = controlTitle;
+        if (control && !bonusMode) resetTitle = controlTitle;
 
         ActionListener l = mainViewPanel.getDisplayOptionComboBox().getActionListeners()[0];
         try {
             mainViewPanel.getDisplayOptionComboBox().removeActionListener(l);
-            if (unsafeLoad(files, control, restore)) {
+            if (unsafeLoad(files, control, restore, bonusMode)) {
                 //mainViewPanel.updateThumbnail(hic);
                 refresh();
                 updateTitle(control, title);

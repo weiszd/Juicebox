@@ -74,6 +74,7 @@ public class HiC {
     private ChromosomeHandler chromosomeHandler;
     private Dataset dataset;
     private Dataset controlDataset;
+    private List<Dataset> bonusDatasets = new ArrayList<>();
     private HiCZoom currentZoom;
     //private MatrixZoomData matrixForReloadState;
     private Context xContext;
@@ -281,6 +282,14 @@ public class HiC {
         return controlDataset;
     }
 
+    public List<Dataset> getBonusDatasets() {
+        return bonusDatasets;
+    }
+
+    public void addBonusDatasets(Dataset dataset) {
+        bonusDatasets.add(dataset);
+    }
+
     public void setControlDataset(Dataset controlDataset) {
         this.controlDataset = controlDataset;
     }
@@ -315,9 +324,27 @@ public class HiC {
         }
     }
 
+    public int getNumBonusDatasets() {
+        return bonusDatasets.size();
+    }
+
+    public MatrixZoomData getBonusZd(int indx) {
+        Matrix matrix = getBonusMatrix(indx);
+        if (matrix == null || currentZoom == null) {
+            return null;
+        } else {
+            return matrix.getZoomData(currentZoom);
+        }
+    }
+
     public Matrix getControlMatrix() {
         if (controlDataset == null || xContext == null || currentZoom == null) return null;
         return controlDataset.getMatrix(xContext.getChromosome(), yContext.getChromosome());
+    }
+
+    public Matrix getBonusMatrix(int indx) {
+        if (bonusDatasets.get(indx) == null || xContext == null || currentZoom == null) return null;
+        return bonusDatasets.get(indx).getMatrix(xContext.getChromosome(), yContext.getChromosome());
     }
 
     public Context getXContext() {
@@ -417,6 +444,10 @@ public class HiC {
 
     public boolean isControlLoaded() {
         return controlDataset != null;
+    }
+
+    public boolean isBonusLoaded() {
+        return bonusDatasets != null && bonusDatasets.size() > 0;
     }
 
     public boolean isWholeGenome() {
@@ -589,6 +620,13 @@ public class HiC {
     public ExpectedValueFunction getExpectedControlValues() {
         if (controlDataset == null) return null;
         return controlDataset.getExpectedValues(currentZoom, normalizationType);
+    }
+
+    public ExpectedValueFunction getExpectedBonusValues(int indx) {
+        if (isBonusLoaded()) {
+            return bonusDatasets.get(indx).getExpectedValues(currentZoom, normalizationType);
+        }
+        return null;
     }
 
     public NormalizationVector getNormalizationVector(int chrIdx) {
@@ -1188,16 +1226,26 @@ public class HiC {
         this.chromosomeHandler = chromosomeHandler;
         dataset.setChromosomeHandler(chromosomeHandler);
         if (controlDataset != null) controlDataset.setChromosomeHandler(chromosomeHandler);
+        if (isBonusLoaded()) {
+            for (Dataset d : bonusDatasets) {
+                d.setChromosomeHandler(chromosomeHandler);
+            }
+        }
     }
 
     public ZoomActionTracker getZoomActionTracker() {
         return this.zoomActionTracker;
     }
 
-  public void clearAllMatrixZoomDataCache() {
+    public void clearAllMatrixZoomDataCache() {
         clearAllCacheForDataset(dataset);
         if (isControlLoaded()) {
             clearAllCacheForDataset(controlDataset);
+        }
+        if (isBonusLoaded()) {
+            for (Dataset d : bonusDatasets) {
+                clearAllCacheForDataset(d);
+            }
         }
     }
 
@@ -1216,9 +1264,6 @@ public class HiC {
         }
     }
 
-    public SuperAdapter getSuperAdaptor() {
-        return superAdapter;
-    }
     // use REVERSE for only undoing and redoing zoom actions
     public enum ZoomCallType {
         STANDARD, DRAG, DIRECT, INITIAL, REVERSE

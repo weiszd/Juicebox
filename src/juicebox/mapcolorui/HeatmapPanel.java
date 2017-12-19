@@ -588,7 +588,7 @@ public class HeatmapPanel extends JComponent implements Serializable {
                 normalizationType,
                 hic.getExpectedValues(),
                 hic.getExpectedControlValues(),
-                g, false);
+                g, false, hic);
 
         g.scale(1, 1);
         g.translate(0, 0);
@@ -642,7 +642,7 @@ public class HeatmapPanel extends JComponent implements Serializable {
                 normalizationType,
                 hic.getExpectedValues(),
                 hic.getExpectedControlValues(),
-                g, false);
+                g, false, hic);
 
         if (!success) return null;
 
@@ -699,7 +699,7 @@ public class HeatmapPanel extends JComponent implements Serializable {
                     normalizationType,
                     hic.getExpectedValues(),
                     hic.getExpectedControlValues(),
-                    g2D, true)) {
+                    g2D, true, hic)) {
                 return null;
             }
 

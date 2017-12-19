@@ -140,12 +140,12 @@ public class LoadStateFromXMLFile {
         String mainMapNames = temp[0];
 
         List<String> urls = Arrays.asList(mapURLs.split("\\#\\#"));
-        superAdapter.unsafeLoadWithTitleFix(urls, false, mainMapNames, true);
+        superAdapter.unsafeLoadWithTitleFix(urls, false, mainMapNames, true, false);
 
         if (!controlURLs.contains("null") && temp.length > 1) {
             String ctrlMapNames = temp[1].substring(0, temp[1].length() - 1);
             List<String> ctrlURLs = Arrays.asList(controlURLs.split("\\#\\#"));
-            superAdapter.unsafeLoadWithTitleFix(ctrlURLs, true, ctrlMapNames, true);
+            superAdapter.unsafeLoadWithTitleFix(ctrlURLs, true, ctrlMapNames, true, false);
         }
 
         hic.unsafeSetLocation(chrXName, chrYName, unitName, binSize, xOrigin, yOrigin, scalefactor, HiC.ZoomCallType.DIRECT, true);
