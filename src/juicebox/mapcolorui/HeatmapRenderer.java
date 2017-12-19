@@ -38,6 +38,7 @@ import juicebox.data.MatrixZoomData;
 import juicebox.gui.MainViewPanel;
 import juicebox.gui.SuperAdapter;
 import juicebox.matrix.BasicMatrix;
+import juicebox.tools.utils.common.ArrayTools;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
 import org.apache.commons.math.stat.StatUtils;
@@ -248,7 +249,7 @@ class HeatmapRenderer {
                         if (recs != null) {
                             for (ContactRecord rec : recs) {
 
-                                double score = rec.getCounts();
+                                double score = rec.getBaseCounts();
                                 if (Double.isNaN(score)) continue;
 
                                 int binX = rec.getBinX();
@@ -260,7 +261,7 @@ class HeatmapRenderer {
                                     if (controlDF != null) {
                                         int dist = Math.abs(binX - binY);
                                         double expected = controlDF.getExpectedValue(chr1, dist);
-                                        score = rec.getCounts() / expected;
+                                        score = rec.getBaseCounts() / expected;
                                     } else {
                                         continue;
                                     }
@@ -387,6 +388,7 @@ class HeatmapRenderer {
                 ColorScale cs = getColorScale(key, displayOption, isWholeGenome, comboBlocks);
 
                 double averageCount = zd.getAverageCount();
+
                 double ctrlAverageCount = controlZD == null ? 1 : controlZD.getAverageCount();
                 double averageAcrossMapAndControl = (averageCount + ctrlAverageCount) / 2;
 
@@ -398,7 +400,7 @@ class HeatmapRenderer {
                         if (recs != null) {
                             for (ContactRecord rec : recs) {
 
-                                double score = rec.getCounts() / averageCount;
+                                double score = rec.getBaseCounts() / averageCount;
                                 score = score * averageAcrossMapAndControl;
                                 if (Double.isNaN(score)) continue;
 
@@ -412,17 +414,47 @@ class HeatmapRenderer {
                                     if (df != null) {
                                         int dist = Math.abs(binX - binY);
                                         double expected = df.getExpectedValue(chr1, dist);
-                                        score = rec.getCounts() / expected;
+                                        score = rec.getBaseCounts() / expected;
                                     } else {
                                         continue;
                                     }
 
-                                }
-                                Color color = cs.getColor((float) score);
-                                g.setColor(color);
 
-                                if (px > -1 && py > -1 && px <= width && py <= height) {
-                                    g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                    Color color = cs.getColor((float) score);
+                                    g.setColor(color);
+
+                                    if (px > -1 && py > -1 && px <= width && py <= height) {
+                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                    }
+                                } else {
+
+                                    double[] scoreRGB = rec.getRGBCounts();
+                                    Double[] averageRGBCount = zd.getAverageRGBCount();
+
+                                    System.out.println("ww " + Arrays.toString(scoreRGB));
+                                    System.out.println("ww " + Arrays.toString(averageRGBCount));
+                                    if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
+
+                                    scoreRGB[0] = scoreRGB[0] / averageRGBCount[0];
+                                    scoreRGB[1] = scoreRGB[1] / averageRGBCount[1];
+                                    scoreRGB[2] = scoreRGB[2] / averageRGBCount[2];
+                                    scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
+                                    scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
+                                    scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
+
+                                    System.out.println(Arrays.toString(scoreRGB));
+                                    System.out.println(Arrays.toString(averageRGBCount));
+
+                                    Color colorR = cs.getColor((float) scoreRGB[0]);
+                                    Color colorG = cs.getColor((float) scoreRGB[1]);
+                                    Color colorB = cs.getColor((float) scoreRGB[2]);
+                                    Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
+                                    g.setColor(color);
+
+                                    if (px > -1 && py > -1 && px <= width && py <= height) {
+                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                    }
+
                                 }
                             }
                         }
@@ -434,7 +466,7 @@ class HeatmapRenderer {
                         if (recs != null) {
                             for (ContactRecord rec : recs) {
 
-                                double score = rec.getCounts() / ctrlAverageCount;
+                                double score = rec.getBaseCounts() / ctrlAverageCount;
                                 score = score * averageAcrossMapAndControl;
                                 if (Double.isNaN(score)) continue;
 
@@ -442,22 +474,52 @@ class HeatmapRenderer {
                                 int binY = rec.getBinY();
 
                                 if (displayOption == MatrixType.OEVS) {
+
                                     if (controlDF != null) {
                                         int dist = Math.abs(binX - binY);
                                         double expected = controlDF.getExpectedValue(chr1, dist);
-                                        score = rec.getCounts() / expected;
+                                        score = rec.getBaseCounts() / expected;
                                     } else {
                                         continue;
                                     }
-                                }
-                                Color color = cs.getColor((float) score);
-                                g.setColor(color);
 
-                                if (sameChr && (rec.getBinX() != rec.getBinY())) {
-                                    int px = (binY - originX);
-                                    int py = (binX - originY);
-                                    if (px > -1 && py > -1 && px <= width && py <= height) {
-                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+
+                                    Color color = cs.getColor((float) score);
+                                    g.setColor(color);
+
+                                    if (sameChr && (rec.getBinX() != rec.getBinY())) {
+                                        int px = (binY - originX);
+                                        int py = (binX - originY);
+                                        if (px > -1 && py > -1 && px <= width && py <= height) {
+                                            g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                        }
+                                    }
+
+                                } else {
+
+                                    double[] scoreRGB = rec.getRGBCounts();
+                                    Double[] ctrlAverageRGBCount = controlZD == null ? new Double[3] : controlZD.getAverageRGBCount();
+                                    if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
+
+                                    scoreRGB[0] = scoreRGB[0] / ctrlAverageRGBCount[0];
+                                    scoreRGB[1] = scoreRGB[1] / ctrlAverageRGBCount[1];
+                                    scoreRGB[2] = scoreRGB[2] / ctrlAverageRGBCount[2];
+                                    scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
+                                    scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
+                                    scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
+
+                                    Color colorR = cs.getColor((float) scoreRGB[0]);
+                                    Color colorG = cs.getColor((float) scoreRGB[1]);
+                                    Color colorB = cs.getColor((float) scoreRGB[2]);
+                                    Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
+                                    g.setColor(color);
+
+                                    if (sameChr && (rec.getBinX() != rec.getBinY())) {
+                                        int px = (binY - originX);
+                                        int py = (binX - originY);
+                                        if (px > -1 && py > -1 && px <= width && py <= height) {
+                                            g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
+                                        }
                                     }
                                 }
                             }
@@ -516,26 +578,26 @@ class HeatmapRenderer {
                                 }
 
                                 if (displayOption == MatrixType.OE) {
-                                    score = rec.getCounts() / expected;
+                                    score = rec.getBaseCounts() / expected;
                                 } else {
                                     score = expected;
                                 }
                             } else if (displayOption == MatrixType.RATIO && hasControl) {
                                 ContactRecord ctrlRecord = controlRecords.get(rec.getKey());
-                                if (ctrlRecord != null && ctrlRecord.getCounts() > 0) {
-                                    double num = rec.getCounts() / averageCount;
-                                    double den = ctrlRecord.getCounts() / ctrlAverageCount;
+                                if (ctrlRecord != null && ctrlRecord.getBaseCounts() > 0) {
+                                    double num = rec.getBaseCounts() / averageCount;
+                                    double den = ctrlRecord.getBaseCounts() / ctrlAverageCount;
                                     score = num / den;
                                 }
                             } else if (displayOption == MatrixType.DIFF && hasControl) {
                                 ContactRecord ctrlRecord = controlRecords.get(rec.getKey());
-                                if (ctrlRecord != null && ctrlRecord.getCounts() > 0) {
-                                    double num = rec.getCounts() / averageCount;
-                                    double den = ctrlRecord.getCounts() / ctrlAverageCount;
+                                if (ctrlRecord != null && ctrlRecord.getBaseCounts() > 0) {
+                                    double num = rec.getBaseCounts() / averageCount;
+                                    double den = ctrlRecord.getBaseCounts() / ctrlAverageCount;
                                     score = (num - den) * averageAcrossMapAndControl;
                                 }
                             } else {
-                                score = rec.getCounts();
+                                score = rec.getBaseCounts();
                             }
                             if (Double.isNaN(score)) continue;
 
@@ -635,7 +697,7 @@ class HeatmapRenderer {
                 for (ContactRecord rec : b.getContactRecords()) {
                     // Filter diagonal
                     if (Math.abs(rec.getBinX() - rec.getBinY()) > 1) {
-                        float val = rec.getCounts();  // view with average multiplied
+                        float val = rec.getBaseCounts();  // view with average multiplied
 
                         dal.add(val);
                     }
