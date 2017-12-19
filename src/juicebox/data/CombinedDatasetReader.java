@@ -56,6 +56,18 @@ public class CombinedDatasetReader implements DatasetReader {
         this.readers = readers;
     }
 
+    /*
+    public CombinedDatasetReader(List<Dataset> datasets, boolean isRGB) {
+        readers = new ArrayList<>();
+        for (Dataset d : datasets) {
+            readers.add((DatasetReaderV2) d.getReader());
+            version = Math.min(version, d.getVersion());
+        }
+
+        return mergeDatasets(tmpDatasets, isRGB);
+    }
+    */
+
     @Override
     public Dataset read() throws IOException {
         // Temporarily create a dataset for each reader, then merge them
@@ -68,7 +80,6 @@ public class CombinedDatasetReader implements DatasetReader {
         }
 
         return mergeDatasets(tmpDatasets);
-
     }
 
     @Override
@@ -116,28 +127,49 @@ public class CombinedDatasetReader implements DatasetReader {
         return allBoxes;
     }
 
-    /**
-     * @param key -- string identifier for matrix, concatenation of chromosome names
-     * @return Merged matrices read in
-     * @throws IOException
-     */
-    @Override
+    public static Matrix mergeMatrices(List<Pair<RGBButton.Channel, Matrix>> matrixList, boolean hasFrags) {
 
-    public Matrix readMatrix(String key) throws IOException {
-        //
-        List<Pair<RGBButton.Channel, Matrix>> tmpDatasets = new ArrayList<>();
-        for (DatasetReader r : readers) {
-            if (!r.getActiveChannel().equals(RGBButton.Channel.NONE)) {
-                try {
-                    Matrix mtrx = r.readMatrix(key);
-                    tmpDatasets.add(new Pair<>(r.getActiveChannel(), mtrx));
-                } catch (Exception ee) {
-                    System.err.println("Unable to read matrix for " + key);
+        Map<String, Double[]> averageRGBCount = new HashMap<>();
+        Map<String, Double> averageCount = new HashMap<>();
+        for (Pair<RGBButton.Channel, Matrix> pair : matrixList) {
+            Matrix matrix = pair.getSecond();
+            for (MatrixZoomData zd : matrix.bpZoomData) {
+                updateMergeAvgs(zd, averageCount, averageRGBCount, pair.getFirst());
+            }
+            if (hasFrags) {
+                for (MatrixZoomData zd : matrix.fragZoomData) {
+                    updateMergeAvgs(zd, averageCount, averageRGBCount, pair.getFirst());
                 }
             }
         }
 
-        return mergeMatrices(tmpDatasets);
+        Matrix mergedMatrix = matrixList.get(0).getSecond();
+
+        for (MatrixZoomData zd : mergedMatrix.bpZoomData) {
+            //zd.reader = this; todo mss why is this needed
+            String key = zd.getKey();
+            if (averageCount.containsKey(key)) {
+                zd.setAverageCount(averageCount.get(key));
+                if (averageRGBCount.containsKey(key) || averageRGBCount.get(key) == null) {
+                    zd.setAverageRGBCount(averageRGBCount.get(key));
+                } else {
+                    System.err.println("why is package getting dropped??? " + key);
+                }
+            }
+        }
+        if (hasFrags) {
+            for (MatrixZoomData zd : mergedMatrix.fragZoomData) {
+                //zd.reader = this; todo mss why is this needed
+                String key = zd.getKey();
+                if (averageCount.containsKey(key)) {
+                    zd.setAverageCount(averageCount.get(key));
+                    zd.setAverageRGBCount(averageRGBCount.get(key));
+                }
+            }
+        } else {
+            mergedMatrix.fragZoomData = null;
+        }
+        return mergedMatrix;
     }
 
     @Override
@@ -486,54 +518,8 @@ public class CombinedDatasetReader implements DatasetReader {
         return newGraph.toString();
     }
 
-
-    private Matrix mergeMatrices(List<Pair<RGBButton.Channel, Matrix>> matrixList) {
-
-        Map<String, Double[]> averageRGBCount = new HashMap<>();
-        Map<String, Double> averageCount = new HashMap<>();
-        for (Pair<RGBButton.Channel, Matrix> pair : matrixList) {
-            Matrix matrix = pair.getSecond();
-            for (MatrixZoomData zd : matrix.bpZoomData) {
-                updateMergeAvgs(zd, averageCount, averageRGBCount, pair.getFirst());
-            }
-            if (hasFrags) {
-                for (MatrixZoomData zd : matrix.fragZoomData) {
-                    updateMergeAvgs(zd, averageCount, averageRGBCount, pair.getFirst());
-                }
-            }
-        }
-
-        Matrix mergedMatrix = matrixList.get(0).getSecond();
-
-        for (MatrixZoomData zd : mergedMatrix.bpZoomData) {
-            zd.reader = this;
-            String key = zd.getKey();
-            if (averageCount.containsKey(key)) {
-                zd.setAverageCount(averageCount.get(key));
-                if (averageRGBCount.containsKey(key) || averageRGBCount.get(key) == null) {
-                    zd.setAverageRGBCount(averageRGBCount.get(key));
-                } else {
-                    System.err.println("why is package getting dropped??? " + key);
-                }
-            }
-        }
-        if (hasFrags) {
-            for (MatrixZoomData zd : mergedMatrix.fragZoomData) {
-                zd.reader = this;
-                String key = zd.getKey();
-                if (averageCount.containsKey(key)) {
-                    zd.setAverageCount(averageCount.get(key));
-                    zd.setAverageRGBCount(averageRGBCount.get(key));
-                }
-            }
-        } else {
-            mergedMatrix.fragZoomData = null;
-        }
-        return mergedMatrix;
-    }
-
-    private void updateMergeAvgs(MatrixZoomData zd, Map<String, Double> averageCount,
-                                 Map<String, Double[]> averageRGBCount, RGBButton.Channel channel) {
+    private static void updateMergeAvgs(MatrixZoomData zd, Map<String, Double> averageCount,
+                                        Map<String, Double[]> averageRGBCount, RGBButton.Channel channel) {
         String key = zd.getKey();
         Double avg = averageCount.get(key);
         Double[] avgRGB = averageRGBCount.get(key);
@@ -561,7 +547,7 @@ public class CombinedDatasetReader implements DatasetReader {
      * @param blockKey
      * @return new Block
      */
-    private Block mergeBlocks(List<Pair<RGBButton.Channel, Block>> blockList, String blockKey) {
+    public static Block mergeBlocks(List<Pair<RGBButton.Channel, Block>> blockList, String blockKey) {
         // First combine contact records for all blocks
         //final Pair<RGBButton.Channel,Block> firstBlock = blockList.get(0);
         //int repSize = firstBlock.getSecond().getContactRecords(firstBlock.getFirst()).size();
@@ -595,6 +581,71 @@ public class CombinedDatasetReader implements DatasetReader {
 
         List<ContactRecord> mergedRecords = new ArrayList<>(mergedRecordMap.values());
         return new Block(blockNumber, mergedRecords, blockKey);
+    }
+
+    public static List<Block> mergeBlocksList(List<Pair<RGBButton.Channel, List<Block>>> blockLists) {
+
+        Map<Integer, Map<String, ContactRecord>> mergedRecordMap = new HashMap<>();
+        Map<Integer, String> uids = new HashMap<>();
+
+        for (Pair<RGBButton.Channel, List<Block>> pair : blockLists) {
+            RGBButton.Channel channel = pair.getFirst();
+            List<Block> bs = pair.getSecond();
+            for (Block b : bs) {
+                Collection<ContactRecord> records = b.getContactRecords();
+                int blockNumber = b.getNumber();
+                uids.put(blockNumber, b.getUniqueRegionID());
+
+                if (!mergedRecordMap.containsKey(blockNumber)) {
+                    int repSize = b.getContactRecords().size();
+                    mergedRecordMap.put(blockNumber, new HashMap<String, ContactRecord>(repSize * 2));
+                }
+
+                for (ContactRecord rec : records) {
+                    String key = rec.getBinX() + "_" + rec.getBinY();
+
+                    if (!mergedRecordMap.get(blockNumber).containsKey(key)) {
+                        ContactRecord mergedRecord = new ContactRecord(rec.getBinX(), rec.getBinY(), rec.getBaseCounts(), channel);
+                        mergedRecordMap.get(blockNumber).put(key, mergedRecord);
+                    } else {
+                        mergedRecordMap.get(blockNumber).get(key).incrementCount(channel, rec.getBaseCounts());
+                    }
+                }
+            }
+        }
+
+        List<Block> finalBlocks = new ArrayList<>();
+
+        for (Integer blockNumber : mergedRecordMap.keySet()) {
+            List<ContactRecord> mergedRecords = new ArrayList<>(mergedRecordMap.get(blockNumber).values());
+            finalBlocks.add(new Block(blockNumber, mergedRecords, uids.get(blockNumber)));
+        }
+
+        return finalBlocks;
+    }
+
+    /**
+     * @param key -- string identifier for matrix, concatenation of chromosome names
+     * @return Merged matrices read in
+     * @throws IOException
+     */
+    @Override
+
+    public Matrix readMatrix(String key) throws IOException {
+        //
+        List<Pair<RGBButton.Channel, Matrix>> tmpDatasets = new ArrayList<>();
+        for (DatasetReader r : readers) {
+            if (!r.getActiveChannel().equals(RGBButton.Channel.NONE)) {
+                try {
+                    Matrix mtrx = r.readMatrix(key);
+                    tmpDatasets.add(new Pair<>(r.getActiveChannel(), mtrx));
+                } catch (Exception ee) {
+                    System.err.println("Unable to read matrix for " + key);
+                }
+            }
+        }
+
+        return mergeMatrices(tmpDatasets, hasFrags);
     }
 
 }

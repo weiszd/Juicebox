@@ -187,10 +187,10 @@ public class SuperAdapter {
         mainViewPanel.updatePrevStateNameFromImport(path);
     }
 
-    public void loadFromListActionPerformed(boolean control) {
+    public void loadFromListActionPerformed(boolean control, boolean isBonus) {
         UnsavedAnnotationWarning unsaved = new UnsavedAnnotationWarning(this);
         if (unsaved.checkAndDelete()) {
-            HiCFileLoader.loadFromListActionPerformed(this, control);
+            HiCFileLoader.loadFromListActionPerformed(this, control, isBonus);
         }
     }
 

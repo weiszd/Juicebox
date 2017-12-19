@@ -122,7 +122,7 @@ public class MainMenuBar extends JMenuBar {
         loadControlFromList.setText("Open as Control...");
         loadControlFromList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                superAdapter.loadFromListActionPerformed(true);
+                superAdapter.loadFromListActionPerformed(true, false);
             }
         });
         loadControlFromList.setEnabled(false);
@@ -130,11 +130,18 @@ public class MainMenuBar extends JMenuBar {
         JMenuItem openItem = new JMenuItem("Open...");
         openItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                superAdapter.loadFromListActionPerformed(false);
+                superAdapter.loadFromListActionPerformed(false, false);
             }
         });
         fileMenu.add(openItem);
         fileMenu.add(loadControlFromList);
+
+        JMenuItem bonusItem = new JMenuItem("Open bonus...");
+        bonusItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                superAdapter.loadFromListActionPerformed(true, true);
+            }
+        });
 
         recentMapMenu = new RecentMenu("Open Recent", recentMapListMaxItems, recentMapEntityNode, HiCGlobals.menuType.MAP) {
 

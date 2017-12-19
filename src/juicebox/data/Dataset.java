@@ -63,6 +63,10 @@ public class Dataset {
     private List<NormalizationType> normalizationTypes;
     private ChromosomeHandler chromosomeHandler;
 
+    public DatasetReader getReader() {
+        return reader;
+    }
+
     public Dataset(DatasetReader reader) {
         this.reader = reader;
         eigenvectorCache = new LRUCache<>(25);

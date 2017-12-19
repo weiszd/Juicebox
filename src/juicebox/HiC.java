@@ -1264,6 +1264,52 @@ public class HiC {
         }
     }
 
+
+    public List<Block> getBlockPart1(int x, int y, int maxX, int maxY, final NormalizationType no,
+                                     boolean isImportant) {
+        List<Pair<RGBButton.Channel, List<Block>>> blockList = new ArrayList<>();
+
+        try {
+            List<Block> cb0 = getBonusZd(0).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.RED, cb0));
+
+            List<Block> cb1 = getBonusZd(1).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.GREEN, cb1));
+
+            List<Block> cb2 = getBonusZd(2).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.BLUE, cb2));
+
+            return CombinedDatasetReader.mergeBlocksList(blockList);
+        } catch (Exception ee) {
+            System.err.println("Something failed :(");
+        }
+
+        return new ArrayList<>();
+    }
+
+    public List<Block> getBlockPart2(int x, int y, int maxX, int maxY, final NormalizationType no,
+                                     boolean isImportant) {
+        List<Pair<RGBButton.Channel, List<Block>>> blockList = new ArrayList<>();
+
+        try {
+            List<Block> cb3 = getBonusZd(3).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.RED, cb3));
+
+            List<Block> cb4 = getBonusZd(4).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.GREEN, cb4));
+
+            List<Block> cb5 = getBonusZd(5).getNormalizedBlocksOverlapping(x, y, maxX, maxY, no, isImportant);
+            blockList.add(new Pair<>(RGBButton.Channel.BLUE, cb5));
+
+            return CombinedDatasetReader.mergeBlocksList(blockList);
+        } catch (Exception ee) {
+            System.err.println("Something failed :(");
+        }
+
+        return new ArrayList<>();
+    }
+
+
     // use REVERSE for only undoing and redoing zoom actions
     public enum ZoomCallType {
         STANDARD, DRAG, DIRECT, INITIAL, REVERSE

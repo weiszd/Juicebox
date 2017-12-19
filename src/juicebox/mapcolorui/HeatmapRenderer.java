@@ -289,7 +289,7 @@ class HeatmapRenderer {
                 }
             } else if (displayOption == MatrixType.VS &&
                     HiCGlobals.isDarkulaModeEnabled &&
-                    hic.isBonusLoaded() && hic.getNumBonusDatasets() == 6) {
+                    hic.isBonusLoaded() && hic.getNumBonusDatasets() >= 6) {
 
                 List<Block> comboBlocks = new ArrayList<>();
                 List<MatrixZoomData> zd6 = new ArrayList<>();
@@ -316,18 +316,16 @@ class HeatmapRenderer {
 
                 double averageAcrossMapAndControl = totalAverages / 6;
 
-                MatrixZoomData zd123, zd456;
-/*
-                if (zd123 != null && blocks123 != null) {
-                    for (Block b : blocks123) {
+                List<Block> blocks012 = hic.getBlockPart1(x, y, maxX, maxY, normalizationType, isImportant);
+                List<Block> blocks345 = hic.getBlockPart2(x, y, maxX, maxY, normalizationType, isImportant);
+
+
+                if (blocks012 != null) {
+                    for (Block b : blocks012) {
 
                         Collection<ContactRecord> recs = b.getContactRecords();
                         if (recs != null) {
                             for (ContactRecord rec : recs) {
-
-                                double score = rec.getCounts() / averageCount;
-                                score = score * averageAcrossMapAndControl;
-                                if (Double.isNaN(score)) continue;
 
                                 int binX = rec.getBinX();
                                 int binY = rec.getBinY();
@@ -335,7 +333,21 @@ class HeatmapRenderer {
                                 int px = binX - originX;
                                 int py = binY - originY;
 
-                                Color color = cs.getColor((float) score);
+                                double[] scoreRGB = rec.getRGBCounts();
+
+                                if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
+
+                                scoreRGB[0] = scoreRGB[0] / averages.get(0);
+                                scoreRGB[1] = scoreRGB[1] / averages.get(1);
+                                scoreRGB[2] = scoreRGB[2] / averages.get(2);
+                                scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
+                                scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
+                                scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
+
+                                Color colorR = cs.getColor((float) scoreRGB[0]);
+                                Color colorG = cs.getColor((float) scoreRGB[1]);
+                                Color colorB = cs.getColor((float) scoreRGB[2]);
+                                Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
                                 g.setColor(color);
 
                                 if (px > -1 && py > -1 && px <= width && py <= height) {
@@ -345,20 +357,29 @@ class HeatmapRenderer {
                         }
                     }
                 }
-                if (zd456 != null && blocks456 != null) {
-                    for (Block b : blocks456) {
+                if (blocks345 != null) {
+                    for (Block b : blocks345) {
                         Collection<ContactRecord> recs = b.getContactRecords();
                         if (recs != null) {
                             for (ContactRecord rec : recs) {
 
-                                double score = rec.getCounts() / ctrlAverageCount;
-                                score = score * averageAcrossMapAndControl;
-                                if (Double.isNaN(score)) continue;
-
                                 int binX = rec.getBinX();
                                 int binY = rec.getBinY();
 
-                                Color color = cs.getColor((float) score);
+                                double[] scoreRGB = rec.getRGBCounts();
+                                if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
+
+                                scoreRGB[0] = scoreRGB[0] / averages.get(3);
+                                scoreRGB[1] = scoreRGB[1] / averages.get(4);
+                                scoreRGB[2] = scoreRGB[2] / averages.get(5);
+                                scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
+                                scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
+                                scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
+
+                                Color colorR = cs.getColor((float) scoreRGB[0]);
+                                Color colorG = cs.getColor((float) scoreRGB[1]);
+                                Color colorB = cs.getColor((float) scoreRGB[2]);
+                                Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
                                 g.setColor(color);
 
                                 if (sameChr && (rec.getBinX() != rec.getBinY())) {
@@ -372,8 +393,6 @@ class HeatmapRenderer {
                         }
                     }
                 }
-
-*/
 
 
             } else if (displayOption == MatrixType.VS || displayOption == MatrixType.OEVS) {
@@ -418,43 +437,12 @@ class HeatmapRenderer {
                                     } else {
                                         continue;
                                     }
+                                }
+                                Color color = cs.getColor((float) score);
+                                g.setColor(color);
 
-
-                                    Color color = cs.getColor((float) score);
-                                    g.setColor(color);
-
-                                    if (px > -1 && py > -1 && px <= width && py <= height) {
-                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
-                                    }
-                                } else {
-
-                                    double[] scoreRGB = rec.getRGBCounts();
-                                    Double[] averageRGBCount = zd.getAverageRGBCount();
-
-                                    System.out.println("ww " + Arrays.toString(scoreRGB));
-                                    System.out.println("ww " + Arrays.toString(averageRGBCount));
-                                    if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
-
-                                    scoreRGB[0] = scoreRGB[0] / averageRGBCount[0];
-                                    scoreRGB[1] = scoreRGB[1] / averageRGBCount[1];
-                                    scoreRGB[2] = scoreRGB[2] / averageRGBCount[2];
-                                    scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
-                                    scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
-                                    scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
-
-                                    System.out.println(Arrays.toString(scoreRGB));
-                                    System.out.println(Arrays.toString(averageRGBCount));
-
-                                    Color colorR = cs.getColor((float) scoreRGB[0]);
-                                    Color colorG = cs.getColor((float) scoreRGB[1]);
-                                    Color colorB = cs.getColor((float) scoreRGB[2]);
-                                    Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
-                                    g.setColor(color);
-
-                                    if (px > -1 && py > -1 && px <= width && py <= height) {
-                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
-                                    }
-
+                                if (px > -1 && py > -1 && px <= width && py <= height) {
+                                    g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
                                 }
                             }
                         }
@@ -482,44 +470,16 @@ class HeatmapRenderer {
                                     } else {
                                         continue;
                                     }
+                                }
 
+                                Color color = cs.getColor((float) score);
+                                g.setColor(color);
 
-                                    Color color = cs.getColor((float) score);
-                                    g.setColor(color);
-
-                                    if (sameChr && (rec.getBinX() != rec.getBinY())) {
-                                        int px = (binY - originX);
-                                        int py = (binX - originY);
-                                        if (px > -1 && py > -1 && px <= width && py <= height) {
-                                            g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
-                                        }
-                                    }
-
-                                } else {
-
-                                    double[] scoreRGB = rec.getRGBCounts();
-                                    Double[] ctrlAverageRGBCount = controlZD == null ? new Double[3] : controlZD.getAverageRGBCount();
-                                    if (ArrayTools.isDoubleArrayNaNOrEmpty(scoreRGB)) continue;
-
-                                    scoreRGB[0] = scoreRGB[0] / ctrlAverageRGBCount[0];
-                                    scoreRGB[1] = scoreRGB[1] / ctrlAverageRGBCount[1];
-                                    scoreRGB[2] = scoreRGB[2] / ctrlAverageRGBCount[2];
-                                    scoreRGB[0] = scoreRGB[0] * averageAcrossMapAndControl;
-                                    scoreRGB[1] = scoreRGB[1] * averageAcrossMapAndControl;
-                                    scoreRGB[2] = scoreRGB[2] * averageAcrossMapAndControl;
-
-                                    Color colorR = cs.getColor((float) scoreRGB[0]);
-                                    Color colorG = cs.getColor((float) scoreRGB[1]);
-                                    Color colorB = cs.getColor((float) scoreRGB[2]);
-                                    Color color = new Color(colorR.getRed(), colorG.getRed(), colorB.getRed());
-                                    g.setColor(color);
-
-                                    if (sameChr && (rec.getBinX() != rec.getBinY())) {
-                                        int px = (binY - originX);
-                                        int py = (binX - originY);
-                                        if (px > -1 && py > -1 && px <= width && py <= height) {
-                                            g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
-                                        }
+                                if (sameChr && (rec.getBinX() != rec.getBinY())) {
+                                    int px = (binY - originX);
+                                    int py = (binX - originY);
+                                    if (px > -1 && py > -1 && px <= width && py <= height) {
+                                        g.fillRect(px, py, HiCGlobals.BIN_PIXEL_WIDTH, HiCGlobals.BIN_PIXEL_WIDTH);
                                     }
                                 }
                             }

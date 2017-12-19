@@ -85,7 +85,7 @@ public class HiCFileLoader {
         }
     }
 
-    public static void loadFromURLActionPerformed(SuperAdapter superAdapter, boolean control) {
+    public static void loadFromURLActionPerformed(SuperAdapter superAdapter, boolean control, boolean isBonus) {
         String urlString = JOptionPane.showInputDialog("Enter URLs (separated by commas): ");
 
         if (urlString != null && urlString.length() > 0) {
@@ -101,14 +101,14 @@ public class HiCFileLoader {
                     urlList.add(url);
                     title.append((new URL(url)).getPath()).append(" ");
                 }
-                superAdapter.safeLoad(urlList, control, title.toString(), false);
+                superAdapter.safeLoad(urlList, control, title.toString(), isBonus);
             } catch (MalformedURLException e1) {
                 superAdapter.launchFileLoadingError(urlString);
             }
         }
     }
 
-    public static void loadFromListActionPerformed(SuperAdapter superAdapter, boolean control) {
+    public static void loadFromListActionPerformed(SuperAdapter superAdapter, boolean control, boolean isBonus) {
 
         if (loadDialog == null) {
             initProperties();
@@ -119,6 +119,7 @@ public class HiCFileLoader {
             }
         }
         loadDialog.setControl(control);
+        loadDialog.setBonus(isBonus);
         loadDialog.setVisible(true);
     }
 

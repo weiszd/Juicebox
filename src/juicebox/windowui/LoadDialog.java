@@ -52,10 +52,15 @@ public class LoadDialog extends JDialog implements TreeSelectionListener, Action
     private JSplitButton openButton;
     private JMenuItem openButton30;
     private JButton cancelButton;
-    private JButton localButton, bonusButton;
+    private JButton localButton;
     private JButton urlButton;
     private JTextField fTextField;
     private boolean control;
+    private boolean isBonus = false;
+
+    public void setBonus(boolean bonus) {
+        this.isBonus = bonus;
+    }
 
     public LoadDialog(MainWindow mainWindow, Properties properties, SuperAdapter superAdapter) {
         super(mainWindow, "Select file(s) to open");
@@ -122,10 +127,6 @@ public class LoadDialog extends JDialog implements TreeSelectionListener, Action
         localButton.addActionListener(this);
         localButton.setPreferredSize(new Dimension((int) localButton.getPreferredSize().getWidth(), (int) openButton.getPreferredSize().getHeight()));
 
-        bonusButton = new JButton("Bonus...");
-        bonusButton.addActionListener(this);
-        bonusButton.setPreferredSize(new Dimension((int) bonusButton.getPreferredSize().getWidth(), (int) openButton.getPreferredSize().getHeight()));
-
         urlButton = new JButton("URL...");
         urlButton.addActionListener(this);
         urlButton.setPreferredSize(new Dimension((int) urlButton.getPreferredSize().getWidth(), (int) openButton.getPreferredSize().getHeight()));
@@ -136,7 +137,6 @@ public class LoadDialog extends JDialog implements TreeSelectionListener, Action
 
         buttonPanel.add(openButton);
         buttonPanel.add(localButton);
-        buttonPanel.add(bonusButton);
         buttonPanel.add(urlButton);
         buttonPanel.add(cancelButton);
 
@@ -324,13 +324,10 @@ public class LoadDialog extends JDialog implements TreeSelectionListener, Action
                 } else if (e.getSource() == openButton30) {
                     loadFiles(tree.getSelectionPaths(), "30");
                 } else if (e.getSource() == localButton) {
-                    LAST_LOADED_HIC_FILE_PATH = HiCFileLoader.loadMenuItemActionPerformed(superAdapter, control, LAST_LOADED_HIC_FILE_PATH, false);
-                    setVisible(false);
-                } else if (e.getSource() == bonusButton) {
-                    LAST_LOADED_HIC_FILE_PATH = HiCFileLoader.loadMenuItemActionPerformed(superAdapter, control, LAST_LOADED_HIC_FILE_PATH, control);
+                    LAST_LOADED_HIC_FILE_PATH = HiCFileLoader.loadMenuItemActionPerformed(superAdapter, control, LAST_LOADED_HIC_FILE_PATH, isBonus);
                     setVisible(false);
                 } else if (e.getSource() == urlButton) {
-                    HiCFileLoader.loadFromURLActionPerformed(superAdapter, control);
+                    HiCFileLoader.loadFromURLActionPerformed(superAdapter, control, isBonus);
                     setVisible(false);
                 } else if (e.getSource() == cancelButton) {
                     setVisible(false);
@@ -372,7 +369,7 @@ public class LoadDialog extends JDialog implements TreeSelectionListener, Action
         }
 
         //code to add a recent file to the menu
-        superAdapter.safeLoad(urls, control, title.toString(), false);
+        superAdapter.safeLoad(urls, control, title.toString(), isBonus);
     }
 
 
