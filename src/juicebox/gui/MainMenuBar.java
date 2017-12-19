@@ -136,12 +136,13 @@ public class MainMenuBar extends JMenuBar {
         fileMenu.add(openItem);
         fileMenu.add(loadControlFromList);
 
-        JMenuItem bonusItem = new JMenuItem("Open bonus...");
+        JMenuItem bonusItem = new JMenuItem("Open Bonus...");
         bonusItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 superAdapter.loadFromListActionPerformed(true, true);
             }
         });
+        fileMenu.add(bonusItem);
 
         recentMapMenu = new RecentMenu("Open Recent", recentMapListMaxItems, recentMapEntityNode, HiCGlobals.menuType.MAP) {
 
