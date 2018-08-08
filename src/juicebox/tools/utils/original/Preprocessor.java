@@ -84,6 +84,7 @@ public class Preprocessor {
     private long masterIndexPositionPosition;
     private Map<String, ExpectedValueCalculation> expectedValueCalculations;
     private File tmpDir;
+    private int maxInMemoryBlockSize = 50000;
 
     public Preprocessor(File outputFile, String genomeId, ChromosomeHandler chromosomeHandler) {
         this.genomeId = genomeId;
@@ -874,6 +875,12 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
         }
     }
 
+    public void setMaxInMemoryBlockSize(int maxSize)
+    {
+        if (maxSize > 0)
+            maxInMemoryBlockSize = maxSize;
+    }
+
     public void setStatisticsFile(String statsOption) {
         statsFileName = statsOption;
     }
@@ -913,6 +920,7 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
 
         BlockPP getBlock();
 
+        void Close();
     }
 
     public static class IndexEntry {
@@ -937,31 +945,44 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
         final File file;
         BlockPP block;
         long filePosition;
+        long fileLength;
+        FileInputStream fis = null;
+        LittleEndianInputStream lis = null;
 
         BlockQueueFB(File file) {
             this.file = file;
             try {
+
+                fileLength = file.length();
+                fis = new FileInputStream(file);
                 advance();
             } catch (IOException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
 
+        public void Close()
+        {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         public void advance() throws IOException {
 
-            if (filePosition >= file.length()) {
+            if (filePosition >= fileLength) {
                 block = null;
                 return;
             }
 
-            FileInputStream fis = null;
-
             try {
-                fis = new FileInputStream(file);
-                fis.getChannel().position(filePosition);
 
-
-                LittleEndianInputStream lis = new LittleEndianInputStream(fis);
+                //fis.getChannel().position(filePosition);
+                lis = new LittleEndianInputStream(fis);
                 int blockNumber = lis.readInt();
                 int nRecords = lis.readInt();
 
@@ -986,7 +1007,8 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
                 filePosition = fis.getChannel().position();
 
             } finally {
-                if (fis != null) fis.close();
+                //if (fis != null) fis.close();
+                //if (lis != null) lis.close();
             }
         }
 
@@ -1041,6 +1063,8 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
                 return blocks.get(idx);
             }
         }
+
+        public void Close(){}
     }
 
     /**
@@ -1389,17 +1413,22 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
 
                 block = new BlockPP(blockNumber);
                 blocks.put(blockNumber, block);
-            }
-            block.incrementCount(xBin, yBin, score);
+                block.incrementCount(xBin, yBin, score);
 
-            // If too many blocks write to tmp directory
-            if (blocks.size() > 1000) {
-                File tmpfile = tmpDir == null ? File.createTempFile("blocks", "bin") : File.createTempFile("blocks", "bin", tmpDir);
-                //System.out.println(chr1.getName() + "-" + chr2.getName() + " Dumping blocks to " + tmpfile.getAbsolutePath());
-                dumpBlocks(tmpfile);
-                tmpFiles.add(tmpfile);
-                tmpfile.deleteOnExit();
+                // If too many blocks write to tmp directory
+                if (blocks.size() > maxInMemoryBlockSize) {
+                    File tmpfile = tmpDir == null ? File.createTempFile("blocks", ".bin") : File.createTempFile("blocks", ".bin", tmpDir);
+                    if (HiCGlobals.printVerboseComments) {
+                        System.out.println(chr1.getName() + "-" + chr2.getName() + " Dumping blocks (" + blocks.size() + ") to " + tmpfile.getAbsolutePath());
+                    }
+                    dumpBlocks(tmpfile);
+                    tmpFiles.add(tmpfile);
+                    tmpfile.deleteOnExit();
+                }
             }
+            else
+                block.incrementCount(xBin, yBin, score);
+
         }
 
 
@@ -1519,12 +1548,8 @@ Long Range (>20Kb): 140,350  (11.35% / 47.73%)
 
             } while (activeList.size() > 0);
 
-
-            for (File f : tmpFiles) {
-                boolean result = f.delete();
-                if (!result) {
-                    System.out.println("Error while deleting file");
-                }
+            for (BlockQueue bq : activeList) {
+                bq.Close();
             }
 
             computeStats(sampledData);

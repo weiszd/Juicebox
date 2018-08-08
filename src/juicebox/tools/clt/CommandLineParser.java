@@ -55,6 +55,7 @@ public class CommandLineParser extends CmdLineParser {
     private static Option mapqOption = null;
     private static Option noFragNormOption = null;
     private static Option genomeWideOption = null;
+    private static Option maxInMemoryBlockSize = null;
 
     // sets of strings
     private static Option multipleChromosomesOption = null;
@@ -80,6 +81,7 @@ public class CommandLineParser extends CmdLineParser {
         mapqOption = addIntegerOption('q', "mapq");
 
         genomeWideOption = addIntegerOption('w', "genome_wide");
+        maxInMemoryBlockSize = addIntegerOption( 'b', "max_inmem_block_size");
 
         multipleChromosomesOption = addStringOption('c', "chromosomes");
         resolutionOption = addStringOption('r', "resolutions");
@@ -157,6 +159,7 @@ public class CommandLineParser extends CmdLineParser {
 
     public int getGenomeWideOption() { return optionToInt(genomeWideOption); }
 
+    public int getMaxInMemoryBlockSize() {return optionToInt(maxInMemoryBlockSize); }
 
     /**
      * String Set flags

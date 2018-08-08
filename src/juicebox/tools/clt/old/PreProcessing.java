@@ -93,6 +93,7 @@ public class PreProcessing extends JuiceboxCLT {
         preprocessor.setStatisticsFile(parser1.getStatsOption());
         preprocessor.setGraphFile(parser1.getGraphOption());
         preprocessor.setResolutions(parser1.getResolutionOption());
+        preprocessor.setMaxInMemoryBlockSize(parser1.getMaxInMemoryBlockSize());
         noNorm = parser1.getNoNormOption();
         genomeWide = parser1.getGenomeWideOption();
         noFragNorm = parser1.getNoFragNormOption();
