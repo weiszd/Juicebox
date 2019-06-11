@@ -24,6 +24,7 @@
 
 package juicebox.track.feature;
 
+import juicebox.HiCGlobals;
 import juicebox.data.HiCFileTools;
 import org.broad.igv.feature.Chromosome;
 
@@ -57,6 +58,7 @@ public class Feature2DList {
 
     public Feature2DList(Feature2DList list) {
         add(list);
+        defaultAttributes.putAll(list.defaultAttributes);
     }
 
     /**
@@ -125,7 +127,7 @@ public class Feature2DList {
 
     // Iterate through new features and see if there is any overlap
     // TODO: implement this more efficiently, maybe rtree
-    private static void addAllUnique(List<Feature2D> inputFeatures, List<Feature2D> existingFeatures) {
+    private synchronized static void addAllUnique(List<Feature2D> inputFeatures, List<Feature2D> existingFeatures) {
         for (Feature2D inputFeature : inputFeatures) {
             // Compare input with existing points
             if (!Feature2DTools.doesOverlap(inputFeature, existingFeatures)) {
@@ -172,7 +174,7 @@ public class Feature2DList {
      * @param chr2Idx Second chromosome index
      * @param feature feature to add
      */
-    public void add(int chr1Idx, int chr2Idx, Feature2D feature) {
+    public synchronized void add(int chr1Idx, int chr2Idx, Feature2D feature) {
 
         String key = getKey(chr1Idx, chr2Idx);
         addByKey(key, feature);
@@ -185,7 +187,7 @@ public class Feature2DList {
      * @param key     chromosomal pair key
      * @param feature to add
      */
-    public void addByKey(String key, Feature2D feature) {
+    public synchronized void addByKey(String key, Feature2D feature) {
 
         feature = updateAttributeForFeature(feature);
 
@@ -204,7 +206,7 @@ public class Feature2DList {
      * @param key      chromosomal pair key
      * @param features to add
      */
-    public void addByKey(String key, List<Feature2D> features) {
+    public synchronized void addByKey(String key, List<Feature2D> features) {
         features = updateAttributes(features);
         if (featureList.containsKey(key)) {
             featureList.get(key).addAll(features);
@@ -214,7 +216,7 @@ public class Feature2DList {
         }
     }
 
-    private Feature2D updateAttributeForFeature(Feature2D feature) {
+    private synchronized Feature2D updateAttributeForFeature(Feature2D feature) {
         if (defaultAttributes != null) {
             if (feature.getAttributeKeys() == null) {
                 for (String attribute : defaultAttributes.keySet()) {
@@ -234,7 +236,7 @@ public class Feature2DList {
         return feature;
     }
 
-    private List<Feature2D> updateAttributes(List<Feature2D> features) {
+    private synchronized List<Feature2D> updateAttributes(List<Feature2D> features) {
         processLists(new FeatureFunction() {
             @Override
             public void process(String chr, List<Feature2D> feature2DList) {
@@ -246,7 +248,7 @@ public class Feature2DList {
         return features;
     }
 
-    private void putFeature(String key, List<Feature2D> loops) {
+    private synchronized void putFeature(String key, List<Feature2D> loops) {
         featureList.put(key, loops);
     }
 
@@ -294,6 +296,7 @@ public class Feature2DList {
                         header.append("\t").append(key);
                     }
                     outputFilePrintWriter.println(header);
+                    outputFilePrintWriter.println("# juicer_tools version " + HiCGlobals.versionNum);
                     processLists(new FeatureFunction() {
                         @Override
                         public void process(String chr, List<Feature2D> feature2DList) {
@@ -389,7 +392,7 @@ public class Feature2DList {
      * @param inputList
      * @return
      */
-    public void add(Feature2DList inputList) {
+    public synchronized void add(Feature2DList inputList) {
 
         Set<String> inputKeySet = inputList.getKeySet();
 
@@ -413,7 +416,7 @@ public class Feature2DList {
      * @param inputList
      * @return
      */
-    public void addUnique(Feature2DList inputList) {
+    public synchronized void addUnique(Feature2DList inputList) {
 
         Set<String> inputKeySet = inputList.getKeySet();
 
@@ -449,23 +452,23 @@ public class Feature2DList {
         return output;
     }
 
-    public void setDefaultAttributes(Map<String, String> defaultAttributes) {
+    public synchronized void setDefaultAttributes(Map<String, String> defaultAttributes) {
         this.defaultAttributes = defaultAttributes;
     }
 
 
-    public void addDefaultAttribute(String attribute, String value) {
+    public synchronized void addDefaultAttribute(String attribute, String value) {
         defaultAttributes.put(attribute, value);
         addAttributeFieldToAll(attribute, value);
     }
 
 
-    public void addAttributeFieldToAll(final String newAttributeName, final String newAttributeValue) {
+    public synchronized void addAttributeFieldToAll(final String newAttributeName, final String newAttributeValue) {
         processLists(new FeatureFunction() {
             @Override
             public void process(String chr, List<Feature2D> feature2DList) {
                 for (Feature2D feature : feature2DList) {
-                    if (!feature.containsAttributeKey(newAttributeName))
+                    if (feature.doesNotContainAttributeKey(newAttributeName))
                         feature.addStringAttribute(newAttributeName, newAttributeValue);
                 }
             }
@@ -522,7 +525,7 @@ public class Feature2DList {
      *
      * @param function
      */
-    public void processLists(FeatureFunction function) {
+    public synchronized void processLists(FeatureFunction function) {
         List<String> keys = new ArrayList<>(featureList.keySet());
         Collections.sort(keys);
         for (String key : keys) {
@@ -559,7 +562,7 @@ public class Feature2DList {
         return total;
     }
 
-    public boolean checkAndRemoveFeature(int idx1, int idx2, Feature2D feature) {
+    public synchronized boolean checkAndRemoveFeature(int idx1, int idx2, Feature2D feature) {
         boolean somethingWasDeleted = false;
         String key = getKey(idx1, idx2);
 

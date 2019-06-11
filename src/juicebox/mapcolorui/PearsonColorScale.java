@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2011-2017 Broad Institute, Aiden Lab
+ * Copyright (c) 2011-2019 Broad Institute, Aiden Lab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,14 @@ import java.util.Map;
  * @author Neva Cherniavsky
  * @since 3/22/12
  */
-public class HiCColorScale {
+public class PearsonColorScale {
 
     private final Map<String, Float> posMinMap = new HashMap<>();
     private final Map<String, Float> posMaxMap = new HashMap<>();
     private final Map<String, Float> negMinMap = new HashMap<>();
     private final Map<String, Float> negMaxMap = new HashMap<>();
 
-    public HiCColorScale() {
+    public PearsonColorScale() {
     }
 
     public float getPosMax(String key) {
@@ -113,8 +113,8 @@ public class HiCColorScale {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public boolean containsKey(String key) {
-        return negMinMap.containsKey(key) && posMaxMap.containsKey(key);
+    public boolean doesNotContainKey(String key) {
+        return !negMinMap.containsKey(key) || !posMaxMap.containsKey(key);
     }
 
     public void resetValues(String key) {
