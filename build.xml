@@ -285,6 +285,7 @@
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-linux-ppc_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-linux-x86_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-apple-x86_64.jar"/>
+            <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-windows-x86_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcudaUtils-0.0.4.jar"/>
             <zipfileset src="${basedir}/lib/general/guava-18.0.jar"/>
             <zipfileset src="${basedir}/lib/general/VectorGraphics2D-0.11.jar"/>
@@ -310,6 +311,7 @@
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-linux-ppc_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-linux-x86_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-apple-x86_64.jar"/>
+	          <zipfileset src="${basedir}/lib/jcuda/jcuda-natives-0.8.0-windows-x86_64.jar"/>
             <zipfileset src="${basedir}/lib/jcuda/jcudaUtils-0.0.4.jar"/>
         </jar>
         <copy file="${temp.jar.path.juicer_tools.jar}"
